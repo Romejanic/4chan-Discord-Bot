@@ -34,6 +34,7 @@ function registerCommands(config) {
         let authorUsername = `${message.author.username}#${message.author.discriminator}`;
         if(authorUsername !== config.editor_username) {
             message.channel.send(strings["editor_required"]);
+            return;
         }
         message.reply(args.join(" "));
     };

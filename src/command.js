@@ -1,3 +1,5 @@
+const RichEmbed = require("discord.js").RichEmbed;
+
 const strings = require("../strings.json");
 const commands = {};
 
@@ -27,7 +29,16 @@ function parseCommand(message, prefix) {
 function registerCommands(config) {
     // help
     commands["help"] = (message, args) => {
-        message.reply("you called for help!");
+        const embed = new RichEmbed().setTitle(strings["help_title"]);
+        for(let cmd in commands) {
+            embed.addField(`${config.prefix} ${cmd}`, strings[cmd+"_help"]);
+        }
+        embed.addFooter("Created by @memedealer#6607 | [GitHub](https://github.com/Romejanic/4chan-Discord-Bot)");
+        message.channel.send(embed);
+    };
+    // random
+    commands["random"] = (message, args) => {
+
     };
     // debug
     commands["debug"] = (message, args) => {

@@ -1,0 +1,7 @@
+{
+	"auth": {
+		"token": "ENTER-YOUR-TOKEN-HERE"
+	},
+
+	"default_board": "b"
+}

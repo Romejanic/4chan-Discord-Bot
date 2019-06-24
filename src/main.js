@@ -1,6 +1,8 @@
 const Discord = require("discord.js");
 const fs = require("fs");
 
+const Commands = require("./command.js");
+
 // define functions
  
 function initBot() {
@@ -13,7 +15,7 @@ function initBot() {
 
 	// create client
 	let client = new Discord.Client();
-	registerClientEvents(client);
+	registerClientEvents(client, config);
 	client.login(config.auth.token);
 	console.log("[Client] Attempting login to Discord...");
 
@@ -39,9 +41,12 @@ function initBot() {
 	}
 }
 
-function registerClientEvents(client) {
+function registerClientEvents(client, config) {
 	client.on("ready", () => {
 		console.log("[Client] Successfully logged in to Discord!");
+	});
+	client.on("message", (message) => {
+		Commands.parse(message, config.prefix);
 	});
 }
 

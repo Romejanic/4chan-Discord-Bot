@@ -3,6 +3,7 @@
 
 # config
 /config.json
+/strings.json
 
 # misc
 .DS_Store

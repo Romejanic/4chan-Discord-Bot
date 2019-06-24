@@ -3,5 +3,6 @@
 		"token": "ENTER-YOUR-TOKEN-HERE"
 	},
 
-	"default_board": "b"
+	"default_board": "b",
+	"prefix": "+4chan"
 }

@@ -1,0 +1,17 @@
+{
+	"name": "4chan-discord-bot",
+	"version": "1.0.0",
+	"description": "A bot to pull random images off 4chan",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Romejanic/4chan-Discord-Bot"
+	},
+	"license": "MIT",
+	"author": {
+		"name": "Jack Davenport",
+		"email": "jack.davenport5011@gmail.com"
+	},
+	"dependencies": {
+		"discord.js": "^11.5.1"
+	}
+}

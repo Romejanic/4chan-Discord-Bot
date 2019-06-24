@@ -20,7 +20,7 @@ function initBot() {
 	console.log("[Client] Attempting login to Discord...");
 
 	// register commands
-	Commands.register();
+	Commands.register(config);
 
 	// register safe exit
 	process.on("SIGINT", () => {

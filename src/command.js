@@ -24,14 +24,18 @@ function parseCommand(message, prefix) {
     }
 }
 
-function registerCommands() {
+function registerCommands(config) {
     // help
     commands["help"] = (message, args) => {
         message.reply("you called for help!");
     };
-    // test
-    commands["test"] = (message, args) => {
-        message.reply(args.join(", "));
+    // debug
+    commands["debug"] = (message, args) => {
+        let authorUsername = `${message.author.username}#${message.author.discriminator}`;
+        if(authorUsername !== config.editor_username) {
+            message.channel.send(strings["editor_required"]);
+        }
+        message.reply(args.join(" "));
     };
 }
 

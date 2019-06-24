@@ -19,6 +19,9 @@ function initBot() {
 	client.login(config.auth.token);
 	console.log("[Client] Attempting login to Discord...");
 
+	// register commands
+	Commands.register();
+
 	// register safe exit
 	process.on("SIGINT", () => {
 		console.log("[Bot] Shutting down...");

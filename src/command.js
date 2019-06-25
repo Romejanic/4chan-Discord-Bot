@@ -14,16 +14,16 @@ function parseCommand(message, prefix, config) {
         return;
     }
     if(message.content.substring(0, prefix.length).toLowerCase() === prefix.toLowerCase()) {
-        let argumentText = message.content.substring(prefix.length).trim();
-        let arguments    = argumentText.split(" ");
+        let argText = message.content.substring(prefix.length).trim();
+        let args    = argText.split(" ");
 
-        if(arguments.length > 0 && arguments[0]) {
-            let commandName = arguments[0].toLowerCase();
-            arguments.splice(0, 1);
+        if(args.length > 0 && args[0]) {
+            let commandName = args[0].toLowerCase();
+            args.splice(0, 1);
 
             for(let cmd in commands) {
                 if(cmd === commandName) {
-                    commands[cmd](message, arguments);
+                    commands[cmd](message, args);
                     return;
                 }
             }
@@ -53,13 +53,7 @@ function registerCommands(config) {
     commands["random"] = (message, args) => {
         let board = config.default_board;
         if(args.length > 0) {
-            board = args[0];
-            if(board.startsWith("/")) {
-                board = board.substring(1, board.length);
-            }
-            if(board.endsWith("/")) {
-                board = board.substring(0, board.length - 1);
-            }
+            board = chan.getBoardName(args[0]);
         }
         
         if(board === "help") {
@@ -67,18 +61,7 @@ function registerCommands(config) {
         }
 
         chan.getRandomPost(board).then((post) => {
-            let postText = unescape(post.text.length > 2000 ? post.text.substring(0, 2000) + "..." : post.text);
-            postText = postText.replace(/<br>/gi, "\n");
-            postText = postText.replace("</span>", "");
-            postText = postText.replace("<span class=\"quote\">", "");
-        
-            let embed = new RichEmbed()
-                .setColor("#FED7B0")
-                .setTitle(strings["post_title"].format(post.id, post.author))
-                .setDescription(strings["post_desc"].format(postText, post.permalink))
-                .setImage(post.image)
-                .addField(strings["post_submitted"], post.timestamp);
-            message.channel.send(embed);
+            sendPost(post, message);
         }, (reason) => {
             if(reason.board_not_found) {
                 message.channel.send(strings["random_noboard"].format(reason.board_not_found));
@@ -86,6 +69,26 @@ function registerCommands(config) {
                 message.channel.send(strings["random_error"].format(reason));
             }
         });
+    };
+    // post
+    commands["post"] = (message, args) => {
+        if(args.length < 2) {
+            message.channel.send(strings["post_usage"].format(config.prefix));
+        } else {
+            let id = args[0];
+            let board = chan.getBoardName(args[1]);
+
+            chan.getPost(id, board).then((post) => {
+                console.log(post);
+                sendPost(post, message);
+            }, (reason) => {
+                if(reason.post_not_found) {
+                    message.channel.send(strings["post_nopost"].format(reason.post_not_found, board));
+                } else {
+                    message.channel.send(strings["random_error"].format(reason));
+                }
+            });
+        }
     };
     // debug
     commands["debug"] = (message, args) => {
@@ -120,6 +123,21 @@ function registerCommands(config) {
             }
         }
     };
+}
+
+function sendPost(post, message) {
+    let postText = unescape(post.text.length > 2000 ? post.text.substring(0, 2000) + "..." : post.text);
+    postText = postText.replace(/<br>/gi, "\n");
+    postText = postText.replace("</span>", "");
+    postText = postText.replace("<span class=\"quote\">", "");
+        
+    let embed = new RichEmbed()
+        .setColor("#FED7B0")
+        .setTitle(strings["post_title"].format(post.id, post.author))
+        .setDescription(strings["post_desc"].format(postText, post.permalink))
+        .setImage(post.image)
+        .addField(strings["post_submitted"], post.timestamp);
+    message.channel.send(embed);
 }
 
 function commandNotFound(command, prefix, message) {

@@ -33,6 +33,7 @@ function getRandomPost(board) {
                     catalog = JSON.parse(json);
                 } catch(e) {
                     reject(e);
+                    return;
                 }
                 
                 if(!catalog) {
@@ -50,6 +51,50 @@ function getRandomPost(board) {
     });
 }
 
+function getPost(id, board) {
+    return new Promise((resolve, reject) => {
+        https.get(apiUrl.format(board, `thread/${id}`), (res) => {
+            if(res.statusCode == 404) {
+                reject({ post_not_found: id });
+                return;
+            }
+
+            let json = "";
+            res.on("data", (data) => {
+                json += data.toString();
+            });
+            res.on("end", () => {
+                let thread;
+                try {
+                    thread = JSON.parse(json);
+                } catch(e) {
+                    reject(e);
+                    return;
+                }
+
+                if(!thread) {
+                    reject({ post_not_found: id });
+                    return;
+                }
+
+                resolve(getPostFromThread(thread.posts[0], board));
+            });
+        }).on("error", (err) => {
+            reject(err);
+        });
+    })
+}
+
+function getBoard(board) {
+    if(board.startsWith("/")) {
+        board = board.substring(1, board.length);
+    }
+    if(board.endsWith("/")) {
+        board = board.substring(0, board.length - 1);
+    }
+    return board;
+}
+
 // implement String.format as expected
 // Source: https://stackoverflow.com/questions/610406/javascript-equivalent-to-printf-string-format
 if (!String.prototype.format) {
@@ -64,5 +109,7 @@ if (!String.prototype.format) {
 }
 
 module.exports = {
-    getRandomPost: getRandomPost
+    getRandomPost: getRandomPost,
+    getPost: getPost,
+    getBoardName: getBoard
 };

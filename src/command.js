@@ -1,10 +1,14 @@
 const RichEmbed = require("discord.js").RichEmbed;
+const chan = require("./4chan-api");
 const fs = require("fs");
 
 let strings = require("../strings.json");
 const commands = {};
 
 function parseCommand(message, prefix) {
+    if(message.author.bot) {
+        return;
+    }
     if(message.content.substring(0, prefix.length).toLowerCase() === prefix.toLowerCase()) {
         let argumentText = message.content.substring(prefix.length).trim();
         let arguments    = argumentText.split(" ");
@@ -41,7 +45,23 @@ function registerCommands(config) {
     };
     // random
     commands["random"] = (message, args) => {
+        let board = config.default_board;
+        if(args.length > 0) {
+            board = args[0];
+            if(board.startsWith("/")) {
+                board = board.substring(1, board.length);
+            }
+            if(board.endsWith("/")) {
+                board = board.substring(0, board.length - 1);
+            }
+        }
+        
+        if(board === "help") {
+            message.channel.send(strings["random_helpmsg"].format(config.prefix));
+        }
 
+        let post = chan.getRandomPost(board);
+        message.channel.send(JSON.stringify(post, null, '\t'));
     };
     // debug
     commands["debug"] = (message, args) => {

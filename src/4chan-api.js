@@ -4,7 +4,7 @@ let apiUrl = "https://a.4cdn.org/{0}/{1}.json";
 let imgUrl = "https://i.4cdn.org/{0}/{1}{2}";
 let postUrl = "https://boards.4chan.org/{0}/thread/{1}";
 
-function getPostFromThread(thread) {
+function getPostFromThread(thread, board) {
     return {
         image: imgUrl.format(board, thread.tim, thread.ext),
         text: thread.com,
@@ -42,7 +42,7 @@ function getRandomPost(board) {
                 let threads = catalog[0].threads;
                 let thread = threads[Math.floor(Math.random() * threads.length)];
 
-                resolve(getPostFromThread(thread));
+                resolve(getPostFromThread(thread, board));
             });
         }).on("error", (err) => {
             reject(err);

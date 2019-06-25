@@ -98,7 +98,36 @@ function registerCommands(config) {
         } else if(args.length <= 0) {
             message.channel.send(strings["config_keys"]);
         } else {
-            
+            let key = args[0];
+            switch(key) {
+                case "prefix":
+                    if(args.length == 1) {
+                        let pfx = cfg.prefix ? cfg.prefix : "*none defined*";
+                        message.channel.send(strings["config_prefix"].format(pfx, config.prefix));
+                    } else if(args.length >= 2) {
+                        let sub = args[1];
+                        if(sub === "clear") {
+                            delete cfg.prefix;
+                            config.guilds.save();
+                            message.channel.send(strings["config_prefix_cleared"]);
+                        } else if(sub == "set") {
+                            if(args.length >= 3) {
+                                let arr = args.splice(2);
+                                cfg.prefix = arr.join(" ");
+                                config.guilds.save();
+                                message.channel.send(strings["config_prefix_set"].format(cfg.prefix));
+                            } else {
+                                message.channel.send(strings["config_prefix_set_none"].format(prefix));
+                            }
+                        } else {
+                            message.channel.send(strings["config_prefix_unknown"].format(sub, prefix));
+                        }
+                    }
+                break;
+                default:
+                    message.channel.send(strings["config_bad_key"].format(key, prefix));
+                    break;
+            }
         }
     };
     // debug

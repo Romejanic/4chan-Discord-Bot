@@ -35,7 +35,6 @@ function initBot() {
 		}, (err) => {
 			console.error("[Client] Failed to disconnect from Discord: " + err);
 		}).then(() => {
-			config.guilds.save();
 			process.exit(); // kills the process
 		});
 	});
@@ -55,7 +54,12 @@ function registerClientEvents(client, config) {
 		console.log("[Client] Successfully logged in to Discord!");
 	});
 	client.on("message", (message) => {
-		Commands.parse(message, config.prefix, config);
+		let cfg = config.guilds.getConfigForGuild(message.guild.id);
+		let pfx = config.prefix;
+		if(cfg.prefix) {
+			pfx = cfg.prefix;
+		}
+		Commands.parse(message, pfx, config);
 	});
 }
 

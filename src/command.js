@@ -6,6 +6,9 @@ const unescape = require("unescape");
 let strings = require("../strings.json");
 const commands = {};
 
+const commandHelpImg = "https://cdn.discordapp.com/avatars/592655834568327179/f0ae1e42b1dbb8a2f4df48ddf60d80b9.png?size=64";
+const commandHelpUrl = "https://github.com/Romejanic/4chan-Discord-Bot/blob/master/COMMANDS.md";
+
 function parseCommand(message, prefix) {
     if(message.author.bot) {
         return;
@@ -36,7 +39,7 @@ function registerCommands(config) {
     // help
     commands["help"] = (message, args) => {
         const embed = new RichEmbed();
-        embed.setAuthor(strings["help_title"], "https://cdn.discordapp.com/avatars/592655834568327179/f0ae1e42b1dbb8a2f4df48ddf60d80b9.png?size=64", "https://github.com/Romejanic/4chan-Discord-Bot");
+        embed.setAuthor(strings["help_title"], commandHelpImg, commandHelpUrl);
         embed.setColor("#FED7B0");
         for(let cmd in commands) {
             embed.addField(`${config.prefix} ${cmd}`, strings[cmd+"_help"]);
@@ -63,9 +66,9 @@ function registerCommands(config) {
 
         chan.getRandomPost(board).then((post) => {
             let postText = unescape(post.text.length > 2000 ? post.text.substring(0, 2000) + "..." : post.text);
-            if(postText.indexOf("<br>") > -1) {
-                postText = postText.replace("<br>", "\n");
-            }
+            postText = postText.replace(/<br>/gi, "\n");
+            postText = postText.replace("</span>", "");
+            postText = postText.replace("<span class=\"quote\">", "");
         
             let embed = new RichEmbed()
                 .setColor("#FED7B0")

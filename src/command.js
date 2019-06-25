@@ -87,13 +87,13 @@ function registerCommands(config) {
     };
     // debug
     commands["debug"] = (message, args) => {
-        if(message.author.tag !== config.editor_username) {
+        if(config.editor_usernames.indexOf(message.author.tag) == -1) {
             message.channel.send(strings["editor_required"]);
             return;
         }
         let subCommands = ["reload"];
         if(args.length <= 0) {
-            message.channel.send(`${strings["debug_nocmd"]}\n${subCommands.join("\n")}`);
+            message.channel.send(strings["debug_nocmd"].format(subCommands.join("\n")));
         } else {
             switch(args[0]) {
                 case subCommands[0]: // reload

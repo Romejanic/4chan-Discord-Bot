@@ -136,8 +136,48 @@ function registerCommands(config) {
                     break;
                 case "restrict":
                     if(args.length == 1) {
-                        let allowedChannels = cfg.allowedChannels && cfg.allowedChannels.length > 0 ? cfg.allowedChannels.join(", ") : "all channels";
+                        let allowedChannels = "all channels";
+                        if(cfg.allowedChannels && cfg.allowedChannels.length > 0) {
+                            allowedChannels = "";
+                            for(var i = 0; i < cfg.allowedChannels.length; i++) {
+                                let channel = message.guild.channels.get(cfg.allowedChannels[i]);
+                                allowedChannels += "#" + channel.name;
+                                if(i < cfg.allowedChannels.length - 1) {
+                                    allowedChannels += ", ";
+                                }
+                            }
+                        }
                         message.channel.send(strings["config_restrict"].format(allowedChannels, prefix));
+                    } else if(args.length >= 2) {
+                        let sub = args[1];
+                        if(sub.startsWith("<#") && sub.endsWith(">")) {
+                            let channelId = sub.substring(2);
+                            channelId = channelId.substring(0, channelId.length-1);
+                            
+                            let channel = message.guild.channels.get(channelId);
+                            if(channel) {
+                                if(!cfg.allowedChannels) {
+                                    cfg.allowedChannels = [];
+                                }
+                                let idx = cfg.allowedChannels.indexOf(channel.id);
+                                if(idx > -1) {
+                                    cfg.allowedChannels.splice(idx, 1);
+                                    message.channel.send(strings["config_restrict_channel"].format(`#${channel.name}`, "cannot"));
+                                } else {
+                                    cfg.allowedChannels.push(channel.id);
+                                    message.channel.send(strings["config_restrict_channel"].format(`#${channel.name}`, "can"));
+                                }
+                                config.guilds.save();
+                            } else {
+                                message.channel.send(strings["config_restrict_nochannel"]);
+                            }
+                        } else if(sub === "clear") {
+                            delete cfg.allowedChannels;
+                            config.guilds.save();
+                            message.channel.send(strings["config_restrict_cleared"]);
+                        } else {
+                            message.channel.send(strings["config_restrict_nosub"].format(prefix, sub));
+                        }
                     }
                     break;
                 default:

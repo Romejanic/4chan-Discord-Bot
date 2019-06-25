@@ -27,7 +27,7 @@ function parseCommand(message, prefix, config) {
             message.author.send(strings["restricted_channel"].format(allowedChannels, "#"+message.channel.name));
             return;
         }
-        
+
         let argText = message.content.substring(prefix.length).trim();
         let args    = argText.split(" ");
 
@@ -239,7 +239,6 @@ function registerCommands(config) {
                             }
                         }
                     });
-                    strings = require("../strings.json");
                     break;
                 default:
                     message.channel.send(strings["debug_unknown"].format(args[0]));

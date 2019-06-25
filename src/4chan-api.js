@@ -7,6 +7,11 @@ let postUrl = "https://boards.4chan.org/{0}/thread/{1}";
 function getRandomPost(board) {
     return new Promise((resolve, reject) => {
         https.get(apiUrl.format(board, "catalog"), (res) => {
+            if(res.statusCode == 404) {
+                reject({ board_not_found: board });
+                return;
+            }
+
             let json = "";
             res.on("data", (data) => {
                 json += data.toString();
@@ -18,7 +23,11 @@ function getRandomPost(board) {
                 } catch(e) {
                     reject(e);
                 }
-
+                
+                if(!catalog) {
+                    reject({ board_not_found: board });
+                    return;
+                }
                 let threads = catalog[0].threads;
                 let thread = threads[Math.floor(Math.random() * threads.length)];
 

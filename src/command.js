@@ -1,6 +1,7 @@
 const {RichEmbed, Attachment} = require("discord.js");
 const chan = require("./4chan-api");
 const fs = require("fs");
+const unescape = require("unescape");
 
 let strings = require("../strings.json");
 const commands = {};
@@ -61,7 +62,10 @@ function registerCommands(config) {
         }
 
         chan.getRandomPost(board).then((post) => {
-            let postText = post.text.length > 2000 ? post.text.substring(0, 2000) + "..." : post.text;
+            let postText = unescape(post.text.length > 2000 ? post.text.substring(0, 2000) + "..." : post.text);
+            if(postText.indexOf("<br>") > -1) {
+                postText = postText.replace("<br>", "\n");
+            }
         
             let embed = new RichEmbed()
                 .setColor("#FED7B0")
@@ -71,7 +75,11 @@ function registerCommands(config) {
                 .addField(strings["post_submitted"], post.timestamp);
             message.channel.send(embed);
         }, (reason) => {
-            message.channel.send(strings["random_error"].format(reason));
+            if(reason.board_not_found) {
+                message.channel.send(strings["random_noboard"].format(reason.board_not_found));
+            } else { 
+                message.channel.send(strings["random_error"].format(reason));
+            }
         });
     };
     // debug

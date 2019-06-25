@@ -81,7 +81,7 @@ function checkConfig(callback) {
 		fs.exists("strings.json", (exists) => {
 			if(!exists) {
 				let inn = fs.createReadStream("data/strings_default.json");
-				let out = fs.createWriteStream("config.json");
+				let out = fs.createWriteStream("strings.json");
 				inn.pipe(out);
 				inn.on("end", () => {
 					callback();

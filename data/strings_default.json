@@ -1,12 +1,14 @@
 {
     "command_not_found": "Command `{0}` not found, newfag. Use `{1} help` for a list of commands.",
-    "no_command_entered": "Enter a command, newfag.",
+    "no_command_entered": "Enter a command, newfag. Use `{0} help` for a list of commands.",
+    "prefix_required": "To use commands with this bot, please use the prefix {0}. For more information, type `{0} help` for a list of commands.",
+    "restricted_channel": "Sorry, I cannot be used in the channel {1}, I can only be used in {0}.",
 
     "editor_required": "You must be an editor of the project to perform this action.",
 
     "help_title": "Command Help",
 
-    "random_helpmsg": "{0} random [board] - Optionally add a board name to pull from",
+    "random_helpmsg": "**Usage:** {0} random [board] - Optionally add a board name to pull from",
     "random_error": "Failed to get a random post! Contact the developer and give them this message:\n```{0}```",
     "random_noboard": "The board you entered (`{0}`) does not exist!",
     
@@ -19,7 +21,27 @@
     "debug_reload": "Reloaded strings from file",
     "debug_error": "An error occurred while performing that action: {0}",
 
+    "post_usage": "**Usage:** {0} post <id> <board>",
+    "post_nopost": "Post `{0}` in board `{1}` not found!",
+
+    "config_notadmin": "You must be an administrator on this server to use this command!",
+    "config_keys": "**Available config keys:**\nprefix - The bot's prefix on this server\nrestrict - Restrict the bot to certain channels",
+    "config_bad_key": "Unrecognized config key `{0}`, type `{1} config` for a list of keys.",
+    "config_notserver": "Sorry, this command is only available in a server.",
+    "config_prefix": "**Current prefix:** `{0}`\nTo set the prefix, type `{1} config prefix set <prefix>`.\nTo clear the prefix, type `{1} config prefix clear`.",
+    "config_prefix_cleared": "Custom prefix cleared! Restore the the default prefix.",
+    "config_prefix_set": "**Custom prefix is now:** `{0}`",
+    "config_prefix_set_none": "**Usage:** {0} config prefix set <new prefix>",
+    "config_prefix_unknown": "Unrecognized action: {0}\n**Usage:** {1} config prefix <set/clear> ...",
+    "config_restrict": "**I can speak in:** `{0}`\nTo toggle a channel, type `{1} config restrict #<channel>`.\nTo clear all restrictions, type `{1} config restrict clear`.",
+    "config_restrict_channel": "The bot now {1} speak in {0}.",
+    "config_restrict_cleared": "Cleared all channel restrictions.",
+    "config_restrict_nosub": "Subcommand `{1}` not recognized.\nIf you are trying to toggle a channel, don't forget the # at the start of the channel name.\nE.g. `{0} config restrict #my-channel`",
+    "config_restrict_nochannel": "The channel you entered is not found or not valid!",
+
     "help_help": "Lists all commands and their usage.",
     "random_help": "Gets a random post from the default board or a specified board.",
-    "debug_help": "Debug commands to aid development of the bot."
+    "debug_help": "Debug commands to aid development of the bot.",
+    "post_help": "Gets the OP post of the thread with the given ID from the given board.",
+    "config_help": "Allows you to configure the behaviour of the bot for your server."
 }

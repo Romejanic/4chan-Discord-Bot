@@ -17,6 +17,7 @@
 	},
 	"main": "src/main.js",
 	"scripts": {
-		"start": "node src/main.js"
+		"start": "node src/main.js",
+		"start_async": "rm nohup.out && nohup node src/main.js &"
 	}
 }

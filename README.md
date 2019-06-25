@@ -19,6 +19,11 @@ $ nano config.json # edit the config and add your token
 $ npm start        # you can now run the bot
 ```
 
+To run the bot asynchronously (without blocking the terminal), you can use
+```shell
+$ npm run start_async
+```
+
 # Project Breakdown
 This is what each individual file in the root of the project does.
 

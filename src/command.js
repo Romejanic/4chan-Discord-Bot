@@ -1,4 +1,4 @@
-const RichEmbed = require("discord.js").RichEmbed;
+const {RichEmbed, Attachment} = require("discord.js");
 const chan = require("./4chan-api");
 const fs = require("fs");
 
@@ -60,8 +60,19 @@ function registerCommands(config) {
             message.channel.send(strings["random_helpmsg"].format(config.prefix));
         }
 
-        let post = chan.getRandomPost(board);
-        message.channel.send(JSON.stringify(post, null, '\t'));
+        chan.getRandomPost(board).then((post) => {
+            let postText = post.text.length > 2000 ? post.text.substring(0, 2000) + "..." : post.text;
+        
+            let embed = new RichEmbed()
+                .setColor("#FED7B0")
+                .setTitle(strings["post_title"].format(post.id, post.author))
+                .setDescription(strings["post_desc"].format(postText, post.permalink))
+                .setImage(post.image)
+                .addField(strings["post_submitted"], post.timestamp);
+            message.channel.send(embed);
+        }, (reason) => {
+            message.channel.send(strings["random_error"].format(reason));
+        });
     };
     // debug
     commands["debug"] = (message, args) => {

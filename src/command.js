@@ -59,6 +59,20 @@ function registerCommands(config) {
         embed.setAuthor(strings["help_title"], commandHelpImg, commandHelpUrl);
         embed.setColor("#FED7B0");
         for(let cmd in commands) {
+            switch(cmd) {
+                case "config":
+                    if(message.channel.type !== "text" || !message.member.hasPermission("ADMINISTRATOR")) {
+                        continue;
+                    }
+                    break;
+                case "debug":
+                    if(config.editor_usernames.indexOf(message.author.tag) < 0) {
+                        continue;
+                    }
+                    break;
+                default:
+                    break;
+            }
             embed.addField(`${getPrefix(message, config)} ${cmd}`, strings[cmd+"_help"]);
         }
         embed.setFooter("Created by @memedealer#6607 | Find me on GitHub!");

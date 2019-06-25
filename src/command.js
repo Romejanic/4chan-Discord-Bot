@@ -1,10 +1,10 @@
-const {RichEmbed, Attachment} = require("discord.js");
+const {RichEmbed} = require("discord.js");
 const chan = require("./4chan-api");
 const fs = require("fs");
 const unescape = require("unescape");
 
-let strings = require("../strings.json");
 const commands = {};
+let strings;
 
 const commandHelpImg = "https://cdn.discordapp.com/avatars/592655834568327179/f0ae1e42b1dbb8a2f4df48ddf60d80b9.png?size=64";
 const commandHelpUrl = "https://github.com/Romejanic/4chan-Discord-Bot/blob/master/COMMANDS.md";
@@ -280,5 +280,8 @@ if (!String.prototype.format) {
 // export the module
 module.exports = {
     parse: parseCommand,
-    register: registerCommands
+    register: registerCommands,
+    loadStrings: () => {
+        strings = require("../strings.json");
+    }
 };

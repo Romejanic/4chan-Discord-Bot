@@ -26,6 +26,7 @@ function initBot() {
 
 	// register commands
 	Commands.register(config);
+	Commands.loadStrings();
 
 	// register safe exit
 	process.on("SIGINT", () => {
@@ -74,7 +75,7 @@ function checkConfig(callback) {
 		let out = fs.createWriteStream("config.json");
 		inn.pipe(out);
 		inn.on("end", () => {
-			process.exit(-1);
+			process.exit(0);
 		});
 	} else {
 		// copy default strings if they don't exist already
@@ -86,6 +87,8 @@ function checkConfig(callback) {
 				inn.on("end", () => {
 					callback();
 				});
+			} else {
+				callback();
 			}
 		});
 	}

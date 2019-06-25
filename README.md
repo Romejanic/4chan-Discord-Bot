@@ -14,9 +14,9 @@ To install the project,
 $ git clone https://github.com/Romejanic/4chan-Discord-Bot.git
 $ cd 4chan-Discord-Bot
 $ npm install      # this will download the dependancies
-$ npm run          # this will generate a config file
+$ npm start        # this will generate a config file
 $ nano config.json # edit the config and add your token
-$ npm run          # you can now run the bot
+$ npm start        # you can now run the bot
 ```
 
 # Project Breakdown

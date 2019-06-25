@@ -77,8 +77,17 @@ function checkConfig(callback) {
 			process.exit(-1);
 		});
 	} else {
-		
-		callback();
+		// copy default strings if they don't exist already
+		fs.exists("strings.json", (exists) => {
+			if(!exists) {
+				let inn = fs.createReadStream("data/strings_default.json");
+				let out = fs.createWriteStream("config.json");
+				inn.pipe(out);
+				inn.on("end", () => {
+					callback();
+				});
+			}
+		});
 	}
 }
 

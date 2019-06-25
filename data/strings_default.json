@@ -1,0 +1,25 @@
+{
+    "command_not_found": "Command `{0}` not found, newfag. Use `{1} help` for a list of commands.",
+    "no_command_entered": "Enter a command, newfag.",
+
+    "editor_required": "You must be an editor of the project to perform this action.",
+
+    "help_title": "Command Help",
+
+    "random_helpmsg": "{0} random [board] - Optionally add a board name to pull from",
+    "random_error": "Failed to get a random post! Contact the developer and give them this message:\n```{0}```",
+    "random_noboard": "The board you entered (`{0}`) does not exist!",
+    
+    "post_title": "> {0} by {1}",
+    "post_desc": "```{0}```\n[Permalink]({1})",
+    "post_submitted": "Submitted",
+
+    "debug_nocmd": "Please enter one of the following sub-commands:\n{0}",
+    "debug_unknown": "Unknown sub-command: {0}",
+    "debug_reload": "Reloaded strings from file",
+    "debug_error": "An error occurred while performing that action: {0}",
+
+    "help_help": "Lists all commands and their usage.",
+    "random_help": "Gets a random post from the default board or a specified board.",
+    "debug_help": "Debug commands to aid development of the bot."
+}

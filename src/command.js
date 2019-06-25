@@ -9,7 +9,7 @@ const commands = {};
 const commandHelpImg = "https://cdn.discordapp.com/avatars/592655834568327179/f0ae1e42b1dbb8a2f4df48ddf60d80b9.png?size=64";
 const commandHelpUrl = "https://github.com/Romejanic/4chan-Discord-Bot/blob/master/COMMANDS.md";
 
-function parseCommand(message, prefix) {
+function parseCommand(message, prefix, config) {
     if(message.author.bot) {
         return;
     }
@@ -29,8 +29,10 @@ function parseCommand(message, prefix) {
             }
 
             commandNotFound(commandName, prefix, message);
+        } else if(config.default_command && commands[config.default_command]) {
+            commands[config.default_command](message, []);
         } else {
-            noCommandEntered(message);
+            noCommandEntered(message, prefix);
         }
     }
 }
@@ -123,8 +125,8 @@ function registerCommands(config) {
 function commandNotFound(command, prefix, message) {
     message.channel.send(strings["command_not_found"].format(command, prefix));
 }
-function noCommandEntered(message) {
-    message.channel.send(strings["no_command_entered"]);
+function noCommandEntered(message, prefix) {
+    message.channel.send(strings["no_command_entered"].format(prefix));
 }
 
 // implement String.format as expected

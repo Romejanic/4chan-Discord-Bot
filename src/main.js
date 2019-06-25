@@ -49,7 +49,7 @@ function registerClientEvents(client, config) {
 		console.log("[Client] Successfully logged in to Discord!");
 	});
 	client.on("message", (message) => {
-		Commands.parse(message, config.prefix);
+		Commands.parse(message, config.prefix, config);
 	});
 }
 

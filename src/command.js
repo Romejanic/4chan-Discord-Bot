@@ -34,6 +34,8 @@ function parseCommand(message, prefix, config) {
         } else {
             noCommandEntered(message, prefix);
         }
+    } else if(message.channel.type !== "text") {
+        message.channel.send(strings["prefix_required"].format(prefix));
     }
 }
 

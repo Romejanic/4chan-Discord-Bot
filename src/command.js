@@ -1,6 +1,7 @@
 const RichEmbed = require("discord.js").RichEmbed;
+const fs = require("fs");
 
-const strings = require("../strings.json");
+let strings = require("../strings.json");
 const commands = {};
 
 function parseCommand(message, prefix) {
@@ -29,11 +30,13 @@ function parseCommand(message, prefix) {
 function registerCommands(config) {
     // help
     commands["help"] = (message, args) => {
-        const embed = new RichEmbed().setTitle(strings["help_title"]);
+        const embed = new RichEmbed();
+        embed.setAuthor(strings["help_title"], "https://cdn.discordapp.com/avatars/592655834568327179/f0ae1e42b1dbb8a2f4df48ddf60d80b9.png?size=64", "https://github.com/Romejanic/4chan-Discord-Bot");
+        embed.setColor("#FED7B0");
         for(let cmd in commands) {
             embed.addField(`${config.prefix} ${cmd}`, strings[cmd+"_help"]);
         }
-        embed.addFooter("Created by @memedealer#6607 | [GitHub](https://github.com/Romejanic/4chan-Discord-Bot)");
+        embed.setFooter("Created by @memedealer#6607 | Find me on GitHub!");
         message.channel.send(embed);
     };
     // random
@@ -42,12 +45,36 @@ function registerCommands(config) {
     };
     // debug
     commands["debug"] = (message, args) => {
-        let authorUsername = `${message.author.username}#${message.author.discriminator}`;
-        if(authorUsername !== config.editor_username) {
+        if(message.author.tag !== config.editor_username) {
             message.channel.send(strings["editor_required"]);
             return;
         }
-        message.reply(args.join(" "));
+        let subCommands = ["reload"];
+        if(args.length <= 0) {
+            message.channel.send(`${strings["debug_nocmd"]}\n${subCommands.join("\n")}`);
+        } else {
+            switch(args[0]) {
+                case subCommands[0]: // reload
+                    fs.readFile("strings.json", (err, data) => {
+                        if(err) {
+                            message.channel.send(strings["debug_error"].format(err));
+                        } else {
+                            let json = data.toString();
+                            try {
+                                strings = JSON.parse(json);
+                                message.channel.send(strings["debug_reload"]);
+                            } catch(e) {
+                                message.channel.send(strings["debug_error"].format(err));
+                            }
+                        }
+                    });
+                    strings = require("../strings.json");
+                    break;
+                default:
+                    message.channel.send(strings["debug_unknown"].format(args[0]));
+                    break;
+            }
+        }
     };
 }
 

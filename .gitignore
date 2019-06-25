@@ -4,6 +4,7 @@
 # config
 /config.json
 /strings.json
+/guild-config.json
 
 # misc
 .DS_Store

@@ -1,7 +1,8 @@
 const Discord = require("discord.js");
 const fs = require("fs");
 
-const Commands = require("./command.js");
+const Commands = require("./command");
+const GuildConfig = require("./guild-config");
 
 // define functions
  
@@ -12,6 +13,10 @@ function initBot() {
 		console.error("[ERROR] You must define a token! Please see data/config_default.json for a reference.");
 		return;
 	}
+
+	// load guild config
+	config.guilds = GuildConfig;
+	config.guilds.load();
 
 	// create client
 	let client = new Discord.Client();
@@ -30,6 +35,7 @@ function initBot() {
 		}, (err) => {
 			console.error("[Client] Failed to disconnect from Discord: " + err);
 		}).then(() => {
+			config.guilds.save();
 			process.exit(); // kills the process
 		});
 	});

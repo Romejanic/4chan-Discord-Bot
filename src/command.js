@@ -90,6 +90,17 @@ function registerCommands(config) {
             });
         }
     };
+    // config
+    commands["config"] = (message, args) => {
+        let cfg = config.guilds.getConfigForGuild(message.guild.id);
+        if(!message.member.hasPermission("ADMINISTRATOR")) {
+            message.channel.send(strings["config_notadmin"]);
+        } else if(args.length <= 0) {
+            message.channel.send(strings["config_keys"]);
+        } else {
+            
+        }
+    };
     // debug
     commands["debug"] = (message, args) => {
         if(config.editor_usernames.indexOf(message.author.tag) == -1) {

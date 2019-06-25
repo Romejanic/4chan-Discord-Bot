@@ -44,7 +44,7 @@ function registerCommands(config) {
         embed.setAuthor(strings["help_title"], commandHelpImg, commandHelpUrl);
         embed.setColor("#FED7B0");
         for(let cmd in commands) {
-            embed.addField(`${config.prefix} ${cmd}`, strings[cmd+"_help"]);
+            embed.addField(`${getPrefix(message, config)} ${cmd}`, strings[cmd+"_help"]);
         }
         embed.setFooter("Created by @memedealer#6607 | Find me on GitHub!");
         message.channel.send(embed);
@@ -57,7 +57,8 @@ function registerCommands(config) {
         }
         
         if(board === "help") {
-            message.channel.send(strings["random_helpmsg"].format(config.prefix));
+            message.channel.send(strings["random_helpmsg"].format(getPrefix(message, config)));
+            return;
         }
 
         chan.getRandomPost(board).then((post) => {
@@ -73,7 +74,7 @@ function registerCommands(config) {
     // post
     commands["post"] = (message, args) => {
         if(args.length < 2) {
-            message.channel.send(strings["post_usage"].format(config.prefix));
+            message.channel.send(strings["post_usage"].format(getPrefix(message, config)));
         } else {
             let id = args[0];
             let board = chan.getBoardName(args[1]);
@@ -92,6 +93,12 @@ function registerCommands(config) {
     };
     // config
     commands["config"] = (message, args) => {
+        // check we are in a server
+        if(message.channel.type !== "text") {
+            message.channel.send(strings["config_notserver"]);
+            return;
+        }
+
         let cfg = config.guilds.getConfigForGuild(message.guild.id);
         if(!message.member.hasPermission("ADMINISTRATOR")) {
             message.channel.send(strings["config_notadmin"]);
@@ -99,11 +106,12 @@ function registerCommands(config) {
             message.channel.send(strings["config_keys"]);
         } else {
             let key = args[0];
+            let prefix = getPrefix(message, config);
             switch(key) {
                 case "prefix":
                     if(args.length == 1) {
                         let pfx = cfg.prefix ? cfg.prefix : "*none defined*";
-                        message.channel.send(strings["config_prefix"].format(pfx, config.prefix));
+                        message.channel.send(strings["config_prefix"].format(pfx, prefix));
                     } else if(args.length >= 2) {
                         let sub = args[1];
                         if(sub === "clear") {
@@ -123,7 +131,13 @@ function registerCommands(config) {
                             message.channel.send(strings["config_prefix_unknown"].format(sub, prefix));
                         }
                     }
-                break;
+                    break;
+                case "restrict":
+                    if(args.length == 1) {
+                        let allowedChannels = cfg.allowedChannels && cfg.allowedChannels.length > 0 ? cfg.allowedChannels.join(", ") : "all channels";
+                        message.channel.send(strings["config_restrict"].format(allowedChannels, prefix));
+                    }
+                    break;
                 default:
                     message.channel.send(strings["config_bad_key"].format(key, prefix));
                     break;
@@ -178,6 +192,14 @@ function sendPost(post, message) {
         .setImage(post.image)
         .addField(strings["post_submitted"], post.timestamp);
     message.channel.send(embed);
+}
+
+function getPrefix(message, config) {
+    if(message.channel.type !== "text") {
+        return config.prefix;
+    }
+    let cfg = config.guilds.getConfigForGuild(message.guild.id);
+    return cfg.prefix ? cfg.prefix : config.prefix;
 }
 
 function commandNotFound(command, prefix, message) {

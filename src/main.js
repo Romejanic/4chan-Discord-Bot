@@ -54,10 +54,12 @@ function registerClientEvents(client, config) {
 		console.log("[Client] Successfully logged in to Discord!");
 	});
 	client.on("message", (message) => {
-		let cfg = config.guilds.getConfigForGuild(message.guild.id);
 		let pfx = config.prefix;
-		if(cfg.prefix) {
-			pfx = cfg.prefix;
+		if(message.channel.type === "text") {
+			let cfg = config.guilds.getConfigForGuild(message.guild.id);	
+			if(cfg.prefix) {
+				pfx = cfg.prefix;
+			}
 		}
 		Commands.parse(message, pfx, config);
 	});

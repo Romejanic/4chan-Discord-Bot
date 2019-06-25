@@ -77,6 +77,7 @@ function checkConfig(callback) {
 			process.exit(-1);
 		});
 	} else {
+		
 		callback();
 	}
 }

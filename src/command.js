@@ -15,17 +15,23 @@ function parseCommand(message, prefix, config) {
     }
     let cfg = message.channel.type === "text" ? config.guilds.getConfigForGuild(message.guild.id) : undefined;
     if(message.content.substring(0, prefix.length).toLowerCase() === prefix.toLowerCase()) {
-        if(cfg && cfg.allowedChannels && cfg.allowedChannels.indexOf(message.channel.id) < 0) {
-            let allowedChannels = "";
-            for(var i = 0; i < cfg.allowedChannels.length; i++) {
-                let channel = message.guild.channels.get(cfg.allowedChannels[i]);
-                allowedChannels += "#" + channel.name;
-                if(i < cfg.allowedChannels.length - 1) {
-                    allowedChannels += ", ";
+        if(cfg) {
+            if(cfg.allowedChannels && cfg.allowedChannels.indexOf(message.channel.id) < 0) {
+                let allowedChannels = "";
+                for(var i = 0; i < cfg.allowedChannels.length; i++) {
+                    let channel = message.guild.channels.get(cfg.allowedChannels[i]);
+                    allowedChannels += "#" + channel.name;
+                    if(i < cfg.allowedChannels.length - 1) {
+                        allowedChannels += ", ";
+                    }
                 }
+                message.author.send(strings["restricted_channel"].format(allowedChannels, "#"+message.channel.name));
+                return;
             }
-            message.author.send(strings["restricted_channel"].format(allowedChannels, "#"+message.channel.name));
-            return;
+            if(message.channel.type === "text" && !cfg.non_nsfw && !message.channel.nsfw) {
+                message.author.send(strings["nsfw_required"]);
+                return;
+            }
         }
 
         let argText = message.content.substring(prefix.length).trim();

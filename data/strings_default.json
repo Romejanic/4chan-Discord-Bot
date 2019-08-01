@@ -26,7 +26,7 @@
     "post_nopost": "Post `{0}` in board `{1}` not found!",
 
     "config_notadmin": "You must be an administrator on this server to use this command!",
-    "config_keys": "**Available config keys:**\nprefix - The bot's prefix on this server\nrestrict - Restrict the bot to certain channels",
+    "config_keys": "**Available config keys:**\nprefix - The bot's prefix on this server\nrestrict - Restrict the bot to certain channels\nnsfw - Change the bot's access to non-NSFW channels.",
     "config_bad_key": "Unrecognized config key `{0}`, type `{1} config` for a list of keys.",
     "config_notserver": "Sorry, this command is only available in a server.",
     "config_prefix": "**Current prefix:** `{0}`\nTo set the prefix, type `{1} config prefix set <prefix>`.\nTo clear the prefix, type `{1} config prefix clear`.",

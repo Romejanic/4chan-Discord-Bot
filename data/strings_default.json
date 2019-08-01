@@ -39,6 +39,13 @@
     "config_restrict_cleared": "Cleared all channel restrictions.",
     "config_restrict_nosub": "Subcommand `{1}` not recognized.\nIf you are trying to toggle a channel, don't forget the # at the start of the channel name.\nE.g. `{0} config restrict #my-channel`",
     "config_restrict_nochannel": "The channel you entered is not found or not valid!",
+    "config_nsfw_state": "NSFW-only is **{0}**.\nTo toggle, please enter `{1} config nsfw toggle`.",
+    "config_nsfw_warning": "**PLEASE NOTE:** 4chan often contains NSFW content. Do this at your own risk.",
+    "config_nsfw_toggled": "NSFW-only is now **{0}**.",
+    "config_nsfw_usage": "**Usage:** {0} config nsfw [toggle]",
+
+    "enabled_true": "enabled",
+    "enabled_false": "disabled",
 
     "help_help": "Lists all commands and their usage.",
     "random_help": "Gets a random post from the default board or a specified board.",

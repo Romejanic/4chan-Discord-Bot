@@ -214,6 +214,28 @@ function registerCommands(config) {
                         }
                     }
                     break;
+                case "nsfw":
+                    let nsfwOnly = !cfg.non_nsfw;
+                    if(args.length === 1) {
+                        let stateTxt = strings["config_nsfw_state"].format(getEnabledText(nsfwOnly), prefix);
+                        if(nsfwOnly) {
+                            stateTxt += "\n" + strings["config_nsfw_warning"];
+                        }
+                        message.channel.send(stateTxt);
+                    } else if(args[1].toLowerCase() === "toggle") {
+                        if(cfg.non_nsfw) {
+                            cfg.non_nsfw = false;
+                            nsfwOnly = true;
+                        } else {
+                            cfg.non_nsfw = true;
+                            nsfwOnly = false;
+                        }
+                        config.guilds.save();
+                        message.channel.send(strings["config_nsfw_toggled"].format(getEnabledText(nsfwOnly)));
+                    } else {
+                        message.channel.send(strings["config_nsfw_usage"].format(prefix));
+                    }
+                    break;
                 default:
                     message.channel.send(strings["config_bad_key"].format(key, prefix));
                     break;
@@ -282,6 +304,10 @@ function commandNotFound(command, prefix, message) {
 }
 function noCommandEntered(message, prefix) {
     message.channel.send(strings["no_command_entered"].format(prefix));
+}
+
+function getEnabledText(bool) {
+    return strings["enabled_" + bool];
 }
 
 // implement String.format as expected

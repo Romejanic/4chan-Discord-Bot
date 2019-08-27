@@ -3,12 +3,25 @@ const fs = require("fs");
 
 const Commands = require("./command");
 const GuildConfig = require("./guild-config");
+const Utils = require("./utils");
 
 // define functions
  
 function initBot() {
 	// check config
 	let config = require("../config.json");
+	// copy new config entries (if needed)
+	let template = require("../data/config_default.json");
+	// check if there's any new config keys, and if so write the file out
+	if(Utils.matchTemplate(config, template)) {
+		let json = JSON.stringify(config, null, 4);
+		fs.writeFile("config.json", json, (err) => {
+			if(err) {
+				console.error("[Config] Failed to write config file!\n", err);
+			}
+		});
+	}
+	// check that a bot token has been given
 	if(!config || !config.auth || !config.auth.token) {
 		console.error("[ERROR] You must define a token! Please see data/config_default.json for a reference.");
 		return;
@@ -88,6 +101,26 @@ function checkConfig(callback) {
 					callback();
 				});
 			} else {
+				fs.readFile("data/strings_default.json", (err, data) => {
+					if(err) {
+						console.error("[Config] Failed to read default strings file!", err);
+					} else {
+						fs.readFile("strings.json", (err, data1) => {
+							if(err) {
+								console.error("[Config] Failed to read current strings file!", err);
+							} else {
+								let template = JSON.parse(data.toString());
+								let current = JSON.parse(data1.toString());
+								if(Utils.matchTemplate(current, template, "strings")) {
+									let json = JSON.stringify(current, null, 4);
+									fs.writeFile("strings.json", json, (err) => {
+										console.error("[Config] Failed to write new strings to file!", err);
+									});
+								}
+							}
+						});
+					}
+				});
 				callback();
 			}
 		});

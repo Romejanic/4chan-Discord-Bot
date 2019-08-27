@@ -16,6 +16,8 @@
     "post_title": "> {0} by {1}",
     "post_desc": "```{0}```\n[Permalink]({1})",
     "post_submitted": "Submitted",
+    "post_removal_instructions": "React {0} {1} times within 60 seconds to remove this post.",
+    "post_removal_confirm": "*Post removed.*",
 
     "debug_nocmd": "Please enter one of the following sub-commands:\n{0}",
     "debug_unknown": "Unknown sub-command: {0}",

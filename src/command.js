@@ -301,9 +301,7 @@ function sendPost(post, message, config) {
                     message.channel.send(strings["post_removal_confirm"]);
                 });
             }
-        }).catch(collected => {
-            // do nothing
-        });
+        }).catch(); // do nothing on error
     });
 }
 

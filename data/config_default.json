@@ -6,9 +6,9 @@
 	"default_board": "b",
 	"prefix": "+4chan",
 	"default_command": "random",
-	
-	"removal_vote_count": 2,
-	"removal_vote_emote": "❌",
+
+	"removal_emote": "❌",
+	"removal_default_timeout": 120,
 
 	"editor_usernames": [
 		"memedealer#6607"

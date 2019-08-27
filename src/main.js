@@ -114,7 +114,9 @@ function checkConfig(callback) {
 								if(Utils.matchTemplate(current, template, "strings")) {
 									let json = JSON.stringify(current, null, 4);
 									fs.writeFile("strings.json", json, (err) => {
-										console.error("[Config] Failed to write new strings to file!", err);
+										if(err) {
+											console.error("[Config] Failed to write new strings to file!", err);
+										}
 									});
 								}
 							}

@@ -215,6 +215,23 @@ function registerCommands(config) {
                         }
                     }
                     break;
+                case "removal_time":
+                    if(args.length == 1) {
+                        let removalTime = cfg.removal_time ? cfg.removal_time : strings["config_removal_time_default"].format(config.removal_default_timeout);
+                        message.channel.send(strings["config_removal_time"].format(removalTime, prefix));
+                    } else {
+                        let arg = args[1];
+                        if(arg === "clear") {
+                            delete cfg.removal_time;
+                            config.guilds.save();
+                            message.channel.send(strings["config_removal_time_cleared"].format(config.removal_default_timeout));
+                        } else {
+                            cfg.removal_time = Number(arg);
+                            config.guilds.save();
+                            message.channel.send(strings["config_removal_time_set"].format(cfg.removal_time));
+                        }
+                    }
+                    break;
                 /* // removed in version 1.0.2
                 case "nsfw":
                     let nsfwOnly = !cfg.non_nsfw;
@@ -292,15 +309,15 @@ function sendPost(post, message, config, gconfig) {
         .setImage(post.image)
         .addField(strings["post_submitted"], post.timestamp);
 
-    let removalTime = gconfig && gconfig.removal_time ? gconfig.removal_time : 120;
+    let removalTime = gconfig && gconfig.removal_time ? gconfig.removal_time : config.removal_default_timeout;
     if(gconfig) {
-        embed.setFooter(strings["post_removal_instructions"].format(config.removal_vote_emote, removalTime));
+        embed.setFooter(strings["post_removal_instructions"].format(config.removal_emote, removalTime));
     }
     let msgPromise = message.channel.send(embed);
     if(gconfig) {
         msgPromise.then(msg => {
             let filter = (reaction, user) => {
-                return reaction.emoji.name === config.removal_vote_emote && user.tag === message.author.tag;
+                return reaction.emoji.name === config.removal_emote && user.tag === message.author.tag;
             };
             msg.awaitReactions(filter, { max: 1, time: removalTime * 1000, errors: ["time"] }).then(collected => {
                 let reaction = collected.first();

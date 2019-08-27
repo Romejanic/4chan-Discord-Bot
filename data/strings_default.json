@@ -2,7 +2,7 @@
     "command_not_found": "Command `{0}` not found, newfag. Use `{1} help` for a list of commands.",
     "no_command_entered": "Enter a command, newfag. Use `{0} help` for a list of commands.",
     "prefix_required": "To use commands with this bot, please use the prefix {0}. For more information, type `{0} help` for a list of commands.",
-    "restricted_channel": "Sorry, I cannot be used in the channel {1}, I can only be used in {0}.",
+    "restricted_channel": "Sorry, I cannot be used in the channel {1}, I can only be used in {0} and NSFW channels.",
     "nsfw_required": "You may only use the bot in a NSFW channel. Sorry for the inconvenience!",
 
     "editor_required": "You must be an editor of the project to perform this action.",

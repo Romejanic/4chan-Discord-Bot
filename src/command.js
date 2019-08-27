@@ -98,7 +98,7 @@ function registerCommands(config) {
         }
 
         chan.getRandomPost(board).then((post) => {
-            sendPost(post, message);
+            sendPost(post, message, config);
         }, (reason) => {
             if(reason.board_not_found) {
                 message.channel.send(strings["random_noboard"].format(reason.board_not_found));
@@ -116,8 +116,7 @@ function registerCommands(config) {
             let board = chan.getBoardName(args[1]);
 
             chan.getPost(id, board).then((post) => {
-                console.log(post);
-                sendPost(post, message);
+                sendPost(post, message, config);
             }, (reason) => {
                 if(reason.post_not_found) {
                     message.channel.send(strings["post_nopost"].format(reason.post_not_found, board));
@@ -278,7 +277,7 @@ function registerCommands(config) {
     };
 }
 
-function sendPost(post, message) {
+function sendPost(post, message, config) {
     let postText = unescape(post.text.length > 2000 ? post.text.substring(0, 2000) + "..." : post.text);
     postText = postText.replace(/<br>/gi, "\n");
     postText = postText.replace("</span>", "");
@@ -289,8 +288,23 @@ function sendPost(post, message) {
         .setTitle(strings["post_title"].format(post.id, post.author))
         .setDescription(strings["post_desc"].format(postText, post.permalink))
         .setImage(post.image)
-        .addField(strings["post_submitted"], post.timestamp);
-    message.channel.send(embed);
+        .addField(strings["post_submitted"], post.timestamp)
+        .setFooter(strings["post_removal_instructions"].format(config.removal_vote_emote, config.removal_vote_count));
+    message.channel.send(embed).then(msg => {
+        let filter = (reaction) => {
+            return reaction.emoji.name === config.removal_vote_emote;
+        };
+        msg.awaitReactions(filter, { max: 1, time: 60000, errors: ["time"] }).then(collected => {
+            let reaction = collected.first();
+            if(reaction.emoji.name === config.removal_vote_emote) {
+                msg.delete().then(() => {
+                    message.channel.send(strings["post_removal_confirm"]);
+                });
+            }
+        }).catch(collected => {
+            // do nothing
+        });
+    });
 }
 
 function getPrefix(message, config) {

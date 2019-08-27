@@ -294,7 +294,7 @@ function sendPost(post, message, config) {
         let filter = (reaction) => {
             return reaction.emoji.name === config.removal_vote_emote;
         };
-        msg.awaitReactions(filter, { max: 1, time: 60000, errors: ["time"] }).then(collected => {
+        msg.awaitReactions(filter, { max: config.removal_vote_count, time: 60000, errors: ["time"] }).then(collected => {
             let reaction = collected.first();
             if(reaction.emoji.name === config.removal_vote_emote) {
                 msg.delete().then(() => {

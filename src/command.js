@@ -214,6 +214,7 @@ function registerCommands(config) {
                         }
                     }
                     break;
+                /* // removed in version 1.0.2
                 case "nsfw":
                     let nsfwOnly = !cfg.non_nsfw;
                     if(args.length === 1) {
@@ -236,6 +237,7 @@ function registerCommands(config) {
                         message.channel.send(strings["config_nsfw_usage"].format(prefix));
                     }
                     break;
+                */
                 default:
                     message.channel.send(strings["config_bad_key"].format(key, prefix));
                     break;

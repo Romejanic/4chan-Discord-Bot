@@ -321,7 +321,7 @@ function sendPost(post, message, config, gconfig) {
             };
             msg.awaitReactions(filter, { max: 1, time: removalTime * 1000, errors: ["time"] }).then(collected => {
                 let reaction = collected.first();
-                if(reaction.emoji.name === config.removal_vote_emote) {
+                if(reaction.emoji.name === config.removal_emote) {
                     msg.delete().then(() => {
                         message.channel.send(strings["post_removal_confirm"]);
                     });

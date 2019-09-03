@@ -77,6 +77,9 @@ function registerClientEvents(client, config) {
 		}
 		Commands.parse(message, pfx, config);
 	});
+	client.on("error", (err) => {
+		console.error("[Client] Unexpected error occurred!", err);
+	});
 }
 
 function checkConfig(callback) {

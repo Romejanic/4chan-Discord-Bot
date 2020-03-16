@@ -65,9 +65,10 @@ function initBot() {
 }
 
 function registerClientEvents(client, config) {
+	let updateGuildCount = () => { config.guildCount = client.guilds.size; };
 	client.on("ready", () => {
 		console.log("[Client] Successfully logged in to Discord!");
-		config.guildCount = client.guilds.size;
+		updateGuildCount();
 	});
 	client.on("message", (message) => {
 		let pfx = config.prefix;
@@ -79,6 +80,8 @@ function registerClientEvents(client, config) {
 		}
 		Commands.parse(message, pfx, config);
 	});
+	client.on("guildCreate", updateGuildCount);
+	client.on("guildDelete", updateGuildCount);
 	client.on("error", (err) => {
 		console.error("[Client] Unexpected error occurred!", err);
 	});

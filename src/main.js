@@ -10,6 +10,7 @@ const Utils = require("./utils");
 function initBot() {
 	// check config
 	let config = require("../config.json");
+	config.guildCount = 0;
 	// copy new config entries (if needed)
 	let template = require("../data/config_default.json");
 	// check if there's any new config keys, and if so write the file out
@@ -66,6 +67,7 @@ function initBot() {
 function registerClientEvents(client, config) {
 	client.on("ready", () => {
 		console.log("[Client] Successfully logged in to Discord!");
+		config.guildCount = client.guilds.size;
 	});
 	client.on("message", (message) => {
 		let pfx = config.prefix;

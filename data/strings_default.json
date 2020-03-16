@@ -8,6 +8,9 @@
     "editor_required": "You must be an editor of the project to perform this action.",
 
     "help_title": "Command Help",
+    "version_title": "Bot Version and Info",
+    "version_servers": "{0} servers",
+    "version_desc": "[GitHub Repo](https://github.com/Romejanic/4chan-Discord-Bot)\n[Invite Link](https://discordapp.com/api/oauth2/authorize?client_id=592655834568327179&permissions=124992&scope=bot)",
 
     "random_helpmsg": "**Usage:** {0} random [board] - Optionally add a board name to pull from",
     "random_error": "Failed to get a random post! Contact the developer and give them this message:\n```{0}```",
@@ -54,6 +57,7 @@
     "debug_help": "Debug commands to aid development of the bot.",
     "post_help": "Gets the OP post of the thread with the given ID from the given board.",
     "config_help": "Allows you to configure the behaviour of the bot for your server.",
+    "version_help": "Gets information about bot version and system info.",
 
     "random_suffix": " OR {0} /<board>/"
 }

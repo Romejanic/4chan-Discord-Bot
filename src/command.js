@@ -305,6 +305,27 @@ function registerCommands(config) {
             }
         }
     };
+    // version
+    commands["version"] = (message, args) => {
+        const ENV = process.argv.indexOf("-dev") > -1 ? "Development" : "Production";
+        const PKG = require("../package.json");
+        const MEM = process.memoryUsage();
+        // construct embed
+        let embed = new RichEmbed()
+            .setColor("#FED7B0")
+            .setTitle(strings["version_title"])
+            .setThumbnail("https://cdn.discordapp.com/avatars/592655834568327179/f0ae1e42b1dbb8a2f4df48ddf60d80b9.png?size=256")
+            .setDescription(strings["version_desc"])
+            .addField("Version", PKG.version, true)
+            .addField("Build Type", ENV, true)
+            .addField("Used in", strings["version_servers"].format(config.guildCount), true)
+            .addField("Node version", process.version, true)
+            .addField("Operating System", process.platform, true)
+            .addField("Memory Usage", (100 * MEM.heapUsed / MEM.heapTotal).toFixed(1) + "%", true)
+            .setFooter("Created by @memedealer#6607");
+        // send message
+        message.channel.send(embed);
+    };
 }
 
 function sendPost(post, message, config, gconfig) {

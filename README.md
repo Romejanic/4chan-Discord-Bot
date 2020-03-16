@@ -4,7 +4,21 @@ A bot which pulls random posts off 4chan.
 # Reporting Bugs
 Please report bugs in the [Issues](https://github.com/Romejanic/4chan-Discord-Bot/issues) tab of this page. If you are a developer and would like to try and fix some of these bugs, you may fork the repository and open a pull request to help.
 
-# Getting Started
+# How to use
+For help or a list of commands, type `+4chan help`.
+To get a random post off /b/, type `+4chan`.
+To get a random post off another board, type `+4chan /<board>/` (e.g. `+4chan /v/`).
+
+# Commands
+|Command|Description|
+|+4chan help|Lists all commands and their usage.|
+|+4chan random <board>|Gets a random post from the default board or a specified board.|
+|+4chan post <id> <board>|Gets the OP post of the thread with the given ID from the given board.|
+|+4chan version|Gets information about bot version and system info.|
+|+4chan config|Allows you to configure the behaviour of the bot for your server (available to server admins only)|
+|+4chan debug|Debug commands to aid development of the bot (available to bot developers only)|
+
+# Getting Started with Development
 You will need
 - NodeJS
 - A Discord application token for a bot

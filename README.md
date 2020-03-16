@@ -11,6 +11,7 @@ To get a random post off another board, type `+4chan /<board>/` (e.g. `+4chan /v
 
 # Commands
 |Command|Description|
+|-------|-----------|
 |+4chan help|Lists all commands and their usage.|
 |+4chan random <board>|Gets a random post from the default board or a specified board.|
 |+4chan post <id> <board>|Gets the OP post of the thread with the given ID from the given board.|

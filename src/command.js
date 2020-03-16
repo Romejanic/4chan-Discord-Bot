@@ -41,6 +41,12 @@ function parseCommand(message, prefix, config) {
             let commandName = args[0].toLowerCase();
             args.splice(0, 1);
 
+            // allow support for changing board without writing random
+            if(commandName.startsWith("/") || commandName.endsWith("/")) {
+                args = [ commandName ];
+                commandName = "random";
+            }
+
             for(let cmd in commands) {
                 if(cmd === commandName) {
                     commands[cmd](message, args);
@@ -62,10 +68,12 @@ function parseCommand(message, prefix, config) {
 function registerCommands(config) {
     // help
     commands["help"] = (message, args) => {
+        const prefix = getPrefix(message, config);
         const embed = new RichEmbed();
         embed.setAuthor(strings["help_title"], commandHelpImg, commandHelpUrl);
         embed.setColor("#FED7B0");
         for(let cmd in commands) {
+            let suffix = "";
             switch(cmd) {
                 case "config":
                     if(message.channel.type !== "text" || !message.member.hasPermission("ADMINISTRATOR")) {
@@ -77,10 +85,13 @@ function registerCommands(config) {
                         continue;
                     }
                     break;
+                case "random":
+                    suffix = strings["random_suffix"].format(prefix);
+                    break;
                 default:
                     break;
             }
-            embed.addField(`${getPrefix(message, config)} ${cmd}`, strings[cmd+"_help"]);
+            embed.addField(`${prefix} ${cmd}${suffix}`, strings[cmd+"_help"]);
         }
         embed.setFooter("Created by @memedealer#6607 | Find me on GitHub!");
         message.channel.send(embed);

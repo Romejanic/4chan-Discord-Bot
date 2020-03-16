@@ -53,5 +53,7 @@
     "random_help": "Gets a random post from the default board or a specified board.",
     "debug_help": "Debug commands to aid development of the bot.",
     "post_help": "Gets the OP post of the thread with the given ID from the given board.",
-    "config_help": "Allows you to configure the behaviour of the bot for your server."
+    "config_help": "Allows you to configure the behaviour of the bot for your server.",
+
+    "random_suffix": " OR {0} /<board>/"
 }

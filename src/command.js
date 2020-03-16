@@ -98,7 +98,8 @@ function registerCommands(config) {
     };
     // random
     commands["random"] = (message, args) => {
-        let board = config.default_board;
+        let cfg = message.guild ? config.guilds.getConfigForGuild(message.guild.id) : undefined;
+        let board = cfg.default_board ? cfg.default_board : config.default_board;
         if(args.length > 0) {
             board = chan.getBoardName(args[0]);
         }
@@ -109,7 +110,6 @@ function registerCommands(config) {
         }
 
         chan.getRandomPost(board).then((post) => {
-            let cfg = message.guild ? config.guilds.getConfigForGuild(message.guild.id) : undefined;
             sendPost(post, message, config, cfg);
         }, (reason) => {
             if(reason.board_not_found) {
@@ -268,23 +268,23 @@ function registerCommands(config) {
                     break;
                 */
                 case "default_board":
-										if(args.length == 1) {
-											let board = cfg.default_board ? cfg.default_board : config.default_board;
-											message.channel.send(strings["config_default_board" + (cfg.default_board ? "" : "_global")].format(board));
-										} else {
-											let board = chan.getBoardName(args[1]);
-											if(board === "clear" ) {
-												delete cfg.default_board;
-												config.guilds.save();
-												message.channel.send(strings["config_default_board_cleared"]);
-											} else {
-												cfg.default_board = board;
-												config.guilds.save();
-												message.channel.send(strings["config_default_board_set"].format(board));
-											}
-										}
-										break;
-								default:
+					if(args.length == 1) {
+						let board = cfg.default_board ? cfg.default_board : config.default_board;
+						message.channel.send(strings["config_default_board" + (cfg.default_board ? "" : "_global")].format(board));
+					} else {
+						let board = chan.getBoardName(args[1]);
+						if(board === "clear" ) {
+							delete cfg.default_board;
+							config.guilds.save();
+							message.channel.send(strings["config_default_board_cleared"]);
+						} else {
+							cfg.default_board = board;
+							config.guilds.save();
+							message.channel.send(strings["config_default_board_set"].format(board));
+						}
+					}
+					break;
+				default:
                     message.channel.send(strings["config_bad_key"].format(key, prefix));
                     break;
             }

@@ -267,7 +267,24 @@ function registerCommands(config) {
                     }
                     break;
                 */
-                default:
+                case "default_board":
+										if(args.length == 1) {
+											let board = cfg.default_board ? cfg.default_board : config.default_board;
+											message.channel.send(strings["config_default_board" + (cfg.default_board ? "" : "_global")].format(board));
+										} else {
+											let board = chan.getBoardName(args[1]);
+											if(board === "clear" ) {
+												delete cfg.default_board;
+												config.guilds.save();
+												message.channel.send(strings["config_default_board_cleared"]);
+											} else {
+												cfg.default_board = board;
+												config.guilds.save();
+												message.channel.send(strings["config_default_board_set"].format(board));
+											}
+										}
+										break;
+								default:
                     message.channel.send(strings["config_bad_key"].format(key, prefix));
                     break;
             }

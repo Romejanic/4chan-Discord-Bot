@@ -31,7 +31,7 @@
     "post_nopost": "Post `{0}` in board `{1}` not found!",
 
     "config_notadmin": "You must be an administrator on this server to use this command!",
-    "config_keys": "**Available config keys:**\nprefix - The bot's prefix on this server\nrestrict - Restrict the bot to certain channels\nremoval_time - Number of seconds users can remove posts in",
+    "config_keys": "**Available config keys:**\nprefix - The bot's prefix on this server\nrestrict - Restrict the bot to certain channels\nremoval_time - Number of seconds users can remove posts in\ndefault_board - Change the default board used by the `random` command.",
     "config_bad_key": "Unrecognized config key `{0}`, type `{1} config` for a list of keys.",
     "config_notserver": "Sorry, this command is only available in a server.",
     "config_prefix": "**Current prefix:** `{0}`\nTo set the prefix, type `{1} config prefix set <prefix>`.\nTo clear the prefix, type `{1} config prefix clear`.",
@@ -48,6 +48,10 @@
     "config_removal_time_set": "Set removal timeout to {0} seconds.",
     "config_removal_time_cleared": "Reset removal timeout to {0} seconds.",
     "config_removal_time_default": "{0} *(default)*",
+		"config_default_board": "**Default board:** {0}",
+		"config_default_board_global": "**Default board:** {0} (global default)",
+		"config_default_board_cleared": "Reset default board to global default.",
+		"config_default_board_set": "Default board is now: **{0}**",
 
     "enabled_true": "enabled",
     "enabled_false": "disabled",

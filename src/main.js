@@ -11,6 +11,7 @@ function initBot() {
 	// check config
 	let config = require("../config.json");
 	config.guildCount = 0;
+  config.getGuildNames = () => {};
 	// copy new config entries (if needed)
 	let template = require("../data/config_default.json");
 	// check if there's any new config keys, and if so write the file out
@@ -85,6 +86,11 @@ function registerClientEvents(client, config) {
 	client.on("error", (err) => {
 		console.error("[Client] Unexpected error occurred!", err);
 	});
+  config.getGuildNames = () => {
+      return new Promise((resolve) => {
+          resolve(client.guilds.map((g) => { return `**${g.id}** - ${g.name} - ${g.memberCount} members`; }));
+      });
+  };
 }
 
 function checkConfig(callback) {

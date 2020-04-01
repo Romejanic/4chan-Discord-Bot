@@ -99,7 +99,7 @@ function registerCommands(config) {
     // random
     commands["random"] = (message, args) => {
         let cfg = message.guild ? config.guilds.getConfigForGuild(message.guild.id) : undefined;
-        let board = cfg.default_board ? cfg.default_board : config.default_board;
+        let board = cfg && cfg.default_board ? cfg.default_board : config.default_board;
         if(args.length > 0) {
             board = chan.getBoardName(args[0]);
         }
@@ -296,7 +296,7 @@ function registerCommands(config) {
             message.channel.send(strings["editor_required"]);
             return;
         }
-        let subCommands = ["reload"];
+        let subCommands = ["reload", "guilds"];
         if(args.length <= 0) {
             message.channel.send(strings["debug_nocmd"].format(subCommands.join("\n")));
         } else {
@@ -316,6 +316,18 @@ function registerCommands(config) {
                         }
                     });
                     break;
+                case subCommands[1]: // guild names
+										config.getGuildNames().then((names) => {
+											if(names.length > 50) {
+												let n = names.length;
+												names = names.splice(0, 50);
+                        let txt = names.join("\n") + "\n*and " + (n-50) + " more*";
+                        message.channel.send(txt);
+											} else {
+												message.channel.send(names.join("\n"));
+											}
+										});
+										break;
                 default:
                     message.channel.send(strings["debug_unknown"].format(args[0]));
                     break;

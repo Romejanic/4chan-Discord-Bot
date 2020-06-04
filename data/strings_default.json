@@ -26,6 +26,8 @@
     "debug_unknown": "Unknown sub-command: {0}",
     "debug_reload": "Reloaded strings from file",
     "debug_error": "An error occurred while performing that action: {0}",
+    "debug_guildconfig": "**Guild Config**",
+    "debug_reloadingconfig": "Attempting to reload {0} (check console)",
 
     "post_usage": "**Usage:** {0} post <id> <board>",
     "post_nopost": "Post `{0}` in board `{1}` not found!",

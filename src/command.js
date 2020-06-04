@@ -296,7 +296,7 @@ function registerCommands(config) {
             message.channel.send(strings["editor_required"]);
             return;
         }
-        let subCommands = ["reload"];
+        let subCommands = ["reload", "rgconfig"];
         if(args.length <= 0) {
             message.channel.send(strings["debug_nocmd"].format(subCommands.join("\n")));
         } else {
@@ -315,6 +315,10 @@ function registerCommands(config) {
                             }
                         }
                     });
+                    break;
+                case subCommands[1]: // rgconfig
+                    config.guilds.load();
+                    message.channel.send(strings["debug_reloadingconfig"].format(strings["debug_guildconfig"]));
                     break;
                 default:
                     message.channel.send(strings["debug_unknown"].format(args[0]));

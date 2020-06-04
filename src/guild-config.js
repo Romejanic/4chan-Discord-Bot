@@ -6,11 +6,13 @@ const GuildConfig = {
     config: {},
     loading: false,
     canSave: true,
+    hasLoaded: false,
 
     load: function() {
         fs.exists(configFile, (exists) => {
             if(exists) {
                 this.loading = true;
+                this.canSave = false;
                 fs.readFile(configFile, (err, data) => {
                     if(err) {
                         console.error("[GuildConfig] Failed to read config file! Saving has been disabled to prevent data loss.\n", err);
@@ -20,6 +22,8 @@ const GuildConfig = {
                     let json = data.toString();
                     this.config = JSON.parse(json);
                     this.loading = false;
+                    this.hasLoaded = true;
+                    this.canSave = true;
                 });
             }
         });
@@ -37,7 +41,7 @@ const GuildConfig = {
     },
 
     getConfigForGuild: function(guild) {
-        if(this.loading) {
+        if(!this.hasLoaded) {
             return {};
         } else {
             if(!this.config[guild]) {

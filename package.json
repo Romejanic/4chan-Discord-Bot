@@ -1,6 +1,6 @@
 {
 	"name": "4chan-discord-bot",
-	"version": "1.0.4",
+	"version": "1.0.5",
 	"description": "A bot to pull random images off 4chan",
 	"repository": {
 		"type": "git",

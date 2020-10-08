@@ -9,6 +9,9 @@ let strings;
 const commandHelpImg = "https://cdn.discordapp.com/avatars/592655834568327179/f0ae1e42b1dbb8a2f4df48ddf60d80b9.png?size=64";
 const commandHelpUrl = "https://github.com/Romejanic/4chan-Discord-Bot/blob/master/COMMANDS.md";
 
+const avatarUrlProd = "https://cdn.discordapp.com/avatars/592655834568327179/f0ae1e42b1dbb8a2f4df48ddf60d80b9.png?size=256";
+const avatarUrlDev  = "https://cdn.discordapp.com/avatars/763736231812399115/6bbef49611cc60cb295ccceba74095ea.png?size=256";
+
 function parseCommand(message, prefix, config) {
     if(message.author.bot) {
         return;
@@ -332,10 +335,11 @@ function registerCommands(config) {
         const PKG = require("../package.json");
         const MEM = process.memoryUsage();
         // construct embed
+        let avatar = ENV === "Production" ? avatarUrlProd : avatarUrlDev;
         let embed = new RichEmbed()
             .setColor("#FED7B0")
             .setTitle(strings["version_title"])
-            .setThumbnail("https://cdn.discordapp.com/avatars/592655834568327179/f0ae1e42b1dbb8a2f4df48ddf60d80b9.png?size=256")
+            .setThumbnail(avatar)
             .setDescription(strings["version_desc"])
             .addField("Version", PKG.version, true)
             .addField("Build Type", ENV, true)

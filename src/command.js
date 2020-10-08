@@ -91,6 +91,8 @@ function registerCommands(config) {
                 case "random":
                     suffix = strings["random_suffix"].format(prefix);
                     break;
+                case "version":
+                    continue;
                 default:
                     break;
             }
@@ -329,8 +331,8 @@ function registerCommands(config) {
             }
         }
     };
-    // version
-    commands["version"] = (message, args) => {
+    // info
+    commands["info"] = (message, args) => {
         const ENV = process.argv.indexOf("-dev") > -1 ? "Development" : "Production";
         const PKG = require("../package.json");
         const MEM = process.memoryUsage();
@@ -351,6 +353,7 @@ function registerCommands(config) {
         // send message
         message.channel.send(embed);
     };
+    commands["version"] = commands["info"]; // add command alias for backwards compatibility
 }
 
 function sendPost(post, message, config, gconfig) {

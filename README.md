@@ -49,9 +49,9 @@ This is what each individual file in the root of the project does.
 |README.md|Markdown File|This file you're reading right now.|
 |COMMANDS.md|Markdown file|A helpful, detailed guide to how to use commands. You can view this by type `+4chan help` into Discord and clicking the 'Command Help' header.|
 |config.json|JSON File|The global configuration file for the bot. Also contains the authentication token.|
-|strings.json|JSON File|A file containing all the messages which the bot can send. You may edit this to customize the message text/translate it to other languages.|
+|strings.json|JSON File|A file containing all the messages which the bot can send.|
 |guild-config.json|JSON File|The save file for the per-guild configuration. This is automatically handled by the bot and shouldn't be edited manually.|
 |.gitignore|Git Ignore File|The gitignore file. Should be pretty self-explainatory.|
 |src|Folder|The source code of the bot.|
-|data|Folder|The folder containing the default `config.json` and `strings.json` files.|
+|data|Folder|The folder containing the default `config.json` file.|
 |node_modules|Folder|The heaviest object in the universe.|

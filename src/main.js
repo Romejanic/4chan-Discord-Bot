@@ -38,6 +38,7 @@ function initBot() {
 	stats.load().catch(err => {
 		console.error("[Stats] Failed to load stats!", err);
 	});
+	config.stats = stats;
 
 	// create client
 	let client = new Discord.Client();

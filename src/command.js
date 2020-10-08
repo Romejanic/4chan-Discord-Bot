@@ -351,6 +351,9 @@ function registerCommands(config) {
             .addField("Node version", process.version, true)
             .addField("Operating System", process.platform, true)
             .addField("Memory Usage", (100 * MEM.heapUsed / MEM.heapTotal).toFixed(1) + "%", true)
+            .addField("Total Requests", config.stats.totalServed, true)
+            .addField("Daily Requests", config.stats.dailyServed, true)
+            .addField("Requests Today", config.stats.todayServed, true)
             .setFooter("Created by @memedealer#6607");
         // send message
         message.channel.send(embed);

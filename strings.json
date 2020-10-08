@@ -65,5 +65,19 @@
     "config_help": "Allows you to configure the behaviour of the bot for your server.",
     "info_help": "See support links, bot version and system info.",
 
-    "random_suffix": " OR {0} /<board>/"
+    "random_suffix": " OR {0} /<board>/",
+
+    "info_version": "Version",
+    "info_build_type": "Build Type",
+    "info_used_in": "Used in",
+    "info_node": "node.js version",
+    "info_os": "Operating System",
+    "info_memory": "Memory Usage",
+    "info_stats_total": "Total Requests",
+    "info_stats_daily": "Daily Requests",
+    "info_stats_today": "Requests Today",
+    "info_footer": "Created by @memedealer#6607",
+
+    "info_dev_build_true": "Development",
+    "info_dev_build_false": "Production"
 }

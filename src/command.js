@@ -335,26 +335,27 @@ function registerCommands(config) {
     };
     // info
     commands["info"] = (message, args) => {
-        const ENV = process.argv.indexOf("-dev") > -1 ? "Development" : "Production";
+        let isDev = process.argv.indexOf("-dev") > -1;
+        const ENV = strings["info_dev_build_" + isDev];
         const PKG = require("../package.json");
         const MEM = process.memoryUsage();
         // construct embed
-        let avatar = ENV === "Production" ? avatarUrlProd : avatarUrlDev;
+        let avatar = !isDev ? avatarUrlProd : avatarUrlDev;
         let embed = new RichEmbed()
             .setColor("#FED7B0")
             .setTitle(strings["version_title"])
             .setThumbnail(avatar)
             .setDescription(strings["version_desc"])
-            .addField("Version", PKG.version, true)
-            .addField("Build Type", ENV, true)
-            .addField("Used in", strings["version_servers"].format(config.guildCount), true)
-            .addField("Node version", process.version, true)
-            .addField("Operating System", process.platform, true)
-            .addField("Memory Usage", (100 * MEM.heapUsed / MEM.heapTotal).toFixed(1) + "%", true)
-            .addField("Total Requests", config.stats.totalServed, true)
-            .addField("Daily Requests", config.stats.dailyServed, true)
-            .addField("Requests Today", config.stats.todayServed, true)
-            .setFooter("Created by @memedealer#6607");
+            .addField(strings["info_version"], PKG.version, true)
+            .addField(strings["info_build_type"], ENV, true)
+            .addField(strings["info_used_in"], strings["version_servers"].format(config.guildCount), true)
+            .addField(strings["info_node"], process.version, true)
+            .addField(strings["info_os"], process.platform, true)
+            .addField(strings["info_memory"], (100 * MEM.heapUsed / MEM.heapTotal).toFixed(1) + "%", true)
+            .addField(strings["info_stats_total"], config.stats.totalServed, true)
+            .addField(strings["info_stats_daily"], config.stats.dailyServed, true)
+            .addField(strings["info_stats_today"], config.stats.todayServed, true)
+            .setFooter(strings["info_footer"]);
         // send message
         message.channel.send(embed);
     };

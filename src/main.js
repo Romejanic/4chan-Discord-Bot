@@ -71,12 +71,18 @@ function registerClientEvents(client, config) {
 		updateGuildCount();
 	});
 	client.on("message", (message) => {
+		if(message.author.bot) {
+			return;
+		}
 		let pfx = config.prefix;
 		if(message.channel.type === "text") {
 			let cfg = config.guilds.getConfigForGuild(message.guild.id);	
 			if(cfg.prefix) {
 				pfx = cfg.prefix;
 			}
+		} else if(process.argv.indexOf("-dev") > -1 && config.editor_usernames.indexOf(message.author.tag) < 0) {
+			message.channel.send("Sorry, private messages are not allowed on the development version unless you are an editor!");
+			return;
 		}
 		Commands.parse(message, pfx, config);
 	});

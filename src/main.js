@@ -105,41 +105,42 @@ function checkConfig(callback) {
 			process.exit(0);
 		});
 	} else {
-		// copy default strings if they don't exist already
-		fs.exists("strings.json", (exists) => {
-			if(!exists) {
-				let inn = fs.createReadStream("data/strings_default.json");
-				let out = fs.createWriteStream("strings.json");
-				inn.pipe(out);
-				inn.on("end", () => {
-					callback();
-				});
-			} else {
-				fs.readFile("data/strings_default.json", (err, data) => {
-					if(err) {
-						console.error("[Config] Failed to read default strings file!", err);
-					} else {
-						fs.readFile("strings.json", (err, data1) => {
-							if(err) {
-								console.error("[Config] Failed to read current strings file!", err);
-							} else {
-								let template = JSON.parse(data.toString());
-								let current = JSON.parse(data1.toString());
-								if(Utils.matchTemplate(current, template, "strings")) {
-									let json = JSON.stringify(current, null, 4);
-									fs.writeFile("strings.json", json, (err) => {
-										if(err) {
-											console.error("[Config] Failed to write new strings to file!", err);
-										}
-									});
-								}
-							}
-						});
-					}
-				});
-				callback();
-			}
-		});
+		callback();
+		// // copy default strings if they don't exist already
+		// fs.exists("strings.json", (exists) => {
+		// 	if(!exists) {
+		// 		let inn = fs.createReadStream("data/strings_default.json");
+		// 		let out = fs.createWriteStream("strings.json");
+		// 		inn.pipe(out);
+		// 		inn.on("end", () => {
+		// 			callback();
+		// 		});
+		// 	} else {
+		// 		fs.readFile("data/strings_default.json", (err, data) => {
+		// 			if(err) {
+		// 				console.error("[Config] Failed to read default strings file!", err);
+		// 			} else {
+		// 				fs.readFile("strings.json", (err, data1) => {
+		// 					if(err) {
+		// 						console.error("[Config] Failed to read current strings file!", err);
+		// 					} else {
+		// 						let template = JSON.parse(data.toString());
+		// 						let current = JSON.parse(data1.toString());
+		// 						if(Utils.matchTemplate(current, template, "strings")) {
+		// 							let json = JSON.stringify(current, null, 4);
+		// 							fs.writeFile("strings.json", json, (err) => {
+		// 								if(err) {
+		// 									console.error("[Config] Failed to write new strings to file!", err);
+		// 								}
+		// 							});
+		// 						}
+		// 					}
+		// 				});
+		// 			}
+		// 		});
+		// 		callback();
+		// 	}
+		// });
 	}
 }
 

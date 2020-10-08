@@ -3,7 +3,6 @@
 
 # config
 /config.json
-/strings.json
 /guild-config.json
 
 # vim

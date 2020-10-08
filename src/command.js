@@ -12,7 +12,7 @@ const commandHelpUrl = "https://github.com/Romejanic/4chan-Discord-Bot/blob/mast
 const avatarUrlProd = "https://cdn.discordapp.com/avatars/592655834568327179/f0ae1e42b1dbb8a2f4df48ddf60d80b9.png?size=256";
 const avatarUrlDev  = "https://cdn.discordapp.com/avatars/763736231812399115/6bbef49611cc60cb295ccceba74095ea.png?size=256";
 
-function parseCommand(message, prefix, config) {
+function parseCommand(message, prefix, config, stats) {
     if(message.author.bot) {
         return;
     }
@@ -53,6 +53,7 @@ function parseCommand(message, prefix, config) {
             for(let cmd in commands) {
                 if(cmd === commandName) {
                     commands[cmd](message, args);
+                    stats.servedRequest();
                     return;
                 }
             }
@@ -60,6 +61,7 @@ function parseCommand(message, prefix, config) {
             commandNotFound(commandName, prefix, message);
         } else if(config.default_command && commands[config.default_command]) {
             commands[config.default_command](message, []);
+            stats.servedRequest();
         } else {
             noCommandEntered(message, prefix);
         }

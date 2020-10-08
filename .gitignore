@@ -4,6 +4,7 @@
 # config
 /config.json
 /guild-config.json
+/stats.json
 
 # vim
 *.swp

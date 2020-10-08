@@ -17,7 +17,7 @@
     "random_noboard": "The board you entered (`{0}`) does not exist!",
     
     "post_title": "> {0} by {1}",
-    "post_desc": "```{0}```\n[Permalink]({1})",
+    "post_desc": "```{0}```\n[Link to thread]({1})",
     "post_submitted": "Submitted",
     "post_removal_instructions": "React {0} within {1} seconds to remove this post.",
     "post_removal_confirm": "*Post removed.*",

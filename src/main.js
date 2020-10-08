@@ -4,6 +4,7 @@ const fs = require("fs");
 const Commands = require("./command");
 const GuildConfig = require("./guild-config");
 const Utils = require("./utils");
+const Stats = require("./stats");
 
 // define functions
  
@@ -32,9 +33,15 @@ function initBot() {
 	config.guilds = GuildConfig;
 	config.guilds.load();
 
+	// load stats
+	let stats = new Stats();
+	stats.load().catch(err => {
+		console.error("[Stats] Failed to load stats!", err);
+	});
+
 	// create client
 	let client = new Discord.Client();
-	registerClientEvents(client, config);
+	registerClientEvents(client, config, stats);
 	client.login(config.auth.token);
 	console.log("[Client] Attempting login to Discord...");
 
@@ -64,7 +71,7 @@ function initBot() {
 	}
 }
 
-function registerClientEvents(client, config) {
+function registerClientEvents(client, config, stats) {
 	let updateGuildCount = () => { config.guildCount = client.guilds.size; };
 	client.on("ready", () => {
 		console.log("[Client] Successfully logged in to Discord!");
@@ -84,7 +91,7 @@ function registerClientEvents(client, config) {
 			message.channel.send("Sorry, private messages are not allowed on the development version unless you are an editor!");
 			return;
 		}
-		Commands.parse(message, pfx, config);
+		Commands.parse(message, pfx, config, stats);
 	});
 	client.on("guildCreate", updateGuildCount);
 	client.on("guildDelete", updateGuildCount);

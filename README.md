@@ -2,7 +2,9 @@
 A bot which pulls random posts off 4chan.
 
 [Click to invite to your server](https://discordapp.com/api/oauth2/authorize?client_id=592655834568327179&permissions=124992&scope=bot)
+
 [Visit the official support server!](https://discord.gg/5hdwzTf)
+
 [View on top.gg (Discord Bots List)](https://top.gg/bot/592655834568327179)
 
 # Reporting Bugs

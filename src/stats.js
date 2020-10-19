@@ -1,4 +1,5 @@
 const fs = require("fs").promises;
+const RollingAverage = require("./avg");
 
 const STATS_FILE = "stats.json";
 
@@ -8,7 +9,7 @@ const SAVE_INTERVAL  = 1000 * 60 * 5;        // 1000ms * 60secs * 5mins
 class Stats {
 
     totalServed = 0
-    dailyServed = 0
+    dailyServed = new RollingAverage()
     todayServed = 0
 
     _dailyInterval = undefined
@@ -19,7 +20,7 @@ class Stats {
         // create daily interval
         if(!this._dailyInterval) {
             this._dailyInterval = setInterval(() => {
-                ref.dailyServed = ref.todayServed;
+                ref.dailyServed.addValue(ref.todayServed);
                 ref.todayServed = 0;
             }, DAILY_INTERVAL);
         }
@@ -43,11 +44,11 @@ class Stats {
         let jsonData = await fs.readFile(STATS_FILE);
         let jsonObj = JSON.parse(jsonData.toString());
         this.totalServed = jsonObj.total;
-        this.dailyServed = jsonObj.daily;
+        this.dailyServed = new RollingAverage(jsonObj.daily);
         this.todayServed = jsonObj.today;
         if(Date.now() - jsonObj.timestamp > DAILY_INTERVAL) {
             // reset if bot hasn't been running longer than a day
-            this.dailyServed = this.todayServed;
+            this.dailyServed.addValue(this.todayServed);
             this.todayServed = 0;
         }
         console.log("[Stats] Loaded stats: total = " + this.totalServed + ", daily = " + this.dailyServed + ", today = " + this.todayServed);
@@ -56,7 +57,7 @@ class Stats {
     async save() {
         let jsonData = JSON.stringify({
             total: this.totalServed,
-            daily: this.dailyServed,
+            daily: this.getDailyAverage(),
             today: this.todayServed,
             timestamp: Date.now()
         }, undefined, 4);
@@ -70,6 +71,10 @@ class Stats {
     servedRequest() {
         this.totalServed++;
         this.todayServed++;
+    }
+
+    getDailyAverage() {
+        return Math.round(this.dailyServed.getAverage());
     }
 
 }

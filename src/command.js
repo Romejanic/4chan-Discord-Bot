@@ -353,7 +353,7 @@ function registerCommands(config) {
             .addField(strings["info_os"], process.platform, true)
             .addField(strings["info_memory"], (100 * MEM.heapUsed / MEM.heapTotal).toFixed(1) + "%", true)
             .addField(strings["info_stats_total"], config.stats.totalServed, true)
-            .addField(strings["info_stats_daily"], config.stats.dailyServed, true)
+            .addField(strings["info_stats_daily"], config.stats.getDailyAverage(), true)
             .addField(strings["info_stats_today"], config.stats.todayServed, true)
             .setFooter(strings["info_footer"]);
         // send message

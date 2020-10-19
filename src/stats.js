@@ -51,7 +51,7 @@ class Stats {
             this.dailyServed.addValue(this.todayServed);
             this.todayServed = 0;
         }
-        console.log("[Stats] Loaded stats: total = " + this.totalServed + ", daily = " + this.dailyServed + ", today = " + this.todayServed);
+        console.log("[Stats] Loaded stats: total = " + this.totalServed + ", daily = " + this.getDailyAverage() + ", today = " + this.todayServed);
     }
 
     async save() {

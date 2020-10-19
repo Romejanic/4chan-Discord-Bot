@@ -388,9 +388,11 @@ function sendPost(post, message, config, gconfig) {
             msg.awaitReactions(filter, { max: 1, time: removalTime * 1000, errors: ["time"] }).then(collected => {
                 let reaction = collected.first();
                 if(reaction.emoji.name === config.removal_emote) {
-                    msg.delete().then(() => {
-                        message.channel.send(strings["post_removal_confirm"]);
-                    });
+                    let removeEmbed = new RichEmbed()
+                        .setColor("#FF0000")
+                        .setTitle(strings["post_removal_confirm"])
+                        .setDescription(strings["post_removal_desc"]);
+                    msg.edit("", removeEmbed);
                 }
             }).catch(() => { /* do nothing on error */ });
         });

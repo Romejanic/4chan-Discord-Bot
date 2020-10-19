@@ -20,7 +20,8 @@
     "post_desc": "```{0}```\n[Link to thread]({1})",
     "post_submitted": "Submitted",
     "post_removal_instructions": "React {0} within {1} seconds to remove this post.",
-    "post_removal_confirm": "*Post removed.*",
+    "post_removal_confirm": "Post removed.",
+    "post_removal_desc": "This post was removed by the requesting user.",
 
     "debug_nocmd": "Please enter one of the following sub-commands:\n{0}",
     "debug_unknown": "Unknown sub-command: {0}",

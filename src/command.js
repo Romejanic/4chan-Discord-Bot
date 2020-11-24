@@ -81,7 +81,7 @@ function registerCommands(config) {
             let suffix = "";
             switch(cmd) {
                 case "config":
-                    if(message.channel.type !== "text" || !message.member.hasPermission("ADMINISTRATOR")) {
+                    if(message.channel.type !== "text" || !message.member || !message.member.hasPermission("ADMINISTRATOR")) {
                         continue;
                     }
                     break;

@@ -13,12 +13,14 @@
 	},
 	"dependencies": {
 		"discord.js": "^11.6.4",
+		"mysql": "^2.18.1",
 		"unescape": "^1.0.1"
 	},
 	"main": "src/main.js",
 	"scripts": {
 		"start": "node src/main.js",
 		"dev": "node src/main.js -dev",
-		"async": "touch nohup.out && rm nohup.out && nohup node src/main.js &"
+		"async": "touch nohup.out && rm nohup.out && nohup node src/main.js &",
+		"convert": "node tools/convert-config.js"
 	}
 }

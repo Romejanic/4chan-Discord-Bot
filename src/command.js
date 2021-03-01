@@ -120,7 +120,7 @@ function sendPost(post, ctx, global) {
 
     let removalTime = ctx.config.getRemovalTime();
     if(ctx.isServer) {
-        embed.setFooter(STRINGS["post_removal_instructions"].format(global.removal_emote, removalTime));
+        embed.setFooter(STRINGS["post_removal_instructions"].format(global.removal_emote));
     }
     let msgPromise = ctx.channel.send(embed);
     if(ctx.isServer) {

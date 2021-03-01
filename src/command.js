@@ -40,7 +40,7 @@ const COMMANDS = {
         ctx.channel.send(embed);
     },
 
-    "info": async (args, ctx, lib) => {
+    "info": async (args, ctx) => {
         const { version } = require("../package.json");
         const { heapUsed, heapTotal } = process.memoryUsage();
         let embed = new RichEmbed()
@@ -95,6 +95,42 @@ const COMMANDS = {
             } else {
                 embed
                 .setTitle(STRINGS["random_error"])
+                .setDescription(STRINGS["random_error_desc"].format(err));
+            }
+            ctx.channel.send(embed);
+        });
+    },
+
+    "post": async(args, ctx) => {
+        // if user passes incorrect number of arguments, show help for the command
+        if(args.length != 2) {
+            let embed = new RichEmbed()
+            .setColor(EMBED_COLOR_SUCCESS)
+            .setAuthor(STRINGS["help_title"], CMD_HELP_IMAGE, CMD_HELP_URL)
+            .setDescription(STRINGS["post_help"])
+            .addField(STRINGS["help_usage"], STRINGS["post_usage"].format(ctx.config.getPrefix()), false)
+            .addField(STRINGS["help_example"], STRINGS["post_usage_example"].format(ctx.config.getPrefix()), false);
+            ctx.channel.send(embed);
+            return;
+        }
+
+        // get id and board from post
+        let id = args[0];
+        let board = chan.getBoardName(args[1].toLowerCase());
+
+        // get post from api
+        chan.getPost(id, board).then((post) => {
+            sendPost(post, ctx, lib.config.global);
+        }).catch((err) => {
+            let embed = new RichEmbed()
+                .setColor(EMBED_COLOR_ERROR);
+            if(err.post_not_found) {
+                embed
+                .setTitle(STRINGS["post_nopost"])
+                .setDescription(STRINGS["post_nopost_desc"].format(err.post_not_found, board));
+            } else {
+                embed
+                .setTitle(STRINGS["post_error"])
                 .setDescription(STRINGS["random_error_desc"].format(err));
             }
             ctx.channel.send(embed);
@@ -206,7 +242,7 @@ module.exports = {
             // check if command exists
             if(COMMANDS[cmdName]) {
                 // run command with arguments and context
-                await COMMANDS[cmdName](args, Object.freeze(ctx), lib);
+                await COMMANDS[cmdName](args, Object.freeze(ctx));
             } else {
                 // command was not found
                 let embed = new RichEmbed()
@@ -217,7 +253,7 @@ module.exports = {
             }
         } else if(COMMANDS[lib.config.global.default_command]) {
             // run the default command if no command is provided
-            await COMMANDS[lib.config.global.default_command]([], Object.freeze(ctx), lib);
+            await COMMANDS[lib.config.global.default_command]([], Object.freeze(ctx));
         } else {
             // no command was entered, with no default command to fall back on
             // (due to global config this shouldn't happen)

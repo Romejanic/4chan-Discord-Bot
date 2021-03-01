@@ -5,10 +5,38 @@ const STRINGS = require("../strings.json");
 const EMBED_COLOR_SUCCESS = "#FED7B0";
 const EMBED_COLOR_ERROR   = "#FF0000";
 const AVATAR_URL = "https://cdn.discordapp.com/avatars/592655834568327179/f0ae1e42b1dbb8a2f4df48ddf60d80b9.png?size=256";
-const AVATAR_URL_DEV  = "https://cdn.discordapp.com/avatars/763736231812399115/6bbef49611cc60cb295ccceba74095ea.png?size=256";
+const AVATAR_URL_DEV = "https://cdn.discordapp.com/avatars/763736231812399115/6bbef49611cc60cb295ccceba74095ea.png?size=256";
+const CMD_HELP_IMAGE = "https://cdn.discordapp.com/avatars/592655834568327179/f0ae1e42b1dbb8a2f4df48ddf60d80b9.png?size=64";
+const CMD_HELP_URL = "https://github.com/Romejanic/4chan-Discord-Bot/blob/master/COMMANDS.md";
 
 // command handlers
 const COMMANDS = {
+
+    "help": async (args, lib, ctx) => {
+        let embed = new RichEmbed()
+            .setColor(EMBED_COLOR_SUCCESS)
+            .setAuthor(STRINGS["help_title"], CMD_HELP_IMAGE, CMD_HELP_URL)
+            .setFooter(STRINGS["help_footer"]);
+        const prefix = ctx.config.getPrefix();
+        for(let cmd in COMMANDS) {
+            let suffix = "";
+            switch(cmd) {
+                case "version":
+                    continue;
+                case "config":
+                    if(!ctx.isAdmin) continue;
+                    break;
+                case "debug":
+                    if(!ctx.isBotDev) continue;
+                    break;
+                case "random":
+                    suffix = STRINGS["random_suffix"].format(prefix);
+                    break;
+            }
+            embed.addField(`${prefix} ${cmd}${suffix}`, STRINGS[cmd+"_help"], false);
+        }
+        ctx.channel.send(embed);
+    },
 
     "info": async (args, lib, ctx) => {
         const { version } = require("../package.json");
@@ -33,6 +61,8 @@ const COMMANDS = {
     }
 
 };
+// add `+4chan version` alias for backwards compatability
+COMMANDS["version"] = COMMANDS["info"];
 
 //-----------------------------------------------------------------------------//
 

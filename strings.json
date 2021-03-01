@@ -8,6 +8,7 @@
     "editor_required": "You must be an editor of the project to perform this action.",
 
     "help_title": "Command Help",
+    "help_footer": "Created by @memedealer#6607 | Find me on GitHub!",
 
     "random_helpmsg": "**Usage:** {0} random [board] - Optionally add a board name to pull from",
     "random_error": "Failed to get a random post! Contact the developer and give them this message:\n```{0}```",

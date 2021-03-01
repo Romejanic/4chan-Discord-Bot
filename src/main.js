@@ -1,4 +1,5 @@
 const { Client } = require("discord.js");
+const config = require("./config");
 
 let client = new Client();
 
@@ -10,7 +11,7 @@ client.on("error", (err) => {
     console.error("[Bot] Unexpected error:", err);
 });
 
-client.login(require("../config.json").auth.token).then(() => {
+client.login(config.global.auth.token).then(() => {
     console.log("[Bot] Logged in! Ready to go!");
 }).catch((err) => {
     console.error("[Bot] Failed to login with token!\n", err);

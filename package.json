@@ -12,8 +12,7 @@
 		"email": "jack.davenport5011@gmail.com"
 	},
 	"dependencies": {
-		"discord.js": "^11.6.4",
-		"unescape": "^1.0.1"
+		"discord.js": "^11.6.4"
 	},
 	"main": "src/main.js",
 	"scripts": {

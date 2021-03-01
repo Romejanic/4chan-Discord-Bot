@@ -23,4 +23,3 @@ client.login(config.global.auth.token).then(() => {
 
 console.log("[Bot] Logging in with token...");
 command.initLib(config, null);
-command.parse = command.parse.bind(command);

@@ -1,10 +1,14 @@
 const { Client } = require("discord.js");
 const config = require("./config");
+const command = require("./command");
 
 let client = new Client();
 
 client.on("message", (msg) => {
-    console.log(msg.content);
+    // send message off to command parser
+    command.parse(msg).catch((e) => {
+        console.error("[Bot] Error while processing command!\n", e);
+    });
 });
 
 client.on("error", (err) => {
@@ -18,3 +22,5 @@ client.login(config.global.auth.token).then(() => {
 });
 
 console.log("[Bot] Logging in with token...");
+command.initLib(config, null);
+command.parse = command.parse.bind(command);

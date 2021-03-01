@@ -229,6 +229,14 @@ module.exports = {
         }
     },
 
+    onCommandError: (err, channel) => {
+        let embed = new RichEmbed()
+            .setColor(EMBED_COLOR_ERROR)
+            .setTitle(STRINGS["command_error"])
+            .setDescription(STRINGS["random_error_desc"].format(err));
+        channel.send(embed);
+    }
+
 };
 
 // implement String.format as expected

@@ -11,15 +11,19 @@ const COMMANDS = {
 let lib = null;
 
 function getCommandContext(msg, config) {
-    console.log(msg.member, typeof msg.member);
     let ctx = {
-        isServer: typeof msg.member !== "undefined",
+        // is the current message in a server text channel?
+        isServer: msg.member != null && msg.member != undefined,
+        // is the user that sent the message a bot author?
         isBotDev: config.global.editor_usernames.indexOf(msg.author.tag) > -1
     };
+    // if it's not a server, it must be a dm
     ctx.isDM = !ctx.isServer;
     if(ctx.isServer) {
         ctx.server = {
+            // the id of the current server
             id: msg.guild.id,
+            // is the user that sent the message a server admin?
             isAdmin: msg.member.hasPermission("ADMINISTRATOR")
         };
     }

@@ -1,4 +1,5 @@
 const { RichEmbed } = require("discord.js");
+const unescape = require("unescape");
 const chan = require("./lib/4chan-api");
 const STRINGS = require("../strings.json");
 
@@ -83,7 +84,7 @@ const COMMANDS = {
 
         // get the post and send it
         chan.getRandomPost(board).then((post) => {
-            throw "testing";
+            sendPost(post, ctx, lib.config.global);
         }).catch((err) => {
             let embed = new RichEmbed()
                 .setColor(EMBED_COLOR_ERROR);
@@ -104,6 +105,51 @@ const COMMANDS = {
 // add `+4chan version` alias for backwards compatability
 COMMANDS["version"] = COMMANDS["info"];
 
+function sendPost(post, ctx, global) {
+    let postText = unescape(post.text.length > 2000 ? post.text.substring(0, 2000) + "..." : post.text);
+    postText = postText.replace(/<br>/gi, "\n");
+    postText = postText.replace("</span>", "");
+    postText = postText.replace("<span class=\"quote\">", "");
+        
+    let embed = new RichEmbed()
+        .setColor(EMBED_COLOR_SUCCESS)
+        .setTitle(STRINGS["post_title"].format(post.id, post.author))
+        .setDescription(STRINGS["post_desc"].format(postText, post.permalink))
+        .setImage(post.image)
+        .addField(STRINGS["post_submitted"], post.timestamp);
+
+    let removalTime = ctx.config.getRemovalTime();
+    if(ctx.isServer) {
+        embed.setFooter(STRINGS["post_removal_instructions"].format(global.removal_emote, removalTime));
+    }
+    let msgPromise = ctx.channel.send(embed);
+    if(ctx.isServer) {
+        msgPromise.then(msg => {
+            // remove instructions after timeout interval
+            let timeout = setTimeout(() => {
+                embed.footer = null;
+                msg.edit(embed);
+            }, removalTime * 1000);
+            // create reaction filter to capture reactions
+            let filter = (reaction, user) => {
+                return reaction.emoji.name === global.removal_emote && user.id === ctx.author.id;
+            };
+            msg.awaitReactions(filter, { max: 1, time: removalTime * 1000, errors: ["time"] }).then(collected => {
+                // remove post if the reaction and user matches
+                let reaction = collected.first();
+                if(reaction.emoji.name === global.removal_emote) {
+                    let removeEmbed = new RichEmbed()
+                        .setColor(EMBED_COLOR_ERROR)
+                        .setTitle(STRINGS["post_removal_confirm"])
+                        .setDescription(STRINGS["post_removal_desc"]);
+                    msg.edit("", removeEmbed);
+                    clearTimeout(timeout);
+                }
+            }).catch(() => { /* do nothing on error */ });
+        });
+    }
+}
+
 //-----------------------------------------------------------------------------//
 
 let lib = null;
@@ -116,6 +162,7 @@ function getCommandContext(msg, config) {
         isBotDev: config.global.editor_usernames.indexOf(msg.author.tag) > -1,
         // other general values
         channel: msg.channel,
+        author: msg.author,
         isDev: process.argv.indexOf("-dev") > -1
     };
     // if it's not a server, it must be a dm

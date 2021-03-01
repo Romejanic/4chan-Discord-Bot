@@ -8,9 +8,6 @@
     "editor_required": "You must be an editor of the project to perform this action.",
 
     "help_title": "Command Help",
-    "version_title": "Bot Version and Info",
-    "version_servers": "{0} servers",
-    "version_desc": "[GitHub Repo](https://github.com/Romejanic/4chan-Discord-Bot)\n[Invite Link](https://discordapp.com/api/oauth2/authorize?client_id=592655834568327179&permissions=124992&scope=bot)\n[Support Server](https://discord.gg/5hdwzTf)\n[Vote for me on top.gg!](https://top.gg/bot/592655834568327179/vote)",
 
     "random_helpmsg": "**Usage:** {0} random [board] - Optionally add a board name to pull from",
     "random_error": "Failed to get a random post! Contact the developer and give them this message:\n```{0}```",
@@ -68,6 +65,9 @@
 
     "random_suffix": " OR {0} /<board>/",
 
+    "info_title": "Bot Information",
+    "info_servers": "{0} servers",
+    "info_desc": "[GitHub Repo](https://github.com/Romejanic/4chan-Discord-Bot)\n[Invite Link](https://discordapp.com/api/oauth2/authorize?client_id=592655834568327179&permissions=124992&scope=bot)\n[Support Server](https://discord.gg/5hdwzTf)\n[Vote for me on top.gg!](https://top.gg/bot/592655834568327179/vote)",
     "info_version": "Version",
     "info_build_type": "Build Type",
     "info_used_in": "Used in",

@@ -7,7 +7,7 @@ if(!configs.globalConfig) {
         fs.copyFileSync("data/config_default.json", "config.json", fs.constants.COPYFILE_EXCL);
         console.log("!!! PLEASE READ !!!");
         console.log("The default config has been copied to config.json in the bot main directory.");
-        console.log("Please edit it and add your bot token, before running the bot again.");
+        console.log("Please edit it and add your bot token and database login before running the bot again.");
         process.exit(0);
     } else {
         console.log("[Config] Reading global config from file");

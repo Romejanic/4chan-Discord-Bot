@@ -3,6 +3,14 @@
 		"token": "ENTER-YOUR-TOKEN-HERE"
 	},
 
+	"db": {
+		"host": "localhost",
+		"port": 3306,
+		"user": "YOUR-MYSQL-USERNAME",
+		"pass": "YOUR-MYSQL-PASSWORD",
+		"database": "4chanbot"
+	},
+
 	"default_board": "b",
 	"prefix": "+4chan",
 	"default_command": "random",

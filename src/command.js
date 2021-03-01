@@ -40,7 +40,7 @@ module.exports = {
 
     parse: async function(msg) {
         let ctx = getCommandContext(msg, lib.config);
-        console.log(ctx);
+        
     },
 
 };

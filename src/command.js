@@ -208,8 +208,12 @@ module.exports = {
                 // run command with arguments and context
                 await COMMANDS[cmdName](args, Object.freeze(ctx), lib);
             } else {
-                // TODO: format properly with embed
-                msg.channel.send("command not found!");
+                // command was not found
+                let embed = new RichEmbed()
+                    .setColor(EMBED_COLOR_ERROR)
+                    .setTitle(STRINGS["command_not_found"])
+                    .setDescription(STRINGS["command_not_found_desc"].format(cmdName, ctx.config.getPrefix()));
+                ctx.channel.send(embed);
             }
         } else if(COMMANDS[lib.config.global.default_command]) {
             // run the default command if no command is provided

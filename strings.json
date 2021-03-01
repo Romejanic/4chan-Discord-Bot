@@ -18,7 +18,7 @@
     "random_noboard_desc": "The board you entered (`{0}`) does not exist!\nPlease enter the name of an existing 4chan board.",
     "random_default": "Default Board",
     
-    "post_title": "> {0} by {1}",
+    "post_title": "{0} by {1}",
     "post_desc": "```{0}```\n[Link to thread]({1})",
     "post_submitted": "Submitted",
     "post_removal_instructions": "React {0} to remove this post.",

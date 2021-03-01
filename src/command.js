@@ -193,15 +193,27 @@ module.exports = {
         if(!msg.content.startsWith(ctx.config.getPrefix())) {
             return;
         }
-        // find the matching command
+        // get command arguments
         let args = msg.content.trim().split(" ");
-        let cmdName = args[1].toLowerCase();
-        if(COMMANDS[cmdName]) {
-            // run command with arguments and context
-            await COMMANDS[cmdName](args.splice(2), Object.freeze(ctx), lib);
-        } else {
-            // TODO: format properly with embed
-            msg.channel.send("command not found!");
+        if(args.length >= 2) {
+            let cmdName = args[1].toLowerCase();
+            args = args.splice(2);
+            // check if 2nd argument is a board name
+            if(cmdName.startsWith("/") || cmdName.endsWith("/")) {
+                args = [ cmdName ];
+                cmdName = "random";
+            }
+            // check if command exists
+            if(COMMANDS[cmdName]) {
+                // run command with arguments and context
+                await COMMANDS[cmdName](args, Object.freeze(ctx), lib);
+            } else {
+                // TODO: format properly with embed
+                msg.channel.send("command not found!");
+            }
+        } else if(COMMANDS[lib.config.global.default_command]) {
+            // run the default command if no command is provided
+            await COMMANDS[lib.config.global.default_command]([], Object.freeze(ctx), lib);
         }
     },
 

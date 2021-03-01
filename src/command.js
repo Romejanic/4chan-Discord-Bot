@@ -1,4 +1,5 @@
 const { RichEmbed } = require("discord.js");
+const chan = require("./lib/4chan-api");
 const STRINGS = require("../strings.json");
 
 // constants
@@ -12,7 +13,7 @@ const CMD_HELP_URL = "https://github.com/Romejanic/4chan-Discord-Bot/blob/master
 // command handlers
 const COMMANDS = {
 
-    "help": async (args, lib, ctx) => {
+    "help": async (args, ctx) => {
         let embed = new RichEmbed()
             .setColor(EMBED_COLOR_SUCCESS)
             .setAuthor(STRINGS["help_title"], CMD_HELP_IMAGE, CMD_HELP_URL)
@@ -38,7 +39,7 @@ const COMMANDS = {
         ctx.channel.send(embed);
     },
 
-    "info": async (args, lib, ctx) => {
+    "info": async (args, ctx, lib) => {
         const { version } = require("../package.json");
         const { heapUsed, heapTotal } = process.memoryUsage();
         let embed = new RichEmbed()
@@ -58,6 +59,45 @@ const COMMANDS = {
             .addField(STRINGS["info_stats_daily"], "0", true)
             .addField(STRINGS["info_stats_today"], "0", true);
         ctx.channel.send(embed);
+    },
+
+    "random": async(args, ctx) => {
+        // if user passes 'help' as argument, show help for the command
+        if(args.length > 0 && args[0].toLowerCase() === "help") {
+            let embed = new RichEmbed()
+                .setColor(EMBED_COLOR_SUCCESS)
+                .setAuthor(STRINGS["help_title"], CMD_HELP_IMAGE, CMD_HELP_URL)
+                .setDescription(STRINGS["random_help"])
+                .addField(STRINGS["help_usage"], STRINGS["random_helpmsg"].format(ctx.config.getPrefix()), false)
+                .addField(STRINGS["random_default"], `/${ctx.config.getDefaultBoard()}/`, false);
+            ctx.channel.send(embed);
+            return;
+        }
+
+        // pick the board to use
+        let board = ctx.config.getDefaultBoard();
+        if(args.length > 0) {
+            board = args[0];
+        }
+        board = chan.getBoardName(board);
+
+        // get the post and send it
+        chan.getRandomPost(board).then((post) => {
+            throw "testing";
+        }).catch((err) => {
+            let embed = new RichEmbed()
+                .setColor(EMBED_COLOR_ERROR);
+            if(err.board_not_found) {
+                embed
+                .setTitle(STRINGS["random_noboard"])
+                .setDescription(STRINGS["random_noboard_desc"].format(board));
+            } else {
+                embed
+                .setTitle(STRINGS["random_error"])
+                .setDescription(STRINGS["random_error_desc"].format(err));
+            }
+            ctx.channel.send(embed);
+        });
     }
 
 };
@@ -111,7 +151,7 @@ module.exports = {
         let cmdName = args[1].toLowerCase();
         if(COMMANDS[cmdName]) {
             // run command with arguments and context
-            await COMMANDS[cmdName](args.splice(1), lib, Object.freeze(ctx));
+            await COMMANDS[cmdName](args.splice(2), Object.freeze(ctx), lib);
         } else {
             // TODO: format properly with embed
             msg.channel.send("command not found!");

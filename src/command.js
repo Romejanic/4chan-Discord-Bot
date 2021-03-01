@@ -218,6 +218,14 @@ module.exports = {
         } else if(COMMANDS[lib.config.global.default_command]) {
             // run the default command if no command is provided
             await COMMANDS[lib.config.global.default_command]([], Object.freeze(ctx), lib);
+        } else {
+            // no command was entered, with no default command to fall back on
+            // (due to global config this shouldn't happen)
+            let embed = new RichEmbed()
+                .setColor(EMBED_COLOR_ERROR)
+                .setTitle(STRINGS["no_command_entered"])
+                .setDescription(STRINGS["no_command_entered_desc"].format(ctx.config.getPrefix()));
+            ctx.channel.send(embed);
         }
     },
 

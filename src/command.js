@@ -40,7 +40,8 @@ module.exports = {
 
     parse: async function(msg) {
         let ctx = getCommandContext(msg, lib.config);
-        
+        let cfg = lib.config.forServer(ctx.isServer ? ctx.server.id : null, ctx.isServer ? lib.db : null);
+        msg.channel.send("Command prefix: " + cfg.getPrefix());
     },
 
 };

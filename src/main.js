@@ -5,6 +5,7 @@ const command = require("./command");
 let client = new Client();
 
 client.on("message", (msg) => {
+    if(msg.author.id === client.user.id) return;
     // send message off to command parser
     command.parse(msg).catch((e) => {
         console.error("[Bot] Error while processing command!\n", e);

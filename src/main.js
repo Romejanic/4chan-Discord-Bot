@@ -1,5 +1,5 @@
 const { Client } = require("discord.js");
-const config = require("./config");
+const config = require("./lib/config");
 const command = require("./command");
 
 let client = new Client();

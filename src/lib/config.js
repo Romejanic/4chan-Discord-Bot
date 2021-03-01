@@ -11,7 +11,7 @@ if(!configs.globalConfig) {
         process.exit(0);
     } else {
         console.log("[Config] Reading global config from file");
-        configs.globalConfig = require("../config.json");
+        configs.globalConfig = require("../../config.json");
     }
 }
 

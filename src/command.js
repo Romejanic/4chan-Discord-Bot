@@ -227,6 +227,13 @@ module.exports = {
         ctx.config = await lib.config.forServer(ctx.isServer ? ctx.server.id : null, lib.db);
         // check if prefix matches
         if(!msg.content.startsWith(ctx.config.getPrefix())) {
+            if(ctx.isDM) {
+                let embed = new RichEmbed()
+                    .setColor(EMBED_COLOR_ERROR)
+                    .setTitle(STRINGS["prefix_required"])
+                    .setDescription(STRINGS["prefix_required_desc"].format(ctx.config.getPrefix()));
+                msg.channel.send(embed);
+            }
             return;
         }
         // get command arguments

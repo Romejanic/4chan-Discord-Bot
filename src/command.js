@@ -1,7 +1,9 @@
 const { RichEmbed } = require("discord.js");
+const { readFile } = require("fs").promises;
 const unescape = require("unescape");
 const chan = require("./lib/4chan-api");
-const STRINGS = require("../strings.json");
+
+let STRINGS = require("../strings.json");
 
 // constants
 const EMBED_COLOR_NORMAL = "#FED7B0";
@@ -180,7 +182,47 @@ const COMMANDS = {
     },
 
     "debug": async (args, ctx) => {
+        let embed = new RichEmbed();
+        // register sub-commands
+        const subCmds = {
+            "reload_strings": async (embed) => {
+                let stringData = (await readFile("strings.json")).toString();
+                STRINGS = JSON.parse(stringData);
+                embed.setColor(EMBED_COLOR_SUCCESS)
+                    .setTitle(STRINGS["debug_reload"])
+                    .setDescription(STRINGS["debug_reload_desc"]);
+            },
+            "dump_configs": async (embed) => {
 
+            }
+        };
+        // make sure user is a bot developer
+        if(!ctx.isBotDev) {
+            embed.setColor(EMBED_COLOR_ERROR)
+                .setTitle(STRINGS["editor_required"])
+                .setDescription(STRINGS["editor_required_desc"]);
+        }
+        // if no arguments are given, show available options
+        else if(args.length != 1) {
+            embed.setColor(EMBED_COLOR_NORMAL)
+                .setTitle(STRINGS["debug_title"]);
+            for(let cmdname in subCmds) {
+                embed.addField(cmdname, STRINGS["debug_" + cmdname], false);
+            }
+        }
+        // perform action of subcommand
+        else {
+            let cmd = args[0].toLowerCase();
+            if(subCmds[cmd]) {
+                await subCmds[cmd](embed);
+            } else {
+                embed.setColor(EMBED_COLOR_ERROR)
+                    .setTitle(STRINGS["debug_unknown"])
+                    .setDescription(STRINGS["debug_unknown_desc"].format(cmd));
+            }
+        }
+        // send embed
+        ctx.channel.send(embed);
     }
 
 };

@@ -9,7 +9,8 @@
     "restricted_channel": "Sorry, I cannot be used in the channel {1}, I can only be used in {0} and NSFW channels.",
     "nsfw_required": "You may only use the bot in a NSFW channel. Sorry for the inconvenience!",
 
-    "editor_required": "You must be an editor of the project to perform this action.",
+    "editor_required": "Not a developer!",
+    "editor_required_desc": "You must be a bot developer to perform this action.",
 
     "help_title": "Command Help",
     "help_footer": "Created by @memedealer#6607 | Find me on GitHub!",
@@ -32,12 +33,18 @@
     "post_loading": "Loading post...",
     "post_loading_desc": "Fetching from 4chan, please wait...",
 
-    "debug_nocmd": "Please enter one of the following sub-commands:\n{0}",
-    "debug_unknown": "Unknown sub-command: {0}",
-    "debug_reload": "Reloaded strings from file",
+    "debug_title": "Debug Commands",
+    "debug_nocmd": "Please enter one of the following sub-commands:\n```{0}```",
+    "debug_unknown": "Unknown sub-command!",
+    "debug_unknown_desc": "The subcommand `{0}` is invalid.",
+    "debug_reload": "Reloaded strings!",
+    "debug_reload_desc": "The strings have been reloaded from `strings.json`.",
     "debug_error": "An error occurred while performing that action: {0}",
     "debug_guildconfig": "**Guild Config**",
     "debug_reloadingconfig": "Attempting to reload {0} (check console)",
+
+    "debug_reload_strings": "Reload strings from the strings.json file",
+    "debug_dump_configs": "Dump config cache of all servers, forcing them to fetch from database next time.",
 
     "post_usage": "{0} post <id> <board>",
     "post_usage_example": "{0} post 546371175 /g/",
@@ -59,6 +66,8 @@
 
     "enabled_true": "enabled",
     "enabled_false": "disabled",
+    "success_true": "Success!",
+    "success_false": "Failed!",
 
     "help_help": "Lists all commands and their usage.",
     "random_help": "Gets a random post from the default board or a specified board.",

@@ -4,8 +4,10 @@ const chan = require("./lib/4chan-api");
 const STRINGS = require("../strings.json");
 
 // constants
-const EMBED_COLOR_SUCCESS = "#FED7B0";
+const EMBED_COLOR_NORMAL = "#FED7B0";
 const EMBED_COLOR_ERROR   = "#FF0000";
+const EMBED_COLOR_SUCCESS = "#00FF00";
+const EMBED_COLOR_LOADING = "#BBBBBB";
 const AVATAR_URL = "https://cdn.discordapp.com/avatars/592655834568327179/f0ae1e42b1dbb8a2f4df48ddf60d80b9.png?size=256";
 const AVATAR_URL_DEV = "https://cdn.discordapp.com/avatars/763736231812399115/6bbef49611cc60cb295ccceba74095ea.png?size=256";
 const CMD_HELP_IMAGE = "https://cdn.discordapp.com/avatars/592655834568327179/f0ae1e42b1dbb8a2f4df48ddf60d80b9.png?size=64";
@@ -16,7 +18,7 @@ const COMMANDS = {
 
     "help": async (args, ctx) => {
         let embed = new RichEmbed()
-            .setColor(EMBED_COLOR_SUCCESS)
+            .setColor(EMBED_COLOR_NORMAL)
             .setAuthor(STRINGS["help_title"], CMD_HELP_IMAGE, CMD_HELP_URL)
             .setFooter(STRINGS["help_footer"]);
         const prefix = ctx.config.getPrefix();
@@ -26,7 +28,7 @@ const COMMANDS = {
                 case "version":
                     continue;
                 case "config":
-                    if(!ctx.isAdmin) continue;
+                    if(!ctx.isAdmin || !ctx.isServer) continue;
                     break;
                 case "debug":
                     if(!ctx.isBotDev) continue;
@@ -45,7 +47,7 @@ const COMMANDS = {
         const { heapUsed, heapTotal } = process.memoryUsage();
         let embed = new RichEmbed()
             .setTitle(STRINGS["info_title"])
-            .setColor(EMBED_COLOR_SUCCESS)
+            .setColor(EMBED_COLOR_NORMAL)
             .setThumbnail(!ctx.isDev ? AVATAR_URL : AVATAR_URL_DEV)
             .setDescription(STRINGS["info_desc"])
             .setFooter(STRINGS["info_footer"])
@@ -66,7 +68,7 @@ const COMMANDS = {
         // if user passes 'help' as argument, show help for the command
         if(args.length > 0 && args[0].toLowerCase() === "help") {
             let embed = new RichEmbed()
-                .setColor(EMBED_COLOR_SUCCESS)
+                .setColor(EMBED_COLOR_NORMAL)
                 .setAuthor(STRINGS["help_title"], CMD_HELP_IMAGE, CMD_HELP_URL)
                 .setDescription(STRINGS["random_help"])
                 .addField(STRINGS["help_usage"], STRINGS["random_helpmsg"].format(ctx.config.getPrefix()), false)
@@ -105,7 +107,7 @@ const COMMANDS = {
         // if user passes incorrect number of arguments, show help for the command
         if(args.length != 2) {
             let embed = new RichEmbed()
-            .setColor(EMBED_COLOR_SUCCESS)
+            .setColor(EMBED_COLOR_NORMAL)
             .setAuthor(STRINGS["help_title"], CMD_HELP_IMAGE, CMD_HELP_URL)
             .setDescription(STRINGS["post_help"])
             .addField(STRINGS["help_usage"], STRINGS["post_usage"].format(ctx.config.getPrefix()), false)
@@ -135,6 +137,34 @@ const COMMANDS = {
             }
             ctx.channel.send(embed);
         });
+    },
+
+    "config": async (args, ctx) => {
+        let embed = new RichEmbed();
+        // make sure we're on a server
+        if(!ctx.isServer) {
+            embed.setColor(EMBED_COLOR_ERROR)
+                .setTitle(STRINGS["config_notserver"])
+                .setDescription(STRINGS["config_notserver_desc"]);
+        }
+        // make sure the user is a server admin
+        else if(!ctx.server.isAdmin) {
+            embed.setColor(EMBED_COLOR_ERROR)
+                .setTitle(STRINGS["config_notadmin"])
+                .setDescription(STRINGS["config_notadmin_desc"]);
+        }
+        // if no arguments are passed, show command help
+        else if(args.length <= 0) {
+            embed.setColor(EMBED_COLOR_NORMAL)
+                .setAuthor(STRINGS["config_help_title"], CMD_HELP_IMAGE, null)
+                .setDescription(STRINGS["config_help_desc"].format(ctx.config.getPrefix()))
+                .addField("default_board", ctx.config.getDisplayValue("default_board", STRINGS), true)
+                .addField("prefix", ctx.config.getDisplayValue("prefix", STRINGS), true)
+                .addField("removal_time", ctx.config.getDisplayValue("removal_time", STRINGS), true)
+                .addField("allowed_channels", ctx.config.getDisplayValue("allowed_channels", STRINGS), true);
+        }
+        // send embed
+        ctx.channel.send(embed);
     }
 
 };
@@ -148,7 +178,7 @@ function sendPost(post, ctx, global) {
     postText = postText.replace("<span class=\"quote\">", "");
         
     let embed = new RichEmbed()
-        .setColor(EMBED_COLOR_SUCCESS)
+        .setColor(EMBED_COLOR_NORMAL)
         .setTitle(STRINGS["post_title"].format(post.id, post.author))
         .setDescription(STRINGS["post_desc"].format(postText, post.permalink))
         .setImage(post.image)

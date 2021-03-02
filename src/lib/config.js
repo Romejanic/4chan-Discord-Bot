@@ -79,6 +79,26 @@ class ServerConfig {
         return this.removal_time ? this.removal_time : configs.globalConfig.removal_default_timeout;
     }
 
+    getDisplayValue(option, strings) {
+        const formatDefault = (val, original) => original ? val : strings["config_help_default"].format(val);
+        switch(option) {
+            case "default_board":
+                return formatDefault(this.getDefaultBoard(), this.default_board);
+            case "prefix":
+                return formatDefault(this.getPrefix(), this.prefix);
+            case "removal_time":
+                return formatDefault(this.getRemovalTime(), this.removal_time);
+            case "allowed_channels":
+                if(!this.restricted_channels || this.restricted_channels.length <= 0) {
+                    return formatDefault(strings["config_restricted_channels_all"], null);
+                } else {
+                    return strings["config_restricted_channels_count"].format(this.restricted_channels.length);
+                }
+            default:
+                return "??";
+        }
+    }
+
 }
 configs.servers = {};
 

@@ -43,8 +43,17 @@
     "post_nopost_desc": "Post `{0}` in board `/{1}/` doesn't exist or couldn't be found.",
     "post_error": "Failed to get post!",
 
-    "config_notadmin": "You must be an administrator on this server to use this command!",
+    "config_notserver": "Not a server!",
+    "config_notserver_desc": "This command can only be used on a server!\n[Click here](https://discordapp.com/api/oauth2/authorize?client_id=592655834568327179&permissions=124992&scope=bot) to invite to your server.",
+    "config_notadmin": "Not an admin!",
+    "config_notadmin_desc": "You must have the `ADMINISTRATOR` permission on this server to use this command!",
 
+    "config_help_title": "Server Config Options",
+    "config_help_desc": "Here is a list of all config options you can alter on your server.\n\nFor information on a specific one, type `{0} config <name>`.",
+    "config_help_default": "{0} *(default)*",
+
+    "config_restricted_channels_all": "all",
+    "config_restricted_channels_count": "{0} channels",
 
     "enabled_true": "enabled",
     "enabled_false": "disabled",

@@ -28,7 +28,7 @@ const COMMANDS = {
                 case "version":
                     continue;
                 case "config":
-                    if(!ctx.isAdmin || !ctx.isServer) continue;
+                    if(!ctx.isServer || !ctx.server.isAdmin) continue;
                     break;
                 case "debug":
                     if(!ctx.isBotDev) continue;
@@ -177,6 +177,10 @@ const COMMANDS = {
         }
         // send embed
         ctx.channel.send(embed);
+    },
+
+    "debug": async (args, ctx) => {
+
     }
 
 };
@@ -196,13 +200,13 @@ function sendPost(post, embed, msg, ctx, global) {
         .setImage(post.image)
         .addField(STRINGS["post_submitted"], post.timestamp);
 
-    let removalTime = ctx.config.getRemovalTime();
     if(ctx.isServer) {
         embed.setFooter(STRINGS["post_removal_instructions"].format(global.removal_emote));
     }
     let msgPromise = msg.edit(embed);
     if(ctx.isServer) {
         msgPromise.then(msg => {
+            let removalTime = ctx.config.getRemovalTime();
             // remove instructions after timeout interval
             let timeout = setTimeout(() => {
                 embed.footer = null;
@@ -220,7 +224,7 @@ function sendPost(post, embed, msg, ctx, global) {
                         .setColor(EMBED_COLOR_ERROR)
                         .setTitle(STRINGS["post_removal_confirm"])
                         .setDescription(STRINGS["post_removal_desc"]);
-                    msg.edit("", removeEmbed);
+                    msg.edit(removeEmbed);
                     clearTimeout(timeout);
                 }
             }).catch(() => { /* do nothing on error */ });

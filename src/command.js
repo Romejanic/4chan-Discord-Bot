@@ -195,7 +195,7 @@ function getCommandContext(msg, config) {
         // is the current message in a server text channel?
         isServer: msg.member != null && msg.member != undefined,
         // is the user that sent the message a bot author?
-        isBotDev: config.global.editor_usernames.indexOf(msg.author.tag) > -1,
+        isBotDev: config.global.editors.indexOf(msg.author.id) > -1,
         // other general values
         channel: msg.channel,
         author: msg.author,

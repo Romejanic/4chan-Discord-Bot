@@ -193,7 +193,10 @@ const COMMANDS = {
                     .setDescription(STRINGS["debug_reload_desc"]);
             },
             "dump_configs": async (embed) => {
-
+                lib.config.clearServers();
+                embed.setColor(EMBED_COLOR_SUCCESS)
+                    .setTitle(STRINGS["debug_dump_config"])
+                    .setDescription(STRINGS["debug_dump_config_desc"]);
             }
         };
         // make sure user is a bot developer

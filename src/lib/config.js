@@ -114,6 +114,9 @@ module.exports = {
             }
         }
         return configs.servers[id];
+    },
+    clearServers: async () => {
+        configs.servers = {};
     }
 
 };

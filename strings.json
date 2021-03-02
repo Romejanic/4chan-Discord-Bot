@@ -39,9 +39,8 @@
     "debug_unknown_desc": "The subcommand `{0}` is invalid.",
     "debug_reload": "Reloaded strings!",
     "debug_reload_desc": "The strings have been reloaded from `strings.json`.",
-    "debug_error": "An error occurred while performing that action: {0}",
-    "debug_guildconfig": "**Guild Config**",
-    "debug_reloadingconfig": "Attempting to reload {0} (check console)",
+    "debug_dump_config": "Dumped server configs!",
+    "debug_dump_config_desc": "Server configs have been dumped.\nServer configs will be re-fetched from database.",
 
     "debug_reload_strings": "Reload strings from the strings.json file",
     "debug_dump_configs": "Dump config cache of all servers, forcing them to fetch from database next time.",

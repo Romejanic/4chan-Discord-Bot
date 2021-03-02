@@ -84,12 +84,18 @@ const COMMANDS = {
         }
         board = chan.getBoardName(board);
 
+        // create embed
+        let embed = new RichEmbed()
+            .setColor(EMBED_COLOR_LOADING)
+            .setTitle(STRINGS["post_loading"])
+            .setDescription(STRINGS["post_loading_desc"]);
+        let msg = await ctx.channel.send(embed);
+
         // get the post and send it
         chan.getRandomPost(board).then((post) => {
-            sendPost(post, ctx, lib.config.global);
+            sendPost(post, embed, msg, ctx, lib.config.global);
         }).catch((err) => {
-            let embed = new RichEmbed()
-                .setColor(EMBED_COLOR_ERROR);
+            embed.setColor(EMBED_COLOR_ERROR);
             if(err.board_not_found) {
                 embed
                 .setTitle(STRINGS["random_noboard"])
@@ -99,7 +105,7 @@ const COMMANDS = {
                 .setTitle(STRINGS["random_error"])
                 .setDescription(STRINGS["random_error_desc"].format(err));
             }
-            ctx.channel.send(embed);
+            msg.edit(embed);
         });
     },
 
@@ -120,12 +126,18 @@ const COMMANDS = {
         let id = args[0];
         let board = chan.getBoardName(args[1].toLowerCase());
 
+        // create embed
+        let embed = new RichEmbed()
+            .setColor(EMBED_COLOR_LOADING)
+            .setTitle(STRINGS["post_loading"])
+            .setDescription(STRINGS["post_loading_desc"]);
+        let msg = await ctx.channel.send(embed);
+
         // get post from api
         chan.getPost(id, board).then((post) => {
-            sendPost(post, ctx, lib.config.global);
+            sendPost(post, embed, msg, ctx, lib.config.global);
         }).catch((err) => {
-            let embed = new RichEmbed()
-                .setColor(EMBED_COLOR_ERROR);
+            embed.setColor(EMBED_COLOR_ERROR);
             if(err.post_not_found) {
                 embed
                 .setTitle(STRINGS["post_nopost"])
@@ -135,7 +147,7 @@ const COMMANDS = {
                 .setTitle(STRINGS["post_error"])
                 .setDescription(STRINGS["random_error_desc"].format(err));
             }
-            ctx.channel.send(embed);
+            msg.edit(embed);
         });
     },
 
@@ -171,13 +183,13 @@ const COMMANDS = {
 // add `+4chan version` alias for backwards compatability
 COMMANDS["version"] = COMMANDS["info"];
 
-function sendPost(post, ctx, global) {
+function sendPost(post, embed, msg, ctx, global) {
     let postText = unescape(post.text.length > 2000 ? post.text.substring(0, 2000) + "..." : post.text);
     postText = postText.replace(/<br>/gi, "\n");
     postText = postText.replace("</span>", "");
     postText = postText.replace("<span class=\"quote\">", "");
         
-    let embed = new RichEmbed()
+    embed
         .setColor(EMBED_COLOR_NORMAL)
         .setTitle(STRINGS["post_title"].format(post.id, post.author))
         .setDescription(STRINGS["post_desc"].format(postText, post.permalink))
@@ -188,7 +200,7 @@ function sendPost(post, ctx, global) {
     if(ctx.isServer) {
         embed.setFooter(STRINGS["post_removal_instructions"].format(global.removal_emote));
     }
-    let msgPromise = ctx.channel.send(embed);
+    let msgPromise = msg.edit(embed);
     if(ctx.isServer) {
         msgPromise.then(msg => {
             // remove instructions after timeout interval

@@ -1,6 +1,7 @@
 const { Client } = require("discord.js");
 const config = require("./lib/config");
 const command = require("./command");
+const db = require("./lib/db");
 
 let client = new Client();
 
@@ -23,4 +24,4 @@ client.login(config.global.auth.token).then(() => {
 });
 
 console.log("[Bot] Logging in with token...");
-command.initLib(config, null, client);
+command.initLib(config, db, client);

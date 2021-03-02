@@ -31,12 +31,20 @@ class ServerConfig {
     constructor(id, db) {
         this.id = id;
         this.db = db;
-        if(db) this.#fetchConfig();
     }
 
-    #fetchConfig() {
-        // TODO: fetch from database
-        console.log("fetching config for " + this.id);
+    async fetch() {
+        let config = await this.db.getConfigForServer(this.id);
+        // copy config keys into class
+        this.default_board = config.default_board;
+        this.prefix = config.prefix;
+        this.removal_time = config.removal_time;
+        // get list of restricted channels
+        if(config.restricted) {
+            this.restricted_channels = await this.db.getRestrictedChannels(this.id);
+        } else {
+            this.restricted_channels = undefined;
+        }
     }
 
     #saveConfig() {
@@ -78,9 +86,12 @@ configs.servers = {};
 module.exports = {
 
     global: configs.globalConfig,
-    forServer: (id, db) => {
+    forServer: async (id, db) => {
         if(!configs.servers[id]) {
             configs.servers[id] = new ServerConfig(id, db);
+            if(id) {
+                await configs.servers[id].fetch();
+            }
         }
         return configs.servers[id];
     }

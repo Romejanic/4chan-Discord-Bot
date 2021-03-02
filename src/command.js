@@ -224,7 +224,7 @@ module.exports = {
 
     parse: async function(msg) {
         let ctx = getCommandContext(msg, lib.config);
-        ctx.config = lib.config.forServer(ctx.isServer ? ctx.server.id : null, ctx.isServer ? lib.db : null);
+        ctx.config = await lib.config.forServer(ctx.isServer ? ctx.server.id : null, lib.db);
         // check if prefix matches
         if(!msg.content.startsWith(ctx.config.getPrefix())) {
             return;

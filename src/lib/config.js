@@ -21,6 +21,7 @@ class ServerConfig {
 
     id;
     db;
+    requiresInsert = false;
 
     // config options
     default_board = undefined;
@@ -39,6 +40,7 @@ class ServerConfig {
         this.default_board = config.default_board;
         this.prefix = config.prefix;
         this.removal_time = config.removal_time;
+        this.requiresInsert = config.new_config;
         // get list of restricted channels
         if(config.restricted) {
             this.restricted_channels = await this.db.getRestrictedChannels(this.id);
@@ -47,9 +49,12 @@ class ServerConfig {
         }
     }
 
-    #commit(key, value) {
-        if(!db) return;
-        // TODO: save changes to database
+    async #commit(key, value) {
+        if(!this.db) return;
+        if(this.requiresInsert) {
+            await this.db.createConfigForServer(this.id);
+        }
+        await this.db.editServerConfig(this.id, key, value);
     }
 
     getDefaultBoard() {
@@ -97,6 +102,11 @@ class ServerConfig {
             default:
                 return "??";
         }
+    }
+
+    async setDefaultBoard(board) {
+        this.default_board = board;
+        await this.#commit("default_board", board);
     }
 
 }

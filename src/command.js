@@ -179,37 +179,53 @@ const COMMANDS = {
         }
         // otherwise, determine which property they are trying to edit
         else {
-            let key = args[0].toLowerCase();
-            switch(key) {
-                case "default_board":
-                    if(args.length < 2) {
-                        let valueString = ctx.config.getDisplayValue("default_board", STRINGS);
-                        embed.setColor(EMBED_COLOR_NORMAL)
-                            .setAuthor(STRINGS["config_default_board_title"], CMD_HELP_IMAGE, null)
-                            .setDescription(STRINGS["config_default_board_description"].format(valueString))
-                            .addField(STRINGS["config_default_board_change"], STRINGS["config_default_board_change_cmd"].format(ctx.config.getPrefix()))
-                            .addField(STRINGS["config_default_board_reset"], STRINGS["config_default_board_reset_cmd"].format(ctx.config.getPrefix()));
-                    } else {
-                        let input = args[1].toLowerCase();
-                        if(input === "clear") {
-                            
+            try {
+                let key = args[0].toLowerCase();
+                switch(key) {
+                    case "default_board":
+                        if(args.length < 2) {
+                            let valueString = ctx.config.getDisplayValue("default_board", STRINGS);
+                            embed.setColor(EMBED_COLOR_NORMAL)
+                                .setAuthor(STRINGS["config_default_board_title"], CMD_HELP_IMAGE, null)
+                                .setDescription(STRINGS["config_default_board_description"].format(valueString))
+                                .addField(STRINGS["config_default_board_change"], STRINGS["config_default_board_change_cmd"].format(ctx.config.getPrefix()))
+                                .addField(STRINGS["config_default_board_reset"], STRINGS["config_default_board_reset_cmd"].format(ctx.config.getPrefix()));
+                        } else {
+                            let input = args[1].toLowerCase();
+                            if(input === "clear") {
+                                await ctx.config.setDefaultBoard(null);
+                                embed.setColor(EMBED_COLOR_SUCCESS)
+                                    .setTitle(STRINGS["config_cleared"])
+                                    .setDescription(STRINGS["config_default_board_clear"].format(ctx.config.getDefaultBoard()));
+                            } else {
+                                let board = chan.getBoardName(input);
+                                await ctx.config.setDefaultBoard(board);
+                                embed.setColor(EMBED_COLOR_SUCCESS)
+                                    .setTitle(STRINGS["config_changed"])
+                                    .setDescription(STRINGS["config_default_board_set"].format(board));
+                            }
                         }
-                    }
-                    break;
-                case "prefix":
+                        break;
+                    case "prefix":
+                        throw "test error";
+                        break;
+                    case "removal_time":
 
-                    break;
-                case "removal_time":
+                        break;
+                    case "allowed_channels":
 
-                    break;
-                case "allowed_channels":
-
-                    break;
-                default:
-                    embed.setColor(EMBED_COLOR_ERROR)
-                        .setTitle(STRINGS["config_unknown_key"])
-                        .setDescription(STRINGS["config_unknown_key_desc"].format(key, ctx.config.getPrefix()));
-                    break;
+                        break;
+                    default:
+                        embed.setColor(EMBED_COLOR_ERROR)
+                            .setTitle(STRINGS["config_unknown_key"])
+                            .setDescription(STRINGS["config_unknown_key_desc"].format(key, ctx.config.getPrefix()));
+                        break;
+                }
+            } catch(e) {
+                console.error("Error while setting config:", e);
+                embed.setColor(EMBED_COLOR_ERROR)
+                    .setTitle(STRINGS["config_unknown_error"])
+                    .setDescription(STRINGS["config_unknown_error_desc"].format(STRINGS["random_error_desc"].format(e)));
             }
         }
         // send embed

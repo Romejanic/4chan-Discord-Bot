@@ -61,6 +61,11 @@
     "config_help_default": "{0} *(default)*",
     "config_unknown_key": "Unknown option!",
     "config_unknown_key_desc": "The config option `{0}` is unknown!\nType `{1} config` for a list of options.",
+    "config_unknown_error": "Something went wrong!",
+    "config_unknown_error_desc": "Sorry, something went wrong while changing your server config!\n\n{0}",
+
+    "config_changed": "Changed!",
+    "config_cleared": "Cleared!",
 
     "config_default_board_title": "Default Board",
     "config_default_board_description": "The default board used by the random command.\n\n**Current Value:** {0}\n",
@@ -68,6 +73,8 @@
     "config_default_board_change_cmd": "{0} config default_board /<board name>/",
     "config_default_board_reset": "To reset",
     "config_default_board_reset_cmd": "{0} config default_board clear",
+    "config_default_board_clear": "The default board has been reset to the global default (`/{0}/`).",
+    "config_default_board_set": "The default board has been changed to `/{0}/`.",
 
     "config_restricted_channels_all": "all",
     "config_restricted_channels_count": "{0} channels",

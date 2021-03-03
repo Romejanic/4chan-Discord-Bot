@@ -26,8 +26,9 @@ module.exports = {
                         default_board: undefined,
                         prefix: undefined,
                         restricted: false,
-                        removal_time: undefined
-                    });
+                        removal_time: undefined,
+                        new_config: true
+                    }, false);
                 } else {
                     resolve(result[0]);
                 }
@@ -41,6 +42,24 @@ module.exports = {
                 if(err) reject(err);
                 let channelIds = result.map(r => r.channel);
                 resolve(channelIds);
+            });
+        });
+    },
+
+    createConfigForServer: (id) => {
+        return new Promise((resolve, reject) => {
+            pool.query("INSERT INTO server_config (id,restricted) VALUES (?, 0)", [ id ], (err) => {
+                if(err) reject(err);
+                resolve();
+            });
+        });
+    },
+
+    editServerConfig: (id, key, value) => {
+        return new Promise((resolve, reject) => {
+            pool.query(`UPDATE server_config SET ${key} = ? WHERE id = ?`, [ value, id ], (err) => {
+                if(err) reject(err);
+                resolve();
             });
         });
     }

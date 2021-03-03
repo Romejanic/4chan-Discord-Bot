@@ -69,14 +69,14 @@ class ServerConfig {
     }
 
     isChannelValid(id) {
-        let channels = this.#getRestrictedChannels();
+        let channels = this.getAllowedChannels();
         if(!channels) {
             return true;
         }
         return channels.indexOf(id) > -1;
     }
 
-    #getRestrictedChannels() {
+    getAllowedChannels() {
         return this.restricted_channels ? this.restricted_channels : undefined;
     }
 

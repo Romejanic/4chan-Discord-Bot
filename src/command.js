@@ -268,7 +268,23 @@ const COMMANDS = {
                         }
                         break;
                     case "allowed_channels":
-
+                        if(args.length != 2) {
+                            let desc = STRINGS["config_restricted_channels_desc_none"];
+                            let channels = ctx.config.getAllowedChannels();
+                            if(channels && channels.length > 0) {
+                                channels = channels
+                                    .map(c=>ctx.server.guild.channels.get(c)) // map channel ids to their objects
+                                    .filter(c=>c != null)                     // remove any that don't exist anymore
+                                    .map(c=>`#${c.name}`)                     // convert to names
+                                    .join("\n");
+                                desc = STRINGS["config_restricted_channels_desc_list"].format(channels);
+                            }
+                            embed.setColor(EMBED_COLOR_NORMAL)
+                            .setTitle(STRINGS["config_restricted_channels_title"])
+                            .setDescription(desc)
+                            .addField(STRINGS["config_restricted_channels_toggle"], STRINGS["config_restricted_channels_toggle_cmd"].format(ctx.config.getPrefix()))
+                            .addField(STRINGS["config_cleared"], STRINGS["config_restricted_channels_reset_cmd"].format(ctx.config.getPrefix()));
+                        }
                         break;
                     default:
                         embed.setColor(EMBED_COLOR_ERROR)
@@ -404,6 +420,8 @@ function getCommandContext(msg, config) {
         ctx.server = {
             // the id of the current server
             id: msg.guild.id,
+            // the guild object
+            guild: msg.guild,
             // is the user that sent the message a server admin?
             isAdmin: msg.member.hasPermission("ADMINISTRATOR")
         };

@@ -94,8 +94,14 @@
     "config_removal_time_set": "The removal time has been changed to `{0} seconds`.",
     "config_removal_time_invalid": "You have entered an invalid removal time (`{0} seconds`).\nThe removal time must be a number between 10 and 300 seconds.",
 
-    "config_restricted_channels_all": "all",
+    "config_restricted_channels_all": "All",
     "config_restricted_channels_count": "{0} channels",
+    "config_restricted_channels_title": "Allowed Channels",
+    "config_restricted_channels_desc_none": "The bot can speak in all NSFW channels.",
+    "config_restricted_channels_desc_list": "The bot can speak in the following channels:\n```{0}```",
+    "config_restricted_channels_toggle": "To toggle channel",
+    "config_restricted_channels_toggle_cmd": "{0} config allowed_channels #<channel name>",
+    "config_restricted_channels_reset_cmd": "{0} config allowed_channels reset",
 
     "enabled_true": "enabled",
     "enabled_false": "disabled",

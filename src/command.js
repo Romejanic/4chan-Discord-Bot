@@ -199,10 +199,17 @@ const COMMANDS = {
                                     .setDescription(STRINGS["config_default_board_clear"].format(ctx.config.getDefaultBoard()));
                             } else {
                                 let board = chan.getBoardName(input);
-                                await ctx.config.setDefaultBoard(board);
-                                embed.setColor(EMBED_COLOR_SUCCESS)
-                                    .setTitle(STRINGS["config_changed"])
-                                    .setDescription(STRINGS["config_default_board_set"].format(board));
+                                // make sure string isn't too long
+                                if(board.length > 10) {
+                                    embed.setColor(EMBED_COLOR_ERROR)
+                                        .setTitle(STRINGS["config_invalid"])
+                                        .setDescription(STRINGS["config_default_board_toolong"].format(board.length));
+                                } else {
+                                    await ctx.config.setDefaultBoard(board);
+                                    embed.setColor(EMBED_COLOR_SUCCESS)
+                                        .setTitle(STRINGS["config_changed"])
+                                        .setDescription(STRINGS["config_default_board_set"].format(board));
+                                }
                             }
                         }
                         break;

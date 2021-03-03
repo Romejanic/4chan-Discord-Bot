@@ -60,9 +60,9 @@ const COMMANDS = {
             .addField(STRINGS["info_os"], process.platform, true)
             .addField(STRINGS["info_memory"], (100 * heapUsed / heapTotal).toFixed(1) + "%", true)
             // TODO: implement stats again
-            .addField(STRINGS["info_stats_total"], "0", true)
-            .addField(STRINGS["info_stats_daily"], "0", true)
-            .addField(STRINGS["info_stats_today"], "0", true);
+            .addField(STRINGS["info_stats_total"], lib.stats.totalServed, true)
+            .addField(STRINGS["info_stats_daily"], lib.stats.getDailyAverage(), true)
+            .addField(STRINGS["info_stats_today"], lib.stats.todayServed, true);
         ctx.channel.send(embed);
     },
 
@@ -465,9 +465,9 @@ function getCommandContext(msg, config) {
 
 module.exports = {
 
-    initLib: (config, db, client) => {
+    initLib: (config, db, client, stats) => {
         lib = Object.freeze({
-            config, db, client
+            config, db, client, stats
         });
     },
 
@@ -538,6 +538,8 @@ module.exports = {
                 .setDescription(STRINGS["no_command_entered_desc"].format(ctx.config.getPrefix()));
             ctx.channel.send(embed);
         }
+        // count request for stats
+        lib.stats.servedRequest();
     },
 
     onCommandError: (err, channel) => {

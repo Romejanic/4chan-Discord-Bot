@@ -114,6 +114,11 @@ class ServerConfig {
         await this.#commit("prefix", prefix);
     }
 
+    async setRemovalTime(time) {
+        this.removal_time = time;
+        await this.#commit("removal_time", time);
+    }
+
 }
 configs.servers = {};
 

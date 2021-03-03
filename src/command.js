@@ -241,7 +241,31 @@ const COMMANDS = {
                         }
                         break;
                     case "removal_time":
-
+                        if(args.length < 2) {
+                            let valueString = ctx.config.getDisplayValue("removal_time", STRINGS);
+                            embed.setColor(EMBED_COLOR_NORMAL)
+                                .setAuthor(STRINGS["config_removal_time_title"], CMD_HELP_IMAGE, null)
+                                .setDescription(STRINGS["config_removal_time_description"].format(valueString))
+                                .addField(STRINGS["config_info_set"], STRINGS["config_removal_time_change_cmd"].format(ctx.config.getPrefix()))
+                                .addField(STRINGS["config_info_reset"], STRINGS["config_removal_time_reset_cmd"].format(ctx.config.getPrefix()));
+                        } else {
+                            let seconds = args[1].toLowerCase();
+                            if(seconds === "reset") {
+                                await ctx.config.setRemovalTime(null);
+                                embed.setColor(EMBED_COLOR_SUCCESS)
+                                    .setTitle(STRINGS["config_cleared"])
+                                    .setDescription(STRINGS["config_removal_time_clear"].format(ctx.config.getRemovalTime()));
+                            } else if(isNaN(seconds) || seconds < 10 || seconds > 300) {
+                                embed.setColor(EMBED_COLOR_ERROR)
+                                .setTitle(STRINGS["config_invalid"])
+                                .setDescription(STRINGS["config_removal_time_invalid"].format(seconds));
+                            } else {
+                                await ctx.config.setRemovalTime(Number(seconds));
+                                embed.setColor(EMBED_COLOR_SUCCESS)
+                                    .setTitle(STRINGS["config_changed"])
+                                    .setDescription(STRINGS["config_removal_time_set"].format(ctx.config.getRemovalTime()));
+                            }
+                        }
                         break;
                     case "allowed_channels":
 

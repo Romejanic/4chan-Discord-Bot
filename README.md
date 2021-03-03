@@ -28,21 +28,30 @@ To get a random post off another board, type `+4chan /<board>/` (e.g. `+4chan /v
 # Getting Started with Development
 You will need
 - NodeJS
+- MySQL server
 - A Discord application token for a bot
 
 To install the project,
+1) Use the [init.sql](init.sql) file to set up your database.
+2) Run the following commands:
 ```shell
 $ git clone https://github.com/Romejanic/4chan-Discord-Bot.git
 $ cd 4chan-Discord-Bot
 $ npm install      # this will download the dependancies
 $ npm start        # this will generate a config file
-$ nano config.json # edit the config and add your token
-$ npm start        # you can now run the bot
+$ nano config.json # edit the config and add your token and db login
+$ npm run dev      # you can now run the bot in dev mode
 ```
 
 To run the bot asynchronously (without blocking the terminal), you can use
 ```shell
-$ npm run start_async
+$ npm run async
+```
+
+To migrate the legacy `guild-config.json` to your MySQL database, run the migration tool through npm:
+```shell
+$ nano config.json # ensure your database login is correct
+$ npm run migrate  # run the migration tool
 ```
 
 # Project Breakdown
@@ -56,7 +65,7 @@ This is what each individual file in the root of the project does.
 |COMMANDS.md|Markdown file|A helpful, detailed guide to how to use commands. You can view this by type `+4chan help` into Discord and clicking the 'Command Help' header.|
 |config.json|JSON File|The global configuration file for the bot. Also contains the authentication token.|
 |strings.json|JSON File|A file containing all the messages which the bot can send.|
-|guild-config.json|JSON File|The save file for the per-guild configuration. This is automatically handled by the bot and shouldn't be edited manually.|
+|guild-config.json|JSON File|The old per-server config file. You should use the database migration tool to move this to a database.|
 |.gitignore|Git Ignore File|The gitignore file. Should be pretty self-explainatory.|
 |src|Folder|The source code of the bot.|
 |data|Folder|The folder containing the default `config.json` file.|

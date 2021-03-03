@@ -109,6 +109,11 @@ class ServerConfig {
         await this.#commit("default_board", board);
     }
 
+    async setPrefix(prefix) {
+        this.prefix = prefix;
+        await this.#commit("prefix", prefix);
+    }
+
 }
 configs.servers = {};
 

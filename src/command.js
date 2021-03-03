@@ -188,8 +188,8 @@ const COMMANDS = {
                             embed.setColor(EMBED_COLOR_NORMAL)
                                 .setAuthor(STRINGS["config_default_board_title"], CMD_HELP_IMAGE, null)
                                 .setDescription(STRINGS["config_default_board_description"].format(valueString))
-                                .addField(STRINGS["config_default_board_change"], STRINGS["config_default_board_change_cmd"].format(ctx.config.getPrefix()))
-                                .addField(STRINGS["config_default_board_reset"], STRINGS["config_default_board_reset_cmd"].format(ctx.config.getPrefix()));
+                                .addField(STRINGS["config_info_set"], STRINGS["config_default_board_change_cmd"].format(ctx.config.getPrefix()))
+                                .addField(STRINGS["config_info_reset"], STRINGS["config_default_board_reset_cmd"].format(ctx.config.getPrefix()));
                         } else {
                             let input = args[1].toLowerCase();
                             if(input === "clear") {
@@ -214,7 +214,31 @@ const COMMANDS = {
                         }
                         break;
                     case "prefix":
-                        throw "test error";
+                        if(args.length < 2) {
+                            let valueString = ctx.config.getDisplayValue("prefix", STRINGS);
+                            embed.setColor(EMBED_COLOR_NORMAL)
+                                .setAuthor(STRINGS["config_prefix_title"], CMD_HELP_IMAGE, null)
+                                .setDescription(STRINGS["config_prefix_description"].format(valueString))
+                                .addField(STRINGS["config_info_set"], STRINGS["config_prefix_change_cmd"].format(ctx.config.getPrefix()))
+                                .addField(STRINGS["config_info_reset"], STRINGS["config_prefix_reset_cmd"].format(ctx.config.getPrefix()));
+                        } else {
+                            let prefix = args[1].toLowerCase();
+                            if(prefix === "clear") {
+                                await ctx.config.setPrefix(null);
+                                embed.setColor(EMBED_COLOR_SUCCESS)
+                                    .setTitle(STRINGS["config_cleared"])
+                                    .setDescription(STRINGS["config_prefix_clear"].format(ctx.config.getPrefix()));
+                            } else if(prefix.length > 10) {
+                                embed.setColor(EMBED_COLOR_ERROR)
+                                .setTitle(STRINGS["config_invalid"])
+                                .setDescription(STRINGS["config_prefix_toolong"].format(prefix.length));
+                            } else {
+                                await ctx.config.setPrefix(prefix);
+                                embed.setColor(EMBED_COLOR_SUCCESS)
+                                    .setTitle(STRINGS["config_changed"])
+                                    .setDescription(STRINGS["config_prefix_set"].format(ctx.config.getPrefix()));
+                            }
+                        }
                         break;
                     case "removal_time":
 

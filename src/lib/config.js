@@ -47,7 +47,7 @@ class ServerConfig {
         }
     }
 
-    #saveConfig() {
+    #commit(key, value) {
         if(!db) return;
         // TODO: save changes to database
     }
@@ -83,7 +83,7 @@ class ServerConfig {
         const formatDefault = (val, original) => original ? val : strings["config_help_default"].format(val);
         switch(option) {
             case "default_board":
-                return formatDefault(this.getDefaultBoard(), this.default_board);
+                return formatDefault(`/${this.getDefaultBoard()}/`, this.default_board ? `/${this.default_board}/` : null);
             case "prefix":
                 return formatDefault(this.getPrefix(), this.prefix);
             case "removal_time":

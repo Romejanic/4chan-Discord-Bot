@@ -177,6 +177,41 @@ const COMMANDS = {
                 .addField("removal_time", ctx.config.getDisplayValue("removal_time", STRINGS), true)
                 .addField("allowed_channels", ctx.config.getDisplayValue("allowed_channels", STRINGS), true);
         }
+        // otherwise, determine which property they are trying to edit
+        else {
+            let key = args[0].toLowerCase();
+            switch(key) {
+                case "default_board":
+                    if(args.length < 2) {
+                        let valueString = ctx.config.getDisplayValue("default_board", STRINGS);
+                        embed.setColor(EMBED_COLOR_NORMAL)
+                            .setAuthor(STRINGS["config_default_board_title"], CMD_HELP_IMAGE, null)
+                            .setDescription(STRINGS["config_default_board_description"].format(valueString))
+                            .addField(STRINGS["config_default_board_change"], STRINGS["config_default_board_change_cmd"].format(ctx.config.getPrefix()))
+                            .addField(STRINGS["config_default_board_reset"], STRINGS["config_default_board_reset_cmd"].format(ctx.config.getPrefix()));
+                    } else {
+                        let input = args[1].toLowerCase();
+                        if(input === "clear") {
+                            
+                        }
+                    }
+                    break;
+                case "prefix":
+
+                    break;
+                case "removal_time":
+
+                    break;
+                case "allowed_channels":
+
+                    break;
+                default:
+                    embed.setColor(EMBED_COLOR_ERROR)
+                        .setTitle(STRINGS["config_unknown_key"])
+                        .setDescription(STRINGS["config_unknown_key_desc"].format(key, ctx.config.getPrefix()));
+                    break;
+            }
+        }
         // send embed
         ctx.channel.send(embed);
     },

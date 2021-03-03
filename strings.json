@@ -59,6 +59,15 @@
     "config_help_title": "Server Config Options",
     "config_help_desc": "Here is a list of all config options you can alter on your server.\n\nFor information on a specific one, type `{0} config <name>`.",
     "config_help_default": "{0} *(default)*",
+    "config_unknown_key": "Unknown option!",
+    "config_unknown_key_desc": "The config option `{0}` is unknown!\nType `{1} config` for a list of options.",
+
+    "config_default_board_title": "Default Board",
+    "config_default_board_description": "The default board used by the random command.\n\n**Current Value:** {0}\n",
+    "config_default_board_change": "To set",
+    "config_default_board_change_cmd": "{0} config default_board /<board name>/",
+    "config_default_board_reset": "To reset",
+    "config_default_board_reset_cmd": "{0} config default_board clear",
 
     "config_restricted_channels_all": "all",
     "config_restricted_channels_count": "{0} channels",

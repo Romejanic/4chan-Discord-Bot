@@ -6,8 +6,10 @@
     "command_error": "Error while performing action!",
     "prefix_required": "Prefix required!",
     "prefix_required_desc": "To use commands with this bot, please use the prefix `{0}`.\nFor more information, type `{0} help` for a list of commands.",
-    "restricted_channel": "Sorry, I cannot be used in the channel {1}, I can only be used in {0} and NSFW channels.",
-    "nsfw_required": "You may only use the bot in a NSFW channel. Sorry for the inconvenience!",
+    "restricted_channel": "Restricted channel!",
+    "restricted_channel_desc": "Sorry, this bot can only be used in one of these channels:\n```{0}```",
+    "nsfw_required": "Not a NSFW channel!",
+    "nsfw_required_desc": "4chan content is unrated, so you may only use the bot in a NSFW channel.",
 
     "editor_required": "Not a developer!",
     "editor_required_desc": "You must be a bot developer to perform this action.",

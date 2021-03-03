@@ -70,7 +70,7 @@ class ServerConfig {
 
     isChannelValid(id) {
         let channels = this.getAllowedChannels();
-        if(!channels) {
+        if(!channels || channels.length <= 0) {
             return true;
         }
         return channels.indexOf(id) > -1;
@@ -78,6 +78,14 @@ class ServerConfig {
 
     getAllowedChannels() {
         return this.restricted_channels ? this.restricted_channels : undefined;
+    }
+
+    getAllowedChannelsText(guild) {
+        return this.restricted_channels ? this.restricted_channels
+            .map(c=>guild.channels.get(c)) // map channel ids to their objects
+            .filter(c=>c != null)          // remove any that don't exist anymore
+            .map(c=>`#${c.name}`)          // convert to names
+            .join("\n") : "";
     }
 
     getRemovalTime() {
@@ -136,7 +144,7 @@ class ServerConfig {
                 this.restricted_channels = [ channel.id ];
                 await this.#commit("restricted", true);
             }
-            
+
             return true;
         }
         // should we remove the channel?

@@ -273,11 +273,7 @@ const COMMANDS = {
                             let desc = STRINGS["config_restricted_channels_desc_none"];
                             let channels = ctx.config.getAllowedChannels();
                             if(channels && channels.length > 0) {
-                                channels = channels
-                                    .map(c=>ctx.server.guild.channels.get(c)) // map channel ids to their objects
-                                    .filter(c=>c != null)                     // remove any that don't exist anymore
-                                    .map(c=>`#${c.name}`)                     // convert to names
-                                    .join("\n");
+                                channels = ctx.config.getAllowedChannelsText(ctx.server.guild);
                                 desc = STRINGS["config_restricted_channels_desc_list"].format(channels);
                             }
                             embed.setColor(EMBED_COLOR_NORMAL)
@@ -487,6 +483,25 @@ module.exports = {
                     .setDescription(STRINGS["prefix_required_desc"].format(ctx.config.getPrefix()));
                 msg.channel.send(embed);
             }
+            return;
+        }
+        // make sure the channel can be used
+        if(!ctx.config.isChannelValid(ctx.channel.id)) {
+            let embed = new RichEmbed()
+                .setColor(EMBED_COLOR_ERROR)
+                .setTitle(STRINGS["restricted_channel"])
+                .setDescription(STRINGS["restricted_channel_desc"].format(
+                    ctx.config.getAllowedChannelsText(ctx.server.guild)
+                ));
+            msg.channel.send(embed);
+            return;
+        }
+        if(!ctx.channel.nsfw) {
+            let embed = new RichEmbed()
+                .setColor(EMBED_COLOR_ERROR)
+                .setTitle(STRINGS["nsfw_required"])
+                .setDescription(STRINGS["nsfw_required_desc"]);
+            msg.channel.send(embed);
             return;
         }
         // get command arguments

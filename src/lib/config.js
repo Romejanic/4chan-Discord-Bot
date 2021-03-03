@@ -119,6 +119,41 @@ class ServerConfig {
         await this.#commit("removal_time", time);
     }
 
+    async clearAllowedChannels() {
+        this.restricted_channels = null;
+        await this.db.clearAllowedChannels(this.id);
+        await this.#commit("restricted", false);
+    }
+
+    async toggleChannel(channel) {
+        // should we add the channel?
+        if(!this.restricted_channels || this.restricted_channels.indexOf(channel.id) < 0) {
+            // update on database
+            await this.db.setChannelAllowed(this.id, channel.id, true);
+            // either push the value to array or create array
+            if(this.restricted_channels) this.restricted_channels.push(channel.id);
+            else {
+                this.restricted_channels = [ channel.id ];
+                await this.#commit("restricted", true);
+            }
+            
+            return true;
+        }
+        // should we remove the channel?
+        else {
+            // remove from array and database
+            this.restricted_channels.splice(this.restricted_channels.indexOf(channel.id), 1);
+            await this.db.setChannelAllowed(this.id, channel.id, false);
+            // if channel list is empty, update database and clear variable
+            if(this.restricted_channels.length <= 0) {
+                this.restricted_channels = undefined;
+                await this.#commit("restricted", false);
+            }
+
+            return false;
+        }
+    }
+
 }
 configs.servers = {};
 

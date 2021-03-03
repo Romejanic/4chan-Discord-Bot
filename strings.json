@@ -102,11 +102,18 @@
     "config_restricted_channels_toggle": "To toggle channel",
     "config_restricted_channels_toggle_cmd": "{0} config allowed_channels #<channel name>",
     "config_restricted_channels_reset_cmd": "{0} config allowed_channels reset",
+    "config_restricted_channels_reset": "The allowed channels list has been erased.\nThe bot can now speak in any NSFW channel.",
+    "config_restricted_channels_notag": "Please choose a valid channel to toggle by tagging it! (e.g. `{0} config allowed_channels #general`).",
+    "config_restricted_channels_invalid": "Invalid channel!",
+    "config_restricted_channels_invalid_desc": "Please select an existing text channel which is marked as NSFW.",
+    "config_restricted_channels_toggle_desc": "The bot now {0} speak in `#{1}`.",
 
     "enabled_true": "enabled",
     "enabled_false": "disabled",
     "success_true": "Success!",
     "success_false": "Failed!",
+    "can_true": "can",
+    "can_false": "cannot",
 
     "help_help": "Lists all commands and their usage.",
     "random_help": "Gets a random post from the default board or a specified board.",

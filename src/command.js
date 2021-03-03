@@ -268,6 +268,7 @@ const COMMANDS = {
                         }
                         break;
                     case "allowed_channels":
+                        // show list of channels if no arguments are passed
                         if(args.length != 2) {
                             let desc = STRINGS["config_restricted_channels_desc_none"];
                             let channels = ctx.config.getAllowedChannels();
@@ -280,10 +281,47 @@ const COMMANDS = {
                                 desc = STRINGS["config_restricted_channels_desc_list"].format(channels);
                             }
                             embed.setColor(EMBED_COLOR_NORMAL)
-                            .setTitle(STRINGS["config_restricted_channels_title"])
+                            .setAuthor(STRINGS["config_restricted_channels_title"], CMD_HELP_IMAGE, null)
                             .setDescription(desc)
                             .addField(STRINGS["config_restricted_channels_toggle"], STRINGS["config_restricted_channels_toggle_cmd"].format(ctx.config.getPrefix()))
                             .addField(STRINGS["config_cleared"], STRINGS["config_restricted_channels_reset_cmd"].format(ctx.config.getPrefix()));
+                        } 
+                        // otherwise, is the user trying to reset the channels?
+                        else if(args[1].toLowerCase() === "reset") {
+                            await ctx.config.clearAllowedChannels();
+                            embed.setColor(EMBED_COLOR_SUCCESS)
+                                .setTitle(STRINGS["config_cleared"])
+                                .setDescription(STRINGS["config_restricted_channels_reset"]);
+                        }
+                        // attempt to toggle channel
+                        else {
+                            let channelTag = args[1].toLowerCase();
+                            if(!channelTag.startsWith("<#") && !channelTag.endsWith(">")) {
+                                embed.setColor(EMBED_COLOR_ERROR)
+                                    .setTitle(STRINGS["config_invalid"])
+                                    .setDescription(STRINGS["config_restricted_channels_notag"].format(ctx.config.getPrefix()));
+                            } else {
+                                let channel = ctx.server.guild.channels.get(channelTag.substring(2, channelTag.length-1));
+                                // make sure channel exists, is a text channel and is marked as nsfw
+                                if(!channel || channel.type !== "text" || !channel.nsfw) {
+                                    embed.setColor(EMBED_COLOR_ERROR)
+                                        .setTitle(STRINGS["config_restricted_channels_invalid"])
+                                        .setDescription(STRINGS["config_restricted_channels_invalid_desc"]);
+                                }
+                                // channel is valid, toggle it
+                                else {
+                                    let enabled = await ctx.config.toggleChannel(channel);
+                                    let desc = !enabled && (!ctx.config.getAllowedChannels() || ctx.config.getAllowedChannels().length < 0)
+                                                ? STRINGS["config_restricted_channels_reset"] :
+                                                STRINGS["config_restricted_channels_toggle_desc"].format(
+                                                    STRINGS["can_" + enabled],
+                                                    channel.name
+                                                );
+                                    embed.setColor(EMBED_COLOR_SUCCESS)
+                                        .setTitle(STRINGS["success_true"])
+                                        .setDescription(desc);
+                                }
+                            }
                         }
                         break;
                     default:

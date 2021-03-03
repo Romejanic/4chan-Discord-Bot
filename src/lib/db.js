@@ -62,6 +62,26 @@ module.exports = {
                 resolve();
             });
         });
+    },
+
+    clearAllowedChannels: (id) => {
+        return new Promise((resolve, reject) => {
+            pool.query("DELETE FROM server_allowed_channels WHERE server = ?", [ id ], (err) => {
+                if(err) reject(err);
+                resolve();
+            });
+        });
+    },
+
+    setChannelAllowed: (id, channel, allowed) => {
+        return new Promise((resolve, reject) => {
+            let sql = allowed ? "INSERT INTO server_allowed_channels (server, channel) VALUES (?,?)"
+                              : "DELETE FROM server_allowed_channels WHERE server = ? AND channel = ?";
+            pool.query(sql, [ id, channel ], (err) => {
+                if(err) reject(err);
+                resolve();
+            });
+        });
     }
 
 };

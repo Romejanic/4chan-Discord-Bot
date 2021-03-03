@@ -379,7 +379,7 @@ module.exports = {
             return;
         }
         // get command arguments
-        let args = msg.content.trim().split(" ");
+        let args = msg.content.trim().split(" ").filter(s => s.trim().length > 0);
         if(args.length >= 2) {
             let cmdName = args[1].toLowerCase();
             args = args.splice(2);

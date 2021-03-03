@@ -353,8 +353,56 @@ const COMMANDS = {
                 embed.setColor(EMBED_COLOR_SUCCESS)
                     .setTitle(STRINGS["debug_dump_config"])
                     .setDescription(STRINGS["debug_dump_config_desc"]);
+            },
+            "announce": async (embed) => {
+                if(args.length < 4) {
+                    embed.setColor(EMBED_COLOR_NORMAL)
+                        .setTitle(STRINGS["debug_announce_usage"])
+                        .setDescription(STRINGS["debug_announce_usage_desc"].format(
+                            ctx.config.getPrefix(),
+                            STRINGS["debug_announce"]
+                        ));
+                } else {
+                    let title, desc, send;
+                    // get values
+                    if(args[1].toLowerCase() === "--send") {
+                        title = args[2];
+                        desc = args.splice(3).join(" ");
+                        send = true;
+                    } else {
+                        title = args[1];
+                        desc = args.splice(2).join(" ");
+                        send = false;
+                    }
+                    // create embed
+                    let announcement = send ? new RichEmbed() : embed;
+                    announcement
+                        .setColor(EMBED_COLOR_NORMAL)
+                        .setAuthor(title, CMD_HELP_IMAGE, null)
+                        .setDescription(desc)
+                        .setThumbnail(AVATAR_URL)
+                        .setFooter(STRINGS["debug_announce_" + (send ? "footer" : "preview")]);
+                    // send it
+                    if(send) {
+                        let successNum = 0;
+                        let failedNum = 0;
+                        let channels = lib.client.guilds.map(g => g.systemChannel).filter(c => c != null);
+                        for(let channel of channels) {
+                            try {
+                                await channel.send(announcement);
+                                successNum++;
+                            } catch(e) {
+                                failedNum++;
+                            }
+                        }
+                        embed.setColor(EMBED_COLOR_SUCCESS)
+                            .setTitle(STRINGS["debug_announce_sent"])
+                            .setDescription(STRINGS["debug_announce_sent_desc"].format(successNum, failedNum));
+                    }
+                }
             }
         };
+        { // section for command code so it can be collapsed
         // make sure user is a bot developer
         if(!ctx.isBotDev) {
             embed.setColor(EMBED_COLOR_ERROR)
@@ -362,7 +410,7 @@ const COMMANDS = {
                 .setDescription(STRINGS["editor_required_desc"]);
         }
         // if no arguments are given, show available options
-        else if(args.length != 1) {
+        else if(args.length < 1) {
             embed.setColor(EMBED_COLOR_NORMAL)
                 .setTitle(STRINGS["debug_title"]);
             for(let cmdname in subCmds) {
@@ -382,6 +430,7 @@ const COMMANDS = {
         }
         // send embed
         ctx.channel.send(embed);
+        }
     }
 
 };

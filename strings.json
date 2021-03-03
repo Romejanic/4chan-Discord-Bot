@@ -46,6 +46,14 @@
 
     "debug_reload_strings": "Reload strings from the strings.json file",
     "debug_dump_configs": "Dump config cache of all servers, forcing them to fetch from database next time.",
+    "debug_announce": "Send a service announcement to the servers to bot is in.",
+
+    "debug_announce_usage": "Announcement usage",
+    "debug_announce_usage_desc": "{1}\n\n**Usage**\n`{0} debug announce [--send] <title> <description>`\n\nOmitting `--send` will show a preview instead.",
+    "debug_announce_preview": "This is a preview. Rerun with --send to send to servers.",
+    "debug_announce_sent": "Sent!",
+    "debug_announce_sent_desc": "Your announcement was sent to {0} servers.\nIt could not be sent to {1} servers.",
+    "debug_announce_footer": "To unsubscribe from these announcements, remove the bot's read permission on this channel.",
 
     "post_usage": "{0} post <id> <board>",
     "post_usage_example": "{0} post 546371175 /g/",

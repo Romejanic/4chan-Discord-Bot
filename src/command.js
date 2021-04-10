@@ -1,4 +1,4 @@
-const { RichEmbed } = require("discord.js");
+const { MessageEmbed: RichEmbed } = require("discord.js");
 const { readFile } = require("fs").promises;
 const unescape = require("unescape");
 const chan = require("./lib/4chan-api");

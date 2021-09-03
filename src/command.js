@@ -497,8 +497,8 @@ function getCommandContext(msg, config) {
         author: msg.author,
         isDev: process.argv.indexOf("-dev") > -1
     };
-    // if it's not a server, it must be a dm
-    ctx.isDM = !ctx.isServer;
+    ctx.isDM = msg.channel.type === "dm";
+    //console.log("isdm = " + ctx.isDM + " " + msg.channel.type);
     if(ctx.isServer) {
         ctx.server = {
             // the id of the current server
@@ -545,7 +545,7 @@ module.exports = {
             msg.channel.send(embed);
             return;
         }
-        if(!ctx.channel.nsfw) {
+        if(!ctx.channel.nsfw && !ctx.isDM) {
             let embed = new RichEmbed()
                 .setColor(EMBED_COLOR_ERROR)
                 .setTitle(STRINGS["nsfw_required"])

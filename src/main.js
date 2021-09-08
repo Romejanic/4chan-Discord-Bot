@@ -5,11 +5,11 @@ const command = require("./command");
 const db = require("./lib/db");
 const Stats = require("./stats");
 
-let client = new SlasherClient({ useAuth: true, intents: [ Intents.FLAGS.GUILD_MESSAGES ] });
+let client = new SlasherClient({ useAuth: true, intents: [ Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES ] });
 let stats = new Stats();
 
 // add client event listeners
-client.on("message", (msg) => {
+client.on("messageCreate", (msg) => {
     if(msg.author.id === client.user.id) return;
     // if user tries to use prefixed commands, tell them
     // about slash commands instead

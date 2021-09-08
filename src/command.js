@@ -1,4 +1,4 @@
-const { RichEmbed } = require("discord.js");
+const { MessageEmbed, MessagePayload } = require("discord.js");
 const { readFile } = require("fs").promises;
 const unescape = require("unescape");
 const chan = require("./lib/4chan-api");
@@ -19,7 +19,7 @@ const CMD_HELP_URL = "https://github.com/Romejanic/4chan-Discord-Bot/blob/master
 const COMMANDS = {
 
     "help": async (args, ctx) => {
-        let embed = new RichEmbed()
+        let embed = new MessageEmbed()
             .setColor(EMBED_COLOR_NORMAL)
             .setAuthor(STRINGS["help_title"], CMD_HELP_IMAGE, CMD_HELP_URL)
             .setFooter(STRINGS["help_footer"]);
@@ -47,7 +47,7 @@ const COMMANDS = {
     "info": async (args, ctx) => {
         const { version } = require("../package.json");
         const { heapUsed, heapTotal } = process.memoryUsage();
-        let embed = new RichEmbed()
+        let embed = new MessageEmbed()
             .setTitle(STRINGS["info_title"])
             .setColor(EMBED_COLOR_NORMAL)
             .setThumbnail(!ctx.isDev ? AVATAR_URL : AVATAR_URL_DEV)
@@ -69,7 +69,7 @@ const COMMANDS = {
     "random": async(args, ctx) => {
         // if user passes 'help' as argument, show help for the command
         if(args.length > 0 && args[0].toLowerCase() === "help") {
-            let embed = new RichEmbed()
+            let embed = new MessageEmbed()
                 .setColor(EMBED_COLOR_NORMAL)
                 .setAuthor(STRINGS["help_title"], CMD_HELP_IMAGE, CMD_HELP_URL)
                 .setDescription(STRINGS["random_help"])
@@ -87,7 +87,7 @@ const COMMANDS = {
         board = chan.getBoardName(board);
 
         // create embed
-        let embed = new RichEmbed()
+        let embed = new MessageEmbed()
             .setColor(EMBED_COLOR_LOADING)
             .setTitle(STRINGS["post_loading"])
             .setDescription(STRINGS["post_loading_desc"]);
@@ -114,7 +114,7 @@ const COMMANDS = {
     "post": async(args, ctx) => {
         // if user passes incorrect number of arguments, show help for the command
         if(args.length != 2) {
-            let embed = new RichEmbed()
+            let embed = new MessageEmbed()
             .setColor(EMBED_COLOR_NORMAL)
             .setAuthor(STRINGS["help_title"], CMD_HELP_IMAGE, CMD_HELP_URL)
             .setDescription(STRINGS["post_help"])
@@ -129,7 +129,7 @@ const COMMANDS = {
         let board = chan.getBoardName(args[1].toLowerCase());
 
         // create embed
-        let embed = new RichEmbed()
+        let embed = new MessageEmbed()
             .setColor(EMBED_COLOR_LOADING)
             .setTitle(STRINGS["post_loading"])
             .setDescription(STRINGS["post_loading_desc"]);
@@ -154,7 +154,7 @@ const COMMANDS = {
     },
 
     "config": async (args, ctx) => {
-        let embed = new RichEmbed();
+        let embed = new MessageEmbed();
         // make sure we're on a server
         if(!ctx.isServer) {
             embed.setColor(EMBED_COLOR_ERROR)
@@ -338,7 +338,7 @@ const COMMANDS = {
     },
 
     "debug": async (args, ctx) => {
-        let embed = new RichEmbed();
+        let embed = new MessageEmbed();
         // register sub-commands
         const subCmds = {
             "reload_strings": async (embed) => {
@@ -375,7 +375,7 @@ const COMMANDS = {
                         send = false;
                     }
                     // create embed
-                    let announcement = send ? new RichEmbed() : embed;
+                    let announcement = send ? new MessageEmbed() : embed;
                     announcement
                         .setColor(EMBED_COLOR_NORMAL)
                         .setAuthor(title, CMD_HELP_IMAGE, null)
@@ -470,7 +470,7 @@ function sendPost(post, embed, msg, ctx, global) {
                 // remove post if the reaction and user matches
                 let reaction = collected.first();
                 if(reaction.emoji.name === global.removal_emote) {
-                    let removeEmbed = new RichEmbed()
+                    let removeEmbed = new MessageEmbed()
                         .setColor(EMBED_COLOR_ERROR)
                         .setTitle(STRINGS["post_removal_confirm"])
                         .setDescription(STRINGS["post_removal_desc"]);
@@ -486,32 +486,6 @@ function sendPost(post, embed, msg, ctx, global) {
 
 let lib = null;
 
-function getCommandContext(msg, config) {
-    let ctx = {
-        // is the current message in a server text channel?
-        isServer: msg.member != null && msg.member != undefined,
-        // is the user that sent the message a bot author?
-        isBotDev: config.global.editors.indexOf(msg.author.id) > -1,
-        // other general values
-        channel: msg.channel,
-        author: msg.author,
-        isDev: process.argv.indexOf("-dev") > -1
-    };
-    // if it's not a server, it must be a dm
-    ctx.isDM = !ctx.isServer;
-    if(ctx.isServer) {
-        ctx.server = {
-            // the id of the current server
-            id: msg.guild.id,
-            // the guild object
-            guild: msg.guild,
-            // is the user that sent the message a server admin?
-            isAdmin: msg.member.hasPermission("ADMINISTRATOR")
-        };
-    }
-    return ctx;
-}
-
 module.exports = {
 
     initLib: (config, db, client, stats) => {
@@ -521,17 +495,15 @@ module.exports = {
     },
 
     parse: async function(msg) {
-        console.log(msg);
         let isServer = msg.member != null && msg.member != undefined;
         let config = await lib.config.forServer(isServer ? msg.guild.id : null, lib.db);
         // check if prefix matches
         if(msg.content.startsWith(config.getPrefix()) || msg.channel.type === "DM") {
-                let embed = new RichEmbed()
-                    .setColor(EMBED_COLOR_ERROR)
-                    .setTitle(STRINGS["slash_required"])
-                    .setDescription(STRINGS["slash_required_desc"].format(ctx.config.getPrefix()));
-                msg.channel.send(embed);
-            return;
+            let embed = new MessageEmbed()
+                .setColor(EMBED_COLOR_ERROR)
+                .setTitle(STRINGS["slash_required"])
+                .setDescription(STRINGS["slash_required_desc"].format(config.getPrefix()));
+            await msg.channel.send({ embeds: [embed] });
         }
     },
 
@@ -543,11 +515,11 @@ module.exports = {
     },
 
     onCommandError: (err, channel) => {
-        let embed = new RichEmbed()
+        let embed = new MessageEmbed()
             .setColor(EMBED_COLOR_ERROR)
             .setTitle(STRINGS["command_error"])
             .setDescription(STRINGS["random_error_desc"].format(err));
-        channel.send(embed);
+        channel.send({ embeds: [embed] });
     }
 
 };

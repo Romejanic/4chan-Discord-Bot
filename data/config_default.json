@@ -1,8 +1,4 @@
 {
-	"auth": {
-		"token": "ENTER-YOUR-TOKEN-HERE"
-	},
-
 	"db": {
 		"host": "localhost",
 		"port": 3306,

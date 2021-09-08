@@ -521,74 +521,25 @@ module.exports = {
     },
 
     parse: async function(msg) {
-        let ctx = getCommandContext(msg, lib.config);
-        ctx.config = await lib.config.forServer(ctx.isServer ? ctx.server.id : null, lib.db);
+        console.log(msg);
+        let isServer = msg.member != null && msg.member != undefined;
+        let config = await lib.config.forServer(isServer ? msg.guild.id : null, lib.db);
         // check if prefix matches
-        if(!msg.content.startsWith(ctx.config.getPrefix())) {
-            if(ctx.isDM) {
+        if(msg.content.startsWith(config.getPrefix()) || msg.channel.type === "DM") {
                 let embed = new RichEmbed()
                     .setColor(EMBED_COLOR_ERROR)
-                    .setTitle(STRINGS["prefix_required"])
-                    .setDescription(STRINGS["prefix_required_desc"].format(ctx.config.getPrefix()));
+                    .setTitle(STRINGS["slash_required"])
+                    .setDescription(STRINGS["slash_required_desc"].format(ctx.config.getPrefix()));
                 msg.channel.send(embed);
-            }
             return;
         }
-        // make sure the channel can be used
-        if(!ctx.config.isChannelValid(ctx.channel.id)) {
-            let embed = new RichEmbed()
-                .setColor(EMBED_COLOR_ERROR)
-                .setTitle(STRINGS["restricted_channel"])
-                .setDescription(STRINGS["restricted_channel_desc"].format(
-                    ctx.config.getAllowedChannelsText(ctx.server.guild)
-                ));
-            msg.channel.send(embed);
-            return;
-        }
-        if(!ctx.channel.nsfw) {
-            let embed = new RichEmbed()
-                .setColor(EMBED_COLOR_ERROR)
-                .setTitle(STRINGS["nsfw_required"])
-                .setDescription(STRINGS["nsfw_required_desc"]);
-            msg.channel.send(embed);
-            return;
-        }
-        // get command arguments
-        let args = msg.content.trim().split(" ").filter(s => s.trim().length > 0);
-        if(args.length >= 2) {
-            let cmdName = args[1].toLowerCase();
-            args = args.splice(2);
-            // check if 2nd argument is a board name
-            if(cmdName.startsWith("/") || cmdName.endsWith("/")) {
-                args = [ cmdName ];
-                cmdName = "random";
-            }
-            // check if command exists
-            if(COMMANDS[cmdName]) {
-                // run command with arguments and context
-                await COMMANDS[cmdName](args, Object.freeze(ctx));
-            } else {
-                // command was not found
-                let embed = new RichEmbed()
-                    .setColor(EMBED_COLOR_ERROR)
-                    .setTitle(STRINGS["command_not_found"])
-                    .setDescription(STRINGS["command_not_found_desc"].format(cmdName, ctx.config.getPrefix()));
-                ctx.channel.send(embed);
-            }
-        } else if(COMMANDS[lib.config.global.default_command]) {
-            // run the default command if no command is provided
-            await COMMANDS[lib.config.global.default_command]([], Object.freeze(ctx));
-        } else {
-            // no command was entered, with no default command to fall back on
-            // (due to global config this shouldn't happen)
-            let embed = new RichEmbed()
-                .setColor(EMBED_COLOR_ERROR)
-                .setTitle(STRINGS["no_command_entered"])
-                .setDescription(STRINGS["no_command_entered_desc"].format(ctx.config.getPrefix()));
-            ctx.channel.send(embed);
-        }
-        // count request for stats
-        lib.stats.servedRequest();
+    },
+
+    /**
+     * @param {CommandContext} ctx 
+     */
+    execute: (ctx) => {
+        ctx.reply("test");
     },
 
     onCommandError: (err, channel) => {

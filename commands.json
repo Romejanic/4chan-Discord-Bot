@@ -4,6 +4,10 @@
     "4chan": {
         "description": "Gets information about the bot",
         "options": {
+            "info": {
+                "description": "Gets general information about the bot",
+                "subcommand": true
+            },
             "help": {
                 "description": "Lists all commands and their usage",
                 "subcommand": true
@@ -16,8 +20,89 @@
         "options": {
             "board": {
                 "description": "The board to pull the post from",
-                "choices": {
-                    "/b/ - Random": "b"
+                "type": "string"
+            }
+        }
+    },
+
+    "post": {
+        "description": "Gets the OP post of a thread",
+        "options": {
+            "id": {
+                "description": "The ID of the post",
+                "type": "string",
+                "required": true
+            },
+            "board": {
+                "description": "The board to pull the post from",
+                "type": "string",
+                "required": true
+            }
+        }
+    },
+
+    "boards": {
+        "description": "Shows a list of all available boards"
+    },
+
+    "config": {
+        "description": "Configure the bot for your server",
+        "options": {
+            "default_board": {
+                "description": "Changes the default board for /random",
+                "subcommands": {
+                    "set": {
+                        "description": "Sets the default board",
+                        "options": {
+                            "board": {
+                                "description": "The new default board",
+                                "type": "string",
+                                "required": true
+                            }
+                        }
+                    },
+                    "reset": {
+                        "description": "Resets the board to the global default",
+                        "subcommand": true
+                    }
+                }
+            },
+            "removal_time": {
+                "description": "Changes how long users have to remove a post",
+                "subcommands": {
+                    "set": {
+                        "description": "Sets the removal time",
+                        "options": {
+                            "seconds": {
+                                "description": "The number of seconds users have to remove the post",
+                                "type": "integer",
+                                "required": true
+                            }
+                        }
+                    },
+                    "reset": {
+                        "description": "Resets the removal time to the global default",
+                        "subcommand": true
+                    }
+                }
+            },
+            "allowed_channels": {
+                "description": "Changes which channels the bot commands can be used in",
+                "subcommands": {
+                    "toggle": {
+                        "description": "Toggles if a channel has access to the commands",
+                        "options": {
+                            "channel": {
+                                "description": "The channel to toggle access for",
+                                "type": "channel",
+                                "required": true
+                            }
+                        }
+                    },
+                    "reset": {
+                        "description": "Resets the access back to default (all NSFW channels)",
+                        "subcommand": true
+                    }
                 }
             }
         }

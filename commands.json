@@ -1,0 +1,25 @@
+{
+    "$schema": "https://raw.githubusercontent.com/Romejanic/slasher/master/schema.json",
+
+    "4chan": {
+        "description": "Gets information about the bot",
+        "options": {
+            "help": {
+                "description": "Lists all commands and their usage",
+                "subcommand": true
+            }
+        }
+    },
+
+    "random": {
+        "description": "Pulls a random post from 4chan",
+        "options": {
+            "board": {
+                "description": "The board to pull the post from",
+                "choices": {
+                    "/b/ - Random": "b"
+                }
+            }
+        }
+    }
+}

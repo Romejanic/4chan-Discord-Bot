@@ -1,6 +1,9 @@
 import { SlasherClient } from 'discord.js-slasher';
 import { Intents } from 'discord.js';
 import Stats from './stats';
+import './lib/config';
+import './lib/db';
+import Commands from './commands';
 
 const client = new SlasherClient({
     useAuth: true,
@@ -14,14 +17,8 @@ const client = new SlasherClient({
 const stats = new Stats();
 
 // create event listeners
-client.on("command", (ctx) => {
-    // pass directly to command handler
-    ctx.reply("it's working!");
-});
-client.on("messageCreate", (msg) => {
-    // pass onto warning about slash commands
-    console.log(msg.content);
-});
+client.on("command", Commands.execute);
+client.on("messageCreate", Commands.warning);
 
 // init the bot
 (async () => {

@@ -77,7 +77,7 @@ class ServerConfig {
         return this.prefix ? this.prefix : configs.globalConfig.prefix;
     }
 
-    isChannelValid(id) {
+    isChannelValid(id: string) {
         let channels = this.getAllowedChannels();
         if(!channels || channels.length <= 0) {
             return true;

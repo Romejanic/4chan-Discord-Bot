@@ -13,15 +13,20 @@
 	},
 	"dependencies": {
 		"discord.js": "^13.1.0",
-		"discord.js-slasher": "^0.2.2",
+		"discord.js-slasher": "^0.2.3",
 		"mysql": "^2.18.1",
 		"unescape": "^1.0.1"
 	},
-	"main": "src/main.js",
+	"main": "build/main.js",
 	"scripts": {
-		"start": "node src/main.js",
-		"dev": "node src/main.js -dev",
-		"async": "touch nohup.out && rm nohup.out && nohup node src/main.js &",
+		"start": "node build/main.js",
+		"dev": "node build/main.js -dev",
+		"watch": "tsc -w",
+		"async": "touch nohup.out && rm nohup.out && nohup node build/main.js &",
 		"migrate": "node tools/convert-config.js"
+	},
+	"devDependencies": {
+		"@types/mysql": "^2.15.19",
+		"typescript": "^4.4.2"
 	}
 }

@@ -5,41 +5,39 @@
  * in a new session.
  */
 
-class RollingAverage {
+export default class RollingAverage {
 
-    #max = 10
-    #numbers = []
+    private max = 10
+    private numbers: number[] = []
 
-    #_pointer = 1;
+    private _pointer = 1;
 
     constructor(start = 0, max = 10) {
         if(max < 2) {
             throw "Maximum value count must be at least 2!";
         }
-        this.#max = max;
-        this.#numbers = [ start ];
+        this.max = max;
+        this.numbers = [ start ];
     }
 
     getAverage() {
         let sum = 0;
-        this.#numbers.forEach((v) => {
+        this.numbers.forEach((v) => {
             sum += v;
         });
         return sum / this.getValueCount();
     }
 
-    addValue(n) {
-        this.#numbers[this.#_pointer++] = n;
+    addValue(n: number) {
+        this.numbers[this._pointer++] = n;
         // once max value reached, start overwriting values
-        if(this.#_pointer >= this.#max) {
-            this.#_pointer = 0;
+        if(this._pointer >= this.max) {
+            this._pointer = 0;
         }
     }
 
     getValueCount() {
-        return Math.min(this.#numbers.length, this.#max);
+        return Math.min(this.numbers.length, this.max);
     }
 
 }
-
-module.exports = RollingAverage;

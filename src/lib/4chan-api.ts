@@ -1,23 +1,43 @@
-const https = require("https");
+import * as https from 'https';
+import format from './str-format';
 
 let apiUrl = "https://a.4cdn.org/{0}/{1}.json";
 let imgUrl = "https://i.4cdn.org/{0}/{1}{2}";
 let postUrl = "https://boards.4chan.org/{0}/thread/{1}";
+let boardsUrl = "https://a.4cdn.org/boards.json";
 
-function getPostFromThread(thread, board) {
+export interface ChanPost {
+    image: string,
+    text: string,
+    author: string,
+    id: number,
+    timestamp: string,
+    permalink: string
+};
+
+interface ApiPost {
+    tim: string,
+    ext: string,
+    com: string,
+    name: string,
+    no: number,
+    now: string
+}
+
+function getPostFromThread(thread: ApiPost, board: string): ChanPost {
     return {
-        image: imgUrl.format(board, thread.tim, thread.ext),
+        image: format(imgUrl, board, thread.tim, thread.ext),
         text: thread.com,
         author: thread.name,
         id: thread.no,
         timestamp: thread.now,
-        permalink: postUrl.format(board, thread.no)
+        permalink: format(postUrl, board, thread.no)
     };
 }
 
-function getRandomPost(board) {
+export function getRandomPost(board) {
     return new Promise((resolve, reject) => {
-        https.get(apiUrl.format(board, "catalog"), (res) => {
+        https.get(format(apiUrl, board, "catalog"), (res) => {
             if(res.statusCode == 404) {
                 reject({ board_not_found: board });
                 return;
@@ -51,9 +71,9 @@ function getRandomPost(board) {
     });
 }
 
-function getPost(id, board) {
+export function getPost(id, board) {
     return new Promise((resolve, reject) => {
-        https.get(apiUrl.format(board, `thread/${id}`), (res) => {
+        https.get(format(apiUrl, board, `thread/${id}`), (res) => {
             if(res.statusCode == 404) {
                 reject({ post_not_found: id });
                 return;
@@ -85,7 +105,36 @@ function getPost(id, board) {
     })
 }
 
-function getBoard(board) {
+export function getBoards() {
+    return new Promise((resolve, reject) => {
+        https.get(boardsUrl, (res) => {
+            if(res.statusCode != 200) {
+                reject({ error: res.statusMessage });
+                return;
+            }
+
+            let json = "";
+            res.on("data", (data) => {
+                json += data.toString();
+            });
+            res.on("end", () => {
+                let data = JSON.parse(json);
+                let boardList = {};
+
+                for(let v of data.boards) {
+                    boardList[v.board] = {
+                        title: v.title,
+                        nsfw: v.ws_board === 0
+                    };
+                };
+
+                resolve(boardList);
+            });
+        }).on("error", reject);
+    });
+}
+
+export function getBoardName(board) {
     if(board.startsWith("/")) {
         board = board.substring(1, board.length);
     }
@@ -94,22 +143,3 @@ function getBoard(board) {
     }
     return board;
 }
-
-// implement String.format as expected
-// Source: https://stackoverflow.com/questions/610406/javascript-equivalent-to-printf-string-format
-if (!String.prototype.format) {
-    String.prototype.format = function() {
-        var args = arguments;
-        return this.replace(/{(\d+)}/g, function(match, number) { 
-            return typeof args[number] != 'undefined'
-                        ? args[number]
-                        : match;
-        });
-    };
-}
-
-module.exports = {
-    getRandomPost: getRandomPost,
-    getPost: getPost,
-    getBoardName: getBoard
-};

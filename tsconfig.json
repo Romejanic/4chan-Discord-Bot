@@ -1,0 +1,12 @@
+{
+    "compilerOptions": {
+        "rootDir": "src",
+        "outDir": "build",
+        "resolveJsonModule": true,
+        "module": "commonjs",
+        "target": "ES2015",
+    },
+    "exclude": [
+        "build/**/*"
+    ]
+}

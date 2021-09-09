@@ -1,5 +1,17 @@
-const fs = require("fs");
-const configs = {};
+import { Channel } from 'discord.js';
+import * as fs from 'fs';
+import * as db from './db';
+
+// define configs type and structure
+const configs: {
+    globalConfig: any,
+    servers: {
+        [id: string]: ServerConfig
+    }
+} = {
+    globalConfig: undefined,
+    servers: {}
+};
 
 // load the global config file
 if(!configs.globalConfig) {
@@ -19,23 +31,21 @@ if(!configs.globalConfig) {
 // per-server config class
 class ServerConfig {
 
-    id;
-    db;
-    requiresInsert = false;
+    private id: string;
+    private requiresInsert = false;
 
     // config options
-    default_board = undefined;
-    prefix = undefined;
-    restricted_channels = undefined;
-    removal_time = undefined;
+    private default_board: string = undefined;
+    private prefix: string = undefined;
+    private restricted_channels: string[] = undefined;
+    private removal_time: number = undefined;
 
-    constructor(id, db) {
+    constructor(id: string) {
         this.id = id;
-        this.db = db;
     }
 
     async fetch() {
-        let config = await this.db.getConfigForServer(this.id);
+        let config = await db.getConfigForServer(this.id);
         // copy config keys into class
         this.default_board = config.default_board;
         this.prefix = config.prefix;
@@ -43,18 +53,17 @@ class ServerConfig {
         this.requiresInsert = config.new_config;
         // get list of restricted channels
         if(config.restricted) {
-            this.restricted_channels = await this.db.getRestrictedChannels(this.id);
+            this.restricted_channels = await db.getRestrictedChannels(this.id);
         } else {
             this.restricted_channels = undefined;
         }
     }
 
-    async #commit(key, value) {
-        if(!this.db) return;
+    private async commit(key: string, value: any) {
         if(this.requiresInsert) {
-            await this.db.createConfigForServer(this.id);
+            await db.createConfigForServer(this.id);
         }
-        await this.db.editServerConfig(this.id, key, value);
+        await db.editServerConfig(this.id, key, value);
     }
 
     getDefaultBoard() {
@@ -92,7 +101,7 @@ class ServerConfig {
         return this.removal_time ? this.removal_time : configs.globalConfig.removal_default_timeout;
     }
 
-    getDisplayValue(option, strings) {
+    getDisplayValue(option: string, strings) {
         const formatDefault = (val, original) => original ? val : strings["config_help_default"].format(val);
         switch(option) {
             case "default_board":
@@ -112,37 +121,37 @@ class ServerConfig {
         }
     }
 
-    async setDefaultBoard(board) {
+    async setDefaultBoard(board: string) {
         this.default_board = board;
-        await this.#commit("default_board", board);
+        await this.commit("default_board", board);
     }
 
-    async setPrefix(prefix) {
+    async setPrefix(prefix: string) {
         this.prefix = prefix;
-        await this.#commit("prefix", prefix);
+        await this.commit("prefix", prefix);
     }
 
-    async setRemovalTime(time) {
+    async setRemovalTime(time: number) {
         this.removal_time = time;
-        await this.#commit("removal_time", time);
+        await this.commit("removal_time", time);
     }
 
     async clearAllowedChannels() {
         this.restricted_channels = null;
-        await this.db.clearAllowedChannels(this.id);
-        await this.#commit("restricted", false);
+        await db.clearAllowedChannels(this.id);
+        await this.commit("restricted", false);
     }
 
-    async toggleChannel(channel) {
+    async toggleChannel(channel: Channel) {
         // should we add the channel?
         if(!this.restricted_channels || this.restricted_channels.indexOf(channel.id) < 0) {
             // update on database
-            await this.db.setChannelAllowed(this.id, channel.id, true);
+            await db.setChannelAllowed(this.id, channel.id, true);
             // either push the value to array or create array
             if(this.restricted_channels) this.restricted_channels.push(channel.id);
             else {
                 this.restricted_channels = [ channel.id ];
-                await this.#commit("restricted", true);
+                await this.commit("restricted", true);
             }
 
             return true;
@@ -151,11 +160,11 @@ class ServerConfig {
         else {
             // remove from array and database
             this.restricted_channels.splice(this.restricted_channels.indexOf(channel.id), 1);
-            await this.db.setChannelAllowed(this.id, channel.id, false);
+            await db.setChannelAllowed(this.id, channel.id, false);
             // if channel list is empty, update database and clear variable
             if(this.restricted_channels.length <= 0) {
                 this.restricted_channels = undefined;
-                await this.#commit("restricted", false);
+                await this.commit("restricted", false);
             }
 
             return false;
@@ -163,23 +172,21 @@ class ServerConfig {
     }
 
 }
-configs.servers = {};
 
-// Export the relevant objects/methods
-module.exports = {
+// Export global config and methods for retrieving server config
 
-    global: configs.globalConfig,
-    forServer: async (id, db) => {
-        if(!configs.servers[id]) {
-            configs.servers[id] = new ServerConfig(id, db);
-            if(id) {
-                await configs.servers[id].fetch();
-            }
+export const global = configs.globalConfig;
+
+export async function forServer(id: string) {
+    if(!configs.servers[id]) {
+        configs.servers[id] = new ServerConfig(id);
+        if(id) {
+            await configs.servers[id].fetch();
         }
-        return configs.servers[id];
-    },
-    clearServers: async () => {
-        configs.servers = {};
     }
+    return configs.servers[id];
+};
 
+export async function clearServers() {
+    configs.servers = {};
 };

@@ -17,7 +17,7 @@ const client = new SlasherClient({
 const stats = new Stats();
 
 // create event listeners
-client.on("command", Commands.execute);
+client.on("command", ctx => Commands.execute(ctx, stats));
 client.on("messageCreate", Commands.warning);
 
 // init the bot

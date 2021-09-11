@@ -1,10 +1,12 @@
-import { Message, MessageEmbed } from "discord.js";
+import { ButtonInteraction, Collector, EmbedFieldData, Interaction, InteractionReplyOptions, Message, MessageActionRow, MessageButton, MessageEmbed, WebhookEditMessageOptions } from "discord.js";
 import { CommandContext } from "discord.js-slasher";
 import * as config from './lib/config';
 import format from './lib/str-format';
+import Stats from "./stats";
+import * as chan from './lib/4chan-api';
 
 // load strings
-const STRINGS = require("../strings.json");
+const STRINGS: { [key: string]: string } = require("../strings.json");
 
 // define commonly used constants
 const EMBED_COLOR_NORMAL = "#FED7B0";
@@ -19,7 +21,7 @@ const CMD_HELP_URL = "https://github.com/Romejanic/4chan-Discord-Bot/blob/master
 // define command handlers
 const COMMANDS: CommandHandlers = {
 
-    "4chan": async (ctx) => {
+    "4chan": async (ctx, lib) => {
         let embed = new MessageEmbed().setColor(EMBED_COLOR_NORMAL);
 
         switch(ctx.options.getSubcommand(true)) {
@@ -36,19 +38,112 @@ const COMMANDS: CommandHandlers = {
                     .addField(STRINGS["info_used_in"], format(STRINGS["info_servers"], ctx.client.guilds.cache.size), true)
                     .addField(STRINGS["info_node"], process.version, true)
                     .addField(STRINGS["info_os"], process.platform, true)
-                    .addField(STRINGS["info_memory"], (100 * heapUsed / heapTotal).toFixed(1) + "%", true);
-                    // .addField(STRINGS["info_stats_total"], lib.stats.totalServed, true)
-                    // .addField(STRINGS["info_stats_daily"], lib.stats.getDailyAverage(), true)
-                    // .addField(STRINGS["info_stats_today"], lib.stats.todayServed, true);;
+                    .addField(STRINGS["info_memory"], (100 * heapUsed / heapTotal).toFixed(1) + "%", true)
+                    .addField(STRINGS["info_stats_total"], lib.stats.totalServed.toLocaleString(), true)
+                    .addField(STRINGS["info_stats_daily"], lib.stats.getDailyAverage().toLocaleString(), true)
+                    .addField(STRINGS["info_stats_today"], (lib.stats.todayServed+1).toLocaleString(), true);
                 break;
             case "help":
-                embed.setTitle("Help");
+                embed.setTitle(STRINGS["help_title"])
+                    .setFooter(STRINGS["help_footer"])
+                    .addField(STRINGS["help_cmd"], STRINGS["help_help"], false)
+                    .addField(STRINGS["info_cmd"], STRINGS["info_help"], false)
+                    .addField(STRINGS["boards_cmd"], STRINGS["boards_help"], false)
+                    .addField(STRINGS["random_cmd"], STRINGS["random_help"], false)
+                    .addField(STRINGS["post_cmd"], STRINGS["post_help"], false);
                 break;
             default:
                 break;
         }
 
         await ctx.reply(embed);
+    },
+
+    "boards": async (ctx) => {
+        await ctx.defer();
+
+        // get the board list
+        let boards = await chan.getBoards();
+        let names = Object.keys(boards);
+
+        // create embed and buttons
+        let embed = new MessageEmbed()
+            .setColor(EMBED_COLOR_NORMAL)
+            .setTitle(STRINGS["boards_title"]);
+        let backButton = new MessageButton()
+            .setStyle(1)
+            .setCustomId("boards_back")
+            .setEmoji(STRINGS["boards_back"]);
+        let nextButton = new MessageButton()
+            .setStyle(1)
+            .setCustomId("boards_next")
+            .setEmoji(STRINGS["boards_next"]);
+        let countButton = new MessageButton()
+            .setStyle(2)
+            .setCustomId("boards_count")
+            .setDisabled(true);
+
+        // create function for populating list
+        let boardsPerPage = 8;
+        let currPage = 0;
+        let pages = Math.floor(names.length / boardsPerPage);
+
+        function populateList(pageNo: number) {
+            currPage = pageNo;
+            let idx = pageNo * boardsPerPage;
+            let end = Math.min(names.length - 1, idx + boardsPerPage);
+            let arr = names.slice(pageNo * boardsPerPage, end);
+        
+            // set fields
+            let fields: EmbedFieldData[] = arr.map(n => {
+                return {
+                    name: `/${n}/`,
+                    value: "`" + boards[n].title + "`" + (boards[n].nsfw ? " (NSFW)" : ""),
+                    inline: false
+                };
+            });
+            embed.setFields(fields);
+
+            // enable/disable buttons
+            backButton.setDisabled(pageNo === 0);
+            nextButton.setDisabled(pageNo === pages - 1);
+            countButton.setLabel(format(STRINGS["boards_pages"], pageNo+1, pages));
+        }
+        populateList(0);
+
+        // send the initial message
+        let data: WebhookEditMessageOptions = {
+            embeds: [ embed ],
+            components: [
+                new MessageActionRow().addComponents(backButton, countButton, nextButton)
+            ]
+        };
+        await ctx.edit(data);
+
+        // create message component collector to detect when the buttons
+        // are pressed
+        const filter  = i => i.customId === "boards_back" || i.customId === "boards_next";
+        const collect = ctx.channel.createMessageComponentCollector({ filter, time: 15 * 60 * 1000 });
+
+        collect.on("collect", async (btn: ButtonInteraction) => {
+            if(btn.customId === "boards_back" && currPage > 0) {
+                populateList(currPage - 1);
+            }
+            if(btn.customId === "boards_next" && currPage < pages - 1) {
+                populateList(currPage + 1);
+            }
+            data.components = [
+                new MessageActionRow().addComponents(backButton, countButton, nextButton)
+            ];
+            await btn.update(data);
+        });
+
+        collect.on("end", async () => {
+            // remove buttons once time expires
+            data.components = [];
+            embed.setFooter("Page " + countButton.label);
+            await ctx.edit(data);
+        });
     }
 
 };
@@ -56,10 +151,14 @@ const COMMANDS: CommandHandlers = {
 export default {
 
     // executes a command from the given context
-    execute: async (ctx: CommandContext) => {
+    execute: async (ctx: CommandContext, stats: Stats) => {
         try {
+            // find the command
             if(COMMANDS[ctx.name]) {
-                await COMMANDS[ctx.name](ctx);
+                // run it
+                await COMMANDS[ctx.name](ctx, { stats });
+                // if it succeeded, increase the stats
+                stats.servedRequest();
             }
         } catch(e) {
             let embed = new MessageEmbed()
@@ -96,6 +195,9 @@ async function startsWithPrefix(msg: Message) {
 }
 
 // declare command handlers helper type
+type Libs = {
+    stats: Stats
+};
 type CommandHandlers = {
-    [name: string]: (ctx: CommandContext) => Promise<any>
+    [name: string]: (ctx: CommandContext, lib?: Libs) => Promise<any>
 };

@@ -15,6 +15,11 @@ export interface ChanPost {
     permalink: string
 };
 
+export interface ChanBoard {
+    title: string,
+    nsfw: boolean
+};
+
 interface ApiPost {
     tim: string,
     ext: string,
@@ -71,7 +76,7 @@ export function getRandomPost(board) {
     });
 }
 
-export function getPost(id, board) {
+export function getPost(id: number, board: string) {
     return new Promise((resolve, reject) => {
         https.get(format(apiUrl, board, `thread/${id}`), (res) => {
             if(res.statusCode == 404) {
@@ -105,7 +110,7 @@ export function getPost(id, board) {
     })
 }
 
-export function getBoards() {
+export function getBoards(): Promise<{ [name: string]: ChanBoard }> {
     return new Promise((resolve, reject) => {
         https.get(boardsUrl, (res) => {
             if(res.statusCode != 200) {
@@ -134,7 +139,7 @@ export function getBoards() {
     });
 }
 
-export function getBoardName(board) {
+export function getBoardName(board: string) {
     if(board.startsWith("/")) {
         board = board.substring(1, board.length);
     }

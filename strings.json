@@ -61,6 +61,11 @@
     "post_nopost_desc": "Post `{0}` in board `/{1}/` doesn't exist or couldn't be found.",
     "post_error": "Failed to get post!",
 
+    "boards_title": "List of boards",
+    "boards_back": "⬅️",
+    "boards_next": "➡️",
+    "boards_pages": "{0}/{1}",
+
     "config_notserver": "Not a server!",
     "config_notserver_desc": "This command can only be used on a server!\n[Click here](https://discordapp.com/api/oauth2/authorize?client_id=592655834568327179&permissions=124992&scope=bot) to invite to your server.",
     "config_notadmin": "Not an admin!",
@@ -125,12 +130,20 @@
     "can_true": "can",
     "can_false": "cannot",
 
+    "help_cmd": "/4chan help",
     "help_help": "Lists all commands and their usage.",
-    "random_help": "Gets a random post from the default board or a specified board.",
-    "debug_help": "Debug commands to aid development of the bot.",
-    "post_help": "Gets the OP post of the thread with the given ID from the given board.",
-    "config_help": "Allows you to configure the behaviour of the bot for your server.",
+    "info_cmd": "/4chan info",
     "info_help": "See support links, bot version and system info.",
+    "boards_cmd": "/boards",
+    "boards_help": "Gets a list of boards available on 4chan.",
+    "random_cmd": "/4chan random [board]",
+    "random_help": "Gets a random post from the default board or a specified board.",
+    "post_cmd": "/4chan post <id> <board>",
+    "post_help": "Gets the OP post of the thread with the given ID from the given board.",
+    "config_cmd": "/4chan config ...",
+    "config_help": "Allows you to configure the behaviour of the bot for your server.",
+    "debug_cmd": "/4chan debug ...",
+    "debug_help": "Debug commands to aid development of the bot.",
 
     "random_suffix": " OR {0} /<board>/",
 

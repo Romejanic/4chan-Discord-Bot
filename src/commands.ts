@@ -126,8 +126,8 @@ const COMMANDS: CommandHandlers = {
 
         // create message component collector to detect when the buttons
         // are pressed
-        const filter  = (i: ButtonInteraction) => i.message.id === message.id;
-        const collect = ctx.channel.createMessageComponentCollector({ filter, time: 15 * 60 * 1000 });
+        const filter  = (i: ButtonInteraction) => [backButton.customId, nextButton.customId].includes(i.customId);
+        const collect = ctx.channel.createMessageComponentCollector({ message, filter, time: 5 * 60 * 1000 });
 
         collect.on("collect", async (btn: ButtonInteraction) => {
             if(btn.customId === "boards_back" && currPage > 0) {

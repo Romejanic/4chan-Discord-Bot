@@ -1,4 +1,8 @@
-import { ButtonInteraction, Collector, EmbedFieldData, Interaction, InteractionReplyOptions, Message, MessageActionRow, MessageButton, MessageEmbed, WebhookEditMessageOptions } from "discord.js";
+import {
+    ButtonInteraction, EmbedFieldData, Message,
+    MessageActionRow, MessageButton, MessageEmbed,
+    WebhookEditMessageOptions
+} from "discord.js";
 import { CommandContext } from "discord.js-slasher";
 import * as config from './lib/config';
 import format from './lib/str-format';
@@ -118,11 +122,11 @@ const COMMANDS: CommandHandlers = {
                 new MessageActionRow().addComponents(backButton, countButton, nextButton)
             ]
         };
-        await ctx.edit(data);
+        let message = await ctx.edit(data);
 
         // create message component collector to detect when the buttons
         // are pressed
-        const filter  = i => i.customId === "boards_back" || i.customId === "boards_next";
+        const filter  = (i: ButtonInteraction) => i.message.id === message.id;
         const collect = ctx.channel.createMessageComponentCollector({ filter, time: 15 * 60 * 1000 });
 
         collect.on("collect", async (btn: ButtonInteraction) => {

@@ -1,5 +1,7 @@
 import * as fs from 'fs/promises';
 import RollingAverage from './lib/avg';
+import { CommandContext } from 'discord.js-slasher';
+import format from './lib/str-format';
 
 const STATS_FILE = "stats.json";
 
@@ -10,14 +12,21 @@ type StatsJson = {
     total: number,
     daily: number,
     today: number,
+    analytics?: Analytics,
     timestamp: number
+};
+
+type Analytics = {
+    [command: string]: number
 };
 
 export default class Stats {
 
     totalServed: number = 0
-    dailyServed: RollingAverage = null
+    dailyServed: RollingAverage = new RollingAverage()
     todayServed: number = 0
+
+    analytics: Analytics = {}
 
     private dailyInterval: NodeJS.Timer = undefined
     private saveInterval: NodeJS.Timer = undefined
@@ -53,6 +62,7 @@ export default class Stats {
         this.totalServed = jsonObj.total;
         this.dailyServed = new RollingAverage(jsonObj.daily);
         this.todayServed = jsonObj.today;
+        this.analytics = jsonObj.analytics || {};
         if(Date.now() - jsonObj.timestamp > DAILY_INTERVAL) {
             // reset if bot hasn't been running longer than a day
             this.dailyServed.addValue(this.todayServed);
@@ -66,6 +76,7 @@ export default class Stats {
             total: this.totalServed,
             daily: this.getDailyAverage(),
             today: this.todayServed,
+            analytics: this.analytics,
             timestamp: Date.now()
         }, undefined, 4);
         await fs.writeFile(STATS_FILE, jsonData);
@@ -75,9 +86,20 @@ export default class Stats {
         }
     }
 
-    servedRequest() {
+    servedRequest(command?: CommandContext) {
         this.totalServed++;
         this.todayServed++;
+        // record analytics for the command
+        if(command) {
+            let subc = command.options.getSubcommand(false);
+            let subg = command.options.getSubcommandGroup(false);
+            let name = format("{0}{1}{2}", command.name, subg ? `/${subg}` : "", subc ? `/${subc}` : "");
+            if(this.analytics[name]) {
+                this.analytics[name]++;
+            } else {
+                this.analytics[name] = 1;
+            }
+        }
     }
 
     getDailyAverage() {

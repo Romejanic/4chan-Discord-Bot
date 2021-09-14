@@ -30,26 +30,26 @@ const COMMANDS: CommandHandlers = {
 
         switch(ctx.options.getSubcommand(true)) {
             case "info":
-                let dev = process.argv.includes("-dev");
                 let version = require("../package.json").version;
                 let { heapUsed, heapTotal } = process.memoryUsage();
                 embed.setTitle(STRINGS["info_title"])
                     .setDescription(STRINGS["info_desc"])
                     .setFooter(STRINGS["info_footer"])
-                    .setThumbnail(!dev ? AVATAR_URL : AVATAR_URL_DEV)
+                    .setThumbnail(!lib.dev ? AVATAR_URL : AVATAR_URL_DEV)
                     .addField(STRINGS["info_version"], version, true)
-                    .addField(STRINGS["info_build_type"], STRINGS["info_dev_build_" + dev], true)
+                    .addField(STRINGS["info_build_type"], STRINGS["info_dev_build_" + lib.dev], true)
                     .addField(STRINGS["info_used_in"], format(STRINGS["info_servers"], ctx.client.guilds.cache.size), true)
                     .addField(STRINGS["info_node"], process.version, true)
                     .addField(STRINGS["info_os"], process.platform, true)
                     .addField(STRINGS["info_memory"], (100 * heapUsed / heapTotal).toFixed(1) + "%", true)
-                    .addField(STRINGS["info_stats_total"], lib.stats.totalServed.toLocaleString(), true)
+                    .addField(STRINGS["info_stats_total"], (lib.stats.totalServed+1).toLocaleString(), true)
                     .addField(STRINGS["info_stats_daily"], lib.stats.getDailyAverage().toLocaleString(), true)
                     .addField(STRINGS["info_stats_today"], (lib.stats.todayServed+1).toLocaleString(), true);
                 break;
             case "help":
-                embed.setTitle(STRINGS["help_title"])
+                embed
                     .setFooter(STRINGS["help_footer"])
+                    .setAuthor(STRINGS["help_title"], CMD_HELP_IMAGE, CMD_HELP_URL)
                     .addField(STRINGS["help_cmd"], STRINGS["help_help"], false)
                     .addField(STRINGS["info_cmd"], STRINGS["info_help"], false)
                     .addField(STRINGS["boards_cmd"], STRINGS["boards_help"], false)
@@ -148,6 +148,10 @@ const COMMANDS: CommandHandlers = {
             embed.setFooter("Page " + countButton.label);
             await ctx.edit(data);
         });
+    },
+
+    "random": async (ctx) => {
+        
     }
 
 };
@@ -156,20 +160,25 @@ export default {
 
     // executes a command from the given context
     execute: async (ctx: CommandContext, stats: Stats) => {
+        let dev = process.argv.includes("-dev");
         try {
             // find the command
             if(COMMANDS[ctx.name]) {
                 // run it
-                await COMMANDS[ctx.name](ctx, { stats });
+                await COMMANDS[ctx.name](ctx, { stats, dev });
                 // if it succeeded, increase the stats
-                stats.servedRequest();
+                stats.servedRequest(ctx);
             }
         } catch(e) {
+            // if in dev environment, print the error
+            if(dev) console.error(e);
+            // notify the user that something went wrong
             let embed = new MessageEmbed()
                 .setTitle("Error running command!")
                 .setDescription("An error occurred while running this command!\nPlease [contact the developer](https://github.com/Romejanic/4chan-Discord-Bot/issues/new/) and send this code:\n```\n" + e + "\n```")
                 .setColor(EMBED_COLOR_ERROR);
-            await ctx.reply(embed);
+            if(ctx.command.replied) await ctx.edit(embed);
+            else await ctx.reply(embed);
         }
     },
 
@@ -200,6 +209,7 @@ async function startsWithPrefix(msg: Message) {
 
 // declare command handlers helper type
 type Libs = {
+    dev: boolean,
     stats: Stats
 };
 type CommandHandlers = {

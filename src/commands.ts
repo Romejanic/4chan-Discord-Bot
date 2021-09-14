@@ -90,7 +90,7 @@ const COMMANDS: CommandHandlers = {
         // create function for populating list
         let boardsPerPage = 8;
         let currPage = 0;
-        let pages = Math.floor(names.length / boardsPerPage);
+        let pages = Math.ceil(names.length / boardsPerPage);
 
         function populateList(pageNo: number) {
             currPage = pageNo;
@@ -150,11 +150,100 @@ const COMMANDS: CommandHandlers = {
         });
     },
 
-    "random": async (ctx) => {
-        
+    "random": async (ctx, lib) => {
+        // defer the response
+        await ctx.defer();
+
+        // decide which board to use
+        let board = lib.config.getDefaultBoard();
+        if(ctx.options.getString("board")) {
+            board = ctx.options.getString("board");
+        }
+
+        try {
+            // get a random post from 4chan and send it
+            let post = await chan.getRandomPost(board);
+            await sendPost(post, ctx, lib);
+        } catch(err) {
+            // notify the user of the error
+            let embed = new MessageEmbed().setColor(EMBED_COLOR_ERROR);
+            if(err.board_not_found) {
+                embed
+                .setTitle(STRINGS["random_noboard"])
+                .setDescription(format(STRINGS["random_noboard_desc"], board));
+            } else {
+                embed
+                .setTitle(STRINGS["random_error"])
+                .setDescription(format(STRINGS["random_error_desc"], err));
+            }
+            await ctx.edit(embed);
+        }
+
     }
 
 };
+
+/**
+ * Sends a 4chan post to the given context as a formatted embed
+ */
+async function sendPost(post: chan.ChanPost, ctx: CommandContext, lib: Libs): Promise<void> {
+    // preprocess the text a little bit
+    let postText = unescape(post.text.length > 2000 ? post.text.substring(0, 2000) + "..." : post.text);
+    postText = postText.replace(/<br>/gi, "\n");
+    postText = postText.replace("</span>", "");
+    postText = postText.replace("<span class=\"quote\">", "");
+        
+    // create basic embed
+    let embed = new MessageEmbed()
+        .setColor(EMBED_COLOR_NORMAL)
+        .setTitle(format(STRINGS["post_title"], post.id, post.author))
+        .setDescription(format(STRINGS["post_desc"], postText, post.permalink))
+        .setImage(post.image)
+        .addField(STRINGS["post_submitted"], post.timestamp);
+    let data: WebhookEditMessageOptions = { embeds: [embed] };
+
+    // add removal instructions and buttons on a server
+    if(ctx.isServer) {
+        data.components = [
+            new MessageActionRow().addComponents(
+                new MessageButton()
+                    .setCustomId("post_remove")
+                    .setStyle(4)
+                    .setLabel(STRINGS["post_remove"])
+            )
+        ];
+    }
+
+    let message = await ctx.edit(data);
+    
+    // if we're on a server, create a button collector for removal
+    if(ctx.isServer) {
+        // determine removal time from config
+        let removal_time = lib.config.getRemovalTime();
+
+        // create collector for button presses
+        const filter  = (i: ButtonInteraction) => i.customId === "post_remove" && i.user.id === ctx.user.id;
+        const collect = ctx.channel.createMessageComponentCollector({ filter, message, time: removal_time * 1000, max: 1 });
+
+        collect.on("collect", async (btn) => {
+            let embed = new MessageEmbed()
+                .setColor(EMBED_COLOR_ERROR)
+                .setTitle(STRINGS["post_removal_confirm"])
+                .setDescription(STRINGS["post_removal_desc"]);
+            data.embeds = [embed];
+            data.components = [];
+            await btn.update(data);
+        });
+
+        collect.on("end", async () => {
+            // remove button on expiry
+            data.components = [];
+            if(message instanceof Message) {
+                await message.edit(data);
+            }
+        });
+    }
+}
 
 export default {
 
@@ -165,7 +254,8 @@ export default {
             // find the command
             if(COMMANDS[ctx.name]) {
                 // run it
-                await COMMANDS[ctx.name](ctx, { stats, dev });
+                let cfg = await config.forServer(ctx.isServer ? ctx.server.id : null)
+                await COMMANDS[ctx.name](ctx, { stats, dev, config: cfg });
                 // if it succeeded, increase the stats
                 stats.servedRequest(ctx);
             }
@@ -210,7 +300,8 @@ async function startsWithPrefix(msg: Message) {
 // declare command handlers helper type
 type Libs = {
     dev: boolean,
-    stats: Stats
+    stats: Stats,
+    config: config.ServerConfig
 };
 type CommandHandlers = {
     [name: string]: (ctx: CommandContext, lib?: Libs) => Promise<any>

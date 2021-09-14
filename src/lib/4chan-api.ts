@@ -40,7 +40,7 @@ function getPostFromThread(thread: ApiPost, board: string): ChanPost {
     };
 }
 
-export function getRandomPost(board) {
+export function getRandomPost(board: string): Promise<ChanPost> {
     return new Promise((resolve, reject) => {
         https.get(format(apiUrl, board, "catalog"), (res) => {
             if(res.statusCode == 404) {

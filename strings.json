@@ -29,11 +29,11 @@
     "post_title": "{0} by {1}",
     "post_desc": "```{0}```\n[Link to thread]({1})",
     "post_submitted": "Submitted",
-    "post_removal_instructions": "React {0} to remove this post.",
     "post_removal_confirm": "Post removed.",
     "post_removal_desc": "This post was removed by the requesting user.",
     "post_loading": "Loading post...",
     "post_loading_desc": "Fetching from 4chan, please wait...",
+    "post_remove": "Remove",
 
     "debug_title": "Debug Commands",
     "debug_nocmd": "Please enter one of the following sub-commands:\n```{0}```",

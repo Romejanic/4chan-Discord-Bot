@@ -29,7 +29,7 @@ if(!configs.globalConfig) {
 }
 
 // per-server config class
-class ServerConfig {
+export class ServerConfig {
 
     private id: string;
     private requiresInsert = false;
@@ -66,7 +66,7 @@ class ServerConfig {
         await db.editServerConfig(this.id, key, value);
     }
 
-    getDefaultBoard() {
+    getDefaultBoard(): string {
         if(this.default_board) {
             return this.default_board;
         }   
@@ -97,7 +97,7 @@ class ServerConfig {
             .join("\n") : "";
     }
 
-    getRemovalTime() {
+    getRemovalTime(): number {
         return this.removal_time ? this.removal_time : configs.globalConfig.removal_default_timeout;
     }
 

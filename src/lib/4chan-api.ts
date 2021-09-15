@@ -20,6 +20,15 @@ export interface ChanBoard {
     nsfw: boolean
 };
 
+export interface ChanBoardData {
+    [name: string]: ChanBoard
+};
+
+export interface ChanCachedBoards {
+    boards: ChanBoardData,
+    updated: number
+};
+
 interface ApiPost {
     tim: string,
     ext: string,
@@ -43,8 +52,8 @@ function getPostFromThread(thread: ApiPost, board: string): ChanPost {
 export function getRandomPost(board: string): Promise<ChanPost> {
     return new Promise((resolve, reject) => {
         https.get(format(apiUrl, board, "catalog"), (res) => {
-            if(res.statusCode == 404) {
-                reject({ board_not_found: board });
+            if(res.statusCode !== 200) {
+                reject({ error: res.statusMessage });
                 return;
             }
 
@@ -110,7 +119,7 @@ export function getPost(id: number, board: string) {
     })
 }
 
-export function getBoards(): Promise<{ [name: string]: ChanBoard }> {
+export function getBoards(): Promise<ChanBoardData> {
     return new Promise((resolve, reject) => {
         https.get(boardsUrl, (res) => {
             if(res.statusCode != 200) {
@@ -147,4 +156,32 @@ export function getBoardName(board: string) {
         board = board.substring(0, board.length - 1);
     }
     return board;
+}
+
+//-----------------------------------------------------//
+const boardCache: ChanCachedBoards = {
+    boards: {},
+    updated: 0
+};
+const CACHE_TIME = 20 * 60 * 1000;
+
+export async function validateBoard(board: string) {
+    // check if cache is expired
+    if(Date.now() - boardCache.updated > CACHE_TIME) {
+        // fetch list of boards from 4chan
+        boardCache.boards = await getBoards();
+        boardCache.updated = Date.now();
+
+        // if in dev environment, print message
+        if(process.argv.indexOf("-dev") > -1) {
+            console.log("[API] Refreshed board cache, found " + Object.keys(boardCache.boards).length + " boards");
+        }
+    }
+
+    // check if board exists
+    return Object.keys(boardCache.boards).includes(board);
+}
+
+export function getCachedBoards(): ChanCachedBoards {
+    return boardCache;
 }

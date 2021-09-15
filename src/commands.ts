@@ -159,6 +159,18 @@ const COMMANDS: CommandHandlers = {
         if(ctx.options.getString("board")) {
             board = ctx.options.getString("board");
         }
+        board = chan.getBoardName(board);
+
+        // check if board exists
+        let exists = await chan.validateBoard(board);
+        if(!exists) {
+            let embed = new MessageEmbed()
+                .setColor(EMBED_COLOR_ERROR)
+                .setTitle(STRINGS["random_noboard"])
+                .setDescription(format(STRINGS["random_noboard_desc"], board));
+            await ctx.edit(embed);
+            return;
+        }
 
         try {
             // get a random post from 4chan and send it

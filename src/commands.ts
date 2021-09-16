@@ -18,7 +18,6 @@ const STRINGS: { [key: string]: string } = require("../strings.json");
 const EMBED_COLOR_NORMAL = "#FED7B0";
 const EMBED_COLOR_ERROR   = "#FF0000";
 const EMBED_COLOR_SUCCESS = "#00FF00";
-const EMBED_COLOR_LOADING = "#BBBBBB";
 const AVATAR_URL = "https://cdn.discordapp.com/avatars/592655834568327179/f0ae1e42b1dbb8a2f4df48ddf60d80b9.png?size=256";
 const AVATAR_URL_DEV = "https://cdn.discordapp.com/avatars/763736231812399115/6bbef49611cc60cb295ccceba74095ea.png?size=256";
 const CMD_HELP_IMAGE = "https://cdn.discordapp.com/avatars/592655834568327179/f0ae1e42b1dbb8a2f4df48ddf60d80b9.png?size=64";

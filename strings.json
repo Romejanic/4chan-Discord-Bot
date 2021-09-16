@@ -107,7 +107,7 @@
     "config_prefix_toolong": "The prefix you entered was too long!\n\nThe maximum length allowed is 10 characters, you entered {0}.",
 
     "config_removal_time_title": "Removal Time",
-    "config_removal_time_description": "How many seconds the user has to react to a post with :x: to remove it.\n\n**Current Value:** {0}\n",
+    "config_removal_time_description": "How many seconds the user has to click the 'Remove' button to remove a post.\n\n**Current Value:** {0}\n",
     "config_removal_time_change_cmd": "{0} config removal_time <seconds>",
     "config_removal_time_reset_cmd": "{0} config removal_time reset",
     "config_removal_time_clear": "The removal time has been reset to the global default (`{0} seconds`).",
@@ -118,7 +118,7 @@
     "config_restricted_channels_all": "All",
     "config_restricted_channels_count": "{0} channels",
     "config_restricted_channels_title": "Allowed Channels",
-    "config_restricted_channels_desc_none": "The bot can speak in all NSFW channels.",
+    "config_restricted_channels_desc_none": "The bot can speak in all channels.",
     "config_restricted_channels_desc_list": "The bot can speak in the following channels:\n```{0}```",
     "config_restricted_channels_toggle": "To toggle channel",
     "config_restricted_channels_toggle_cmd": "{0} config allowed_channels #<channel name>",

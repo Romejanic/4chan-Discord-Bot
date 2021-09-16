@@ -323,6 +323,13 @@ const COMMANDS: CommandHandlers = {
                         await ctx.edit(embed);
                         return;
                     }
+                } else if(action === "get") {
+                    // send embed
+                    let embed = new MessageEmbed()
+                        .setColor(EMBED_COLOR_NORMAL)
+                        .setTitle(STRINGS["config_default_board_title"])
+                        .setDescription(format(STRINGS["config_default_board_description"], lib.config.getDisplayValue("default_board", STRINGS)));
+                    await ctx.edit(embed);
                 }
                 break;
             case "removal_time":
@@ -380,6 +387,13 @@ const COMMANDS: CommandHandlers = {
                         await ctx.edit(embed);
                         return;
                     }
+                } else if(action === "get") {
+                    // send embed
+                    let embed = new MessageEmbed()
+                        .setColor(EMBED_COLOR_NORMAL)
+                        .setTitle(STRINGS["config_removal_time_title"])
+                        .setDescription(format(STRINGS["config_removal_time_description"], lib.config.getDisplayValue("removal_time", STRINGS)));
+                    await ctx.edit(embed);
                 }
                 break;
             case "allowed_channels":
@@ -459,6 +473,13 @@ const COMMANDS: CommandHandlers = {
                         await ctx.edit(embed);
                         return;
                     }
+                } else if(action === "get") {
+                    // send embed
+                    let embed = new MessageEmbed()
+                        .setColor(EMBED_COLOR_NORMAL)
+                        .setTitle(STRINGS["config_restricted_channels_title"])
+                        .setDescription(lib.config.getDisplayValue("allowed_channels", STRINGS, ctx.server.guild));
+                    await ctx.edit(embed);
                 }
                 break;
             default:
@@ -569,7 +590,7 @@ export default {
                 .setTitle("Error running command!")
                 .setDescription("An error occurred while running this command!\nPlease [contact the developer](https://github.com/Romejanic/4chan-Discord-Bot/issues/new/) and send this code:\n```\n" + e + "\n```")
                 .setColor(EMBED_COLOR_ERROR);
-            if(ctx.command.replied) await ctx.edit(embed);
+            if(ctx.command.replied || ctx.command.deferred) await ctx.edit(embed);
             else await ctx.reply(embed);
         }
     },

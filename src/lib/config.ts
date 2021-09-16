@@ -1,4 +1,5 @@
-import { Channel } from 'discord.js';
+import { Channel, Guild } from 'discord.js';
+import format from './str-format';
 import * as fs from 'fs';
 import * as db from './db';
 
@@ -103,8 +104,8 @@ export class ServerConfig {
         return this.removal_time ? this.removal_time : configs.globalConfig.removal_default_timeout;
     }
 
-    getDisplayValue(option: string, strings) {
-        const formatDefault = (val, original) => original ? val : strings["config_help_default"].format(val);
+    getDisplayValue(option: string, strings: any, guild?: Guild) {
+        const formatDefault = (val, original) => original ? val : format(strings["config_help_default"], val);
         switch(option) {
             case "default_board":
                 return formatDefault(`/${this.getDefaultBoard()}/`, this.default_board ? `/${this.default_board}/` : null);
@@ -114,9 +115,13 @@ export class ServerConfig {
                 return formatDefault(this.getRemovalTime(), this.removal_time);
             case "allowed_channels":
                 if(!this.restricted_channels || this.restricted_channels.length <= 0) {
-                    return formatDefault(strings["config_restricted_channels_all"], null);
+                    return formatDefault(strings["config_restricted_channels_desc_none"], null);
                 } else {
-                    return strings["config_restricted_channels_count"].format(this.restricted_channels.length);
+                    let channels = this.restricted_channels
+                        .map(id => guild.channels.resolve(id))
+                        .map(c => `#${c.name}`)
+                        .join("\n");
+                    return format(strings["config_restricted_channels_desc_list"], channels);
                 }
             default:
                 return "??";

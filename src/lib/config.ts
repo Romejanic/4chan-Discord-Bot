@@ -50,7 +50,7 @@ export class ServerConfig {
         this.default_board = config.default_board;
         this.prefix = config.prefix;
         this.removal_time = config.removal_time;
-        this.requiresInsert = config.new_config;
+        this.requiresInsert = config.new_config || false;
         // get list of restricted channels
         if(config.restricted) {
             this.restricted_channels = await db.getRestrictedChannels(this.id);
@@ -62,6 +62,7 @@ export class ServerConfig {
     private async commit(key: string, value: any) {
         if(this.requiresInsert) {
             await db.createConfigForServer(this.id);
+            this.requiresInsert = false;
         }
         await db.editServerConfig(this.id, key, value);
     }

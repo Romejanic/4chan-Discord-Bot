@@ -14,6 +14,7 @@
 	"dependencies": {
 		"discord.js": "^13.1.0",
 		"discord.js-slasher": "^0.2.3",
+		"html-entities": "^2.3.2",
 		"mysql": "^2.18.1",
 		"unescape": "^1.0.1"
 	},

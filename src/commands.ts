@@ -4,6 +4,7 @@ import {
     MessageEmbed, WebhookEditMessageOptions
 } from "discord.js";
 import { CommandContext } from "discord.js-slasher";
+import { decode } from 'html-entities';
 import * as config from './lib/config';
 import format from './lib/str-format';
 import Stats from "./stats";
@@ -243,10 +244,10 @@ const COMMANDS: CommandHandlers = {
  */
 async function sendPost(post: chan.ChanPost, ctx: CommandContext, lib: Libs): Promise<void> {
     // preprocess the text a little bit
-    let postText = unescape(post.text.length > 2000 ? post.text.substring(0, 2000) + "..." : post.text);
+    let postText = decode(post.text.length > 2000 ? post.text.substring(0, 2000) + "..." : post.text);
     postText = postText.replace(/<br>/gi, "\n");
-    postText = postText.replace("</span>", "");
-    postText = postText.replace("<span class=\"quote\">", "");
+    postText = postText.replace(/<\/span>/gi, "");
+    postText = postText.replace(/<span class=\"quote\">/gi, "");
         
     // create basic embed
     let embed = new MessageEmbed()

@@ -67,13 +67,17 @@ const COMMANDS: CommandHandlers = {
         await ctx.defer();
 
         // get the board list
-        let boards = await chan.getBoards();
-        let names = Object.keys(boards);
+        let cache  = await chan.getCachedBoards();
+        let boards = cache.boards;
+        let names  = Object.keys(boards);
+
+        let updateMins = Math.floor((Date.now() - cache.updated) / 60000);
 
         // create embed and buttons
         let embed = new MessageEmbed()
             .setColor(EMBED_COLOR_NORMAL)
-            .setTitle(STRINGS["boards_title"]);
+            .setTitle(STRINGS["boards_title"])
+            .setFooter(format(STRINGS["boards_updated"], updateMins));
         let backButton = new MessageButton()
             .setStyle(1)
             .setCustomId("boards_back")

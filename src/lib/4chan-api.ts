@@ -160,12 +160,23 @@ export function getBoardName(board: string) {
 
 //-----------------------------------------------------//
 const boardCache: ChanCachedBoards = {
-    boards: {},
+    boards: null,
     updated: 0
 };
 const CACHE_TIME = 20 * 60 * 1000;
 
 export async function validateBoard(board: string) {
+    await checkBoardCache();
+    // check if board exists
+    return Object.keys(boardCache.boards).includes(board);
+}
+
+export async function getCachedBoards(): Promise<ChanCachedBoards> {
+    await checkBoardCache();
+    return boardCache;
+}
+
+async function checkBoardCache() {
     // check if cache is expired
     if(Date.now() - boardCache.updated > CACHE_TIME) {
         // fetch list of boards from 4chan
@@ -177,11 +188,4 @@ export async function validateBoard(board: string) {
             console.log("[API] Refreshed board cache, found " + Object.keys(boardCache.boards).length + " boards");
         }
     }
-
-    // check if board exists
-    return Object.keys(boardCache.boards).includes(board);
-}
-
-export function getCachedBoards(): ChanCachedBoards {
-    return boardCache;
 }

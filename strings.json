@@ -65,6 +65,7 @@
     "boards_back": "⬅️",
     "boards_next": "➡️",
     "boards_pages": "{0}/{1}",
+    "boards_updated": "Last updated {0} minutes ago",
 
     "config_notserver": "Not a server!",
     "config_notserver_desc": "This command can only be used on a server!\n[Click here](https://discordapp.com/api/oauth2/authorize?client_id=592655834568327179&permissions=124992&scope=bot) to invite to your server.",

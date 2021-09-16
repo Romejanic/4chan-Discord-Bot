@@ -591,11 +591,20 @@ export default {
     // executes a command from the given context
     execute: async (ctx: CommandContext, stats: Stats) => {
         let dev = process.argv.includes("-dev");
+        let cfg = await config.forServer(ctx.isServer ? ctx.server.id : null);
         try {
+            // if channel isn't allowed, respond with error
+            if(!cfg.isChannelValid(ctx.channel.id)) {
+                let embed = new MessageEmbed()
+                    .setColor(EMBED_COLOR_ERROR)
+                    .setTitle(STRINGS["restricted_channel"])
+                    .setDescription(cfg.getDisplayValue("allowed_channels", STRINGS, ctx.server.guild));
+                return await ctx.reply(embed, true);
+            }
+
             // find the command
             if(COMMANDS[ctx.name]) {
                 // run it
-                let cfg = await config.forServer(ctx.isServer ? ctx.server.id : null)
                 await COMMANDS[ctx.name](ctx, { stats, dev, config: cfg });
                 // if it succeeded, increase the stats
                 stats.servedRequest(ctx);

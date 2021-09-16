@@ -8,7 +8,7 @@ A bot which pulls random posts off 4chan.
 [View on top.gg (Discord Bots List)](https://top.gg/bot/592655834568327179)
 
 # Reporting Bugs
-Please report bugs in the [Issues](https://github.com/Romejanic/4chan-Discord-Bot/issues) tab of this page or the #bug-reports channel of the [support server](https://discord.gg/fawJ2dTxFS). If you are a developer and would like to try and fix some of these bugs, you may fork the repository and open a pull request to help.
+Please report bugs in the [Issues](https://github.com/Romejanic/4chan-Discord-Bot/issues) tab of this page or the `#4chan-bug-reports` channel of the [support server](https://discord.gg/fawJ2dTxFS). If you are a developer and would like to try and fix some of these bugs, you may fork the repository and open a pull request to help.
 
 # How to use
 For help or a list of commands, type `/4chan help`.

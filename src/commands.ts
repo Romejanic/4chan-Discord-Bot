@@ -195,6 +195,45 @@ const COMMANDS: CommandHandlers = {
             await ctx.edit(embed);
         }
 
+    },
+
+    "post": async(ctx, lib) => {
+        await ctx.defer();
+
+        // resolve board
+        let board  = chan.getBoardName(ctx.options.getString("board", true));
+        let exists = await chan.validateBoard(board);
+
+        // validate the board
+        if(!exists) {
+            let embed = new MessageEmbed()
+                .setColor(EMBED_COLOR_ERROR)
+                .setTitle(STRINGS["random_noboard"])
+                .setDescription(format(STRINGS["random_noboard_desc"], board));
+            await ctx.edit(embed);
+            return;
+        }
+
+        try {
+            // get the post from 4chan and send it
+            let id   = ctx.options.getInteger("id", true);
+            let post = await chan.getPost(id, board);
+            await sendPost(post, ctx, lib);
+            
+        } catch(err) {
+            // send appropriate error message to user
+            let embed = new MessageEmbed().setColor(EMBED_COLOR_ERROR);
+            if(err.post_not_found) {
+                embed
+                .setTitle(STRINGS["post_nopost"])
+                .setDescription(format(STRINGS["post_nopost_desc"], err.post_not_found, board));
+            } else {
+                embed
+                .setTitle(STRINGS["post_error"])
+                .setDescription(format(STRINGS["random_error_desc"], err));
+            }
+            await ctx.edit(embed);
+        }
     }
 
 };

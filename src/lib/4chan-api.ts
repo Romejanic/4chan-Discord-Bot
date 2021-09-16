@@ -85,7 +85,7 @@ export function getRandomPost(board: string): Promise<ChanPost> {
     });
 }
 
-export function getPost(id: number, board: string) {
+export function getPost(id: number, board: string): Promise<ChanPost> {
     return new Promise((resolve, reject) => {
         https.get(format(apiUrl, board, `thread/${id}`), (res) => {
             if(res.statusCode == 404) {
@@ -149,6 +149,7 @@ export function getBoards(): Promise<ChanBoardData> {
 }
 
 export function getBoardName(board: string) {
+    board = board.toLowerCase();
     if(board.startsWith("/")) {
         board = board.substring(1, board.length);
     }

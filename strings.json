@@ -58,7 +58,7 @@
     "post_usage": "{0} post <id> <board>",
     "post_usage_example": "{0} post 546371175 /g/",
     "post_nopost": "Post not found!",
-    "post_nopost_desc": "Post `{0}` in board `/{1}/` doesn't exist or couldn't be found.",
+    "post_nopost_desc": "Post `{0}` in board `/{1}/` doesn't exist, or was pruned/deleted.",
     "post_error": "Failed to get post!",
 
     "boards_title": "List of boards",

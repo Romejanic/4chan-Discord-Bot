@@ -30,7 +30,7 @@
         "options": {
             "id": {
                 "description": "The ID of the post",
-                "type": "string",
+                "type": "integer",
                 "required": true
             },
             "board": {

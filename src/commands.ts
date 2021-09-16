@@ -631,7 +631,11 @@ export default {
                 .setTitle("Slash commands required!")
                 .setDescription("This bot has migrated to slash commands!\nType `/4chan help` for a list of commands.")
                 .setColor(EMBED_COLOR_ERROR);
-            await msg.channel.send({ embeds: [embed] });
+            let button = new MessageButton()
+                .setStyle("LINK")
+                .setLabel("Learn More")
+                .setURL("https://github.com/Romejanic/4chan-Discord-Bot/blob/master/SLASH-COMMANDS.md");
+                await msg.channel.send({ embeds: [embed], components: [new MessageActionRow().addComponents(button)] });
         }
     }
 

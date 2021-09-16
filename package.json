@@ -20,9 +20,10 @@
 	},
 	"main": "build/main.js",
 	"scripts": {
-		"start": "node src/main.js",
-		"dev": "node src/main.js -dev",
-		"async": "pm2 start src/main.js",
+		"start": "node build/main.js",
+		"dev": "node build/main.js -dev",
+		"async": "pm2 start build/main.js",
+		"build": "tsc",
 		"migrate": "node tools/convert-config.js"
 	},
 	"devDependencies": {

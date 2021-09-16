@@ -39,6 +39,7 @@ To install the project,
 $ git clone https://github.com/Romejanic/4chan-Discord-Bot.git
 $ cd 4chan-Discord-Bot
 $ npm install      # this will download the dependancies
+$ npm run build    # compile the typescript source
 $ npm start        # this will generate a config file
 $ nano config.json # edit the config and add your token and db login
 $ npm run dev      # you can now run the bot in dev mode
@@ -46,7 +47,13 @@ $ npm run dev      # you can now run the bot in dev mode
 
 To run the bot asynchronously (without blocking the terminal), you can use
 ```shell
-$ npm run async
+$ npm i -g pm2     # install pm2
+$ npm run async    # start the bot
+```
+
+If you're actively developing the bot, you can run Typescript in watch mode with:
+```shell
+$ tsc -w
 ```
 
 To migrate the legacy `guild-config.json` to your MySQL database, run the migration tool through npm:

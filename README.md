@@ -13,7 +13,7 @@ Please report bugs in the [Issues](https://github.com/Romejanic/4chan-Discord-Bo
 # How to use
 For help or a list of commands, type `/4chan help`.
 
-To get a random post off /b/, type `/random`.
+To get a random post off /g/, type `/random`.
 
 To get a random post off another board, type `/random <board>` (e.g. `+4chan /v/`).
 

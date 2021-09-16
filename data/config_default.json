@@ -7,7 +7,7 @@
 		"database": "4chanbot"
 	},
 
-	"default_board": "b",
+	"default_board": "g",
 	"prefix": "+4chan",
 	"default_command": "random",
 

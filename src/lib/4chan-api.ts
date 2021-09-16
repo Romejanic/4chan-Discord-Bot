@@ -169,7 +169,7 @@ const CACHE_TIME = 20 * 60 * 1000;
 export async function validateBoard(board: string) {
     await checkBoardCache();
     // check if board exists
-    return Object.keys(boardCache.boards).includes(board);
+    return [ Object.keys(boardCache.boards).includes(board), boardCache.boards[board]?.nsfw ];
 }
 
 export async function getCachedBoards(): Promise<ChanCachedBoards> {

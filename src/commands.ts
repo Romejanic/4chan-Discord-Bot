@@ -180,7 +180,7 @@ const COMMANDS: CommandHandlers = {
         board = chan.getBoardName(board);
 
         // check if board exists
-        let exists = await chan.validateBoard(board);
+        const [ exists, nsfw ] = await chan.validateBoard(board);
         if(!exists) {
             let embed = new MessageEmbed()
                 .setColor(EMBED_COLOR_ERROR)
@@ -188,6 +188,15 @@ const COMMANDS: CommandHandlers = {
                 .setDescription(format(STRINGS["random_noboard_desc"], board));
             await ctx.edit(embed);
             return;
+        }
+
+        // if the board is NSFW, check if this is a NSFW channel first
+        if(!ctx.isDM && nsfw && !(ctx.channel as TextChannel).nsfw) {
+            let embed = new MessageEmbed()
+                .setColor(EMBED_COLOR_ERROR)
+                .setTitle(STRINGS["nsfw_required"])
+                .setDescription(format(STRINGS["nsfw_required_desc"], board));
+            return await ctx.edit(embed);
         }
 
         try {
@@ -215,8 +224,8 @@ const COMMANDS: CommandHandlers = {
         await ctx.defer();
 
         // resolve board
-        let board  = chan.getBoardName(ctx.options.getString("board", true));
-        let exists = await chan.validateBoard(board);
+        let board = chan.getBoardName(ctx.options.getString("board", true));
+        const [ exists, nsfw ] = await chan.validateBoard(board);
 
         // validate the board
         if(!exists) {
@@ -226,6 +235,15 @@ const COMMANDS: CommandHandlers = {
                 .setDescription(format(STRINGS["random_noboard_desc"], board));
             await ctx.edit(embed);
             return;
+        }
+        
+        // if the board is NSFW, check if this is a NSFW channel first
+        if(!ctx.isDM && nsfw && !(ctx.channel as TextChannel).nsfw) {
+            let embed = new MessageEmbed()
+                .setColor(EMBED_COLOR_ERROR)
+                .setTitle(STRINGS["nsfw_required"])
+                .setDescription(format(STRINGS["nsfw_required_desc"], board));
+            return await ctx.edit(embed);
         }
 
         try {

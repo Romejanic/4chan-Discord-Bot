@@ -9,7 +9,7 @@
     "restricted_channel": "Restricted channel!",
     "restricted_channel_desc": "Sorry, this bot can only be used in one of these channels:\n```{0}```",
     "nsfw_required": "Not a NSFW channel!",
-    "nsfw_required_desc": "4chan content is unrated, so you may only use the bot in a NSFW channel.",
+    "nsfw_required_desc": "The /{0}/ board is marked as NSFW, so you cannot view it in this channel.\nTry the command again in a NSFW channel.",
 
     "editor_required": "Not a developer!",
     "editor_required_desc": "You must be a bot developer to perform this action.",

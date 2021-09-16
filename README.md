@@ -24,6 +24,7 @@ To get a random post off another board, type `/random <board>` (e.g. `+4chan /v/
 |/4chan info|Gets information about bot version and system info.|
 |/random &lt;board&gt;|Gets a random post from the default board or a specified board.|
 |/post &lt;id&gt; &lt;board&gt;|Gets the OP post of the thread with the given ID from the given board.|
+|/boards|Gets a list of available boards you can use.|
 |/config|Allows you to configure the behaviour of the bot for your server (available to server admins only). [See here for more info](./CONFIG.md)|
 
 # Getting Started with Development

@@ -99,6 +99,7 @@ export class ServerConfig {
     }
 
     getRemovalTime(): number {
+        if(this.removal_time === -1) return 0;
         return this.removal_time ? this.removal_time : configs.globalConfig.removal_default_timeout;
     }
 

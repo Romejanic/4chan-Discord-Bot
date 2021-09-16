@@ -112,7 +112,8 @@
     "config_removal_time_reset_cmd": "{0} config removal_time reset",
     "config_removal_time_clear": "The removal time has been reset to the global default (`{0} seconds`).",
     "config_removal_time_set": "The removal time has been changed to `{0} seconds`.",
-    "config_removal_time_invalid": "You have entered an invalid removal time (`{0} seconds`).\nThe removal time must be a number between 10 and 300 seconds.",
+    "config_removal_time_disabled": "Post removal has been disabled! To re-enable it, run this command again with a new interval.",
+    "config_removal_time_invalid": "You have entered an invalid removal time (`{0} seconds`).\nThe removal time must be between 10 and 300 seconds, or it must be 0 if you want to disable removal.",
 
     "config_restricted_channels_all": "All",
     "config_restricted_channels_count": "{0} channels",

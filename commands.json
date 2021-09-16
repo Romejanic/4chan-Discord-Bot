@@ -74,7 +74,7 @@
                         "description": "Sets the removal time",
                         "options": {
                             "seconds": {
-                                "description": "The number of seconds users have to remove the post",
+                                "description": "The number of seconds users have to remove the post, or 0 to disable removal.",
                                 "type": "integer",
                                 "required": true
                             }

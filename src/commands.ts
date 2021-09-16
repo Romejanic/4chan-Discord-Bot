@@ -296,7 +296,61 @@ const COMMANDS: CommandHandlers = {
                 }
                 break;
             case "removal_time":
+                if(action === "set") {
+                    // get new number of seconds
+                    let seconds = ctx.options.getInteger("seconds", true);
 
+                    // validate user input
+                    if(seconds !== 0 && (seconds < 10 || seconds > 300)) {
+                        let embed = new MessageEmbed()
+                            .setColor(EMBED_COLOR_ERROR)
+                            .setTitle(STRINGS["config_invalid"])
+                            .setDescription(format(STRINGS["config_removal_time_invalid"], seconds));
+                        return await ctx.edit(embed);
+                    }
+
+                    // -1 denotes that removal is disabled
+                    if(seconds === 0) {
+                        seconds = -1;
+                    }
+
+                    // set the board and alert the user
+                    try {
+                        await lib.config.setRemovalTime(seconds);
+                        let desc = seconds == -1
+                            ? STRINGS["config_removal_time_disabled"]
+                            : format(STRINGS["config_removal_time_set"], lib.config.getRemovalTime());
+                        let embed = new MessageEmbed()
+                            .setColor(EMBED_COLOR_SUCCESS)
+                            .setTitle(STRINGS["config_changed"])
+                            .setDescription(desc);
+                        await ctx.edit(embed);
+                    } catch(e) {
+                        let embed = new MessageEmbed()
+                            .setColor(EMBED_COLOR_ERROR)
+                            .setTitle(STRINGS["config_unknown_error"])
+                            .setDescription(format(STRINGS["config_unknown_error_desc"], e));
+                        await ctx.edit(embed);
+                        return;
+                    }
+                } else if(action === "reset") {
+                    // reset the config and alert user
+                    try {
+                        await lib.config.setRemovalTime(null);
+                        let embed = new MessageEmbed()
+                            .setColor(EMBED_COLOR_SUCCESS)
+                            .setTitle(STRINGS["config_cleared"])
+                            .setDescription(format(STRINGS["config_removal_time_clear"], lib.config.getRemovalTime()));
+                        await ctx.edit(embed);
+                    } catch(e) {
+                        let embed = new MessageEmbed()
+                            .setColor(EMBED_COLOR_ERROR)
+                            .setTitle(STRINGS["config_unknown_error"])
+                            .setDescription(format(STRINGS["config_unknown_error_desc"], e));
+                        await ctx.edit(embed);
+                        return;
+                    }
+                }
                 break;
             case "allowed_channels":
 

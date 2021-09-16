@@ -130,12 +130,17 @@
     "config_restricted_channels_invalid_category": "The category `{0}` does not contain any text channels!",
     "config_restricted_channels_toggle_desc": "The bot now {0} speak in `#{1}`.",
 
+    "config_restricted_channels_toggle_true": "**The bot can now speak in the following channel{1}:**\n```\n{0}\n```",
+    "config_restricted_channels_toggle_false": "**The bot can no longer speak in the following channel{1}:**\n```\n{0}\n```",
+
     "enabled_true": "enabled",
     "enabled_false": "disabled",
     "success_true": "Success!",
     "success_false": "Failed!",
     "can_true": "can",
     "can_false": "cannot",
+    "plural_false": "",
+    "plural_true": "s",
 
     "help_cmd": "/4chan help",
     "help_help": "Lists all commands and their usage.",

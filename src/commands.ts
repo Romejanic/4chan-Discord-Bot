@@ -418,9 +418,29 @@ const COMMANDS: CommandHandlers = {
                         return await ctx.edit(embed);
                     }
 
-                    const [toDisallow, toAllow] = partitionArray(channels, c => !lib.config.isChannelValid(c.id));
+                    // toggle each channel in the config and sort them into each array
+                    const [wasAllowed, wasDisallowed] = await partitionArray(channels, async (c) => {
+                        return await lib.config.toggleChannel(c);
+                    });
 
-                    await ctx.edit("**allowed**\n" + toDisallow.map(c => c.name).join("\n") + "\n**disallowed:**\n" + toAllow.map(c => c.name).join("\n"));
+                    // convert lists to human-readable text
+                    let channelListString = "";
+                    if(wasAllowed.length > 0) {
+                        let allowedString = wasAllowed.map(c => `#${c.name}`).join("\n");
+                        channelListString += format(STRINGS["config_restricted_channels_toggle_true"], allowedString, STRINGS["plural_" + (wasAllowed.length > 1)]);
+                    }
+                    if(wasDisallowed.length > 0) {
+                        if(channelListString.length > 0) channelListString += "\n";
+                        let disallowedString = wasDisallowed.map(c => `#${c.name}`).join("\n");
+                        channelListString += format(STRINGS["config_restricted_channels_toggle_false"], disallowedString, STRINGS["plural_" + (wasDisallowed.length > 1)]);
+                    }
+
+                    // create embed and reply
+                    let embed = new MessageEmbed()
+                        .setColor(EMBED_COLOR_SUCCESS)
+                        .setTitle(STRINGS["config_changed"])
+                        .setDescription(channelListString);
+                    await ctx.edit(embed);
 
                 } else if(action === "reset") {
                     // reset the config and alert user
@@ -579,13 +599,13 @@ async function startsWithPrefix(msg: Message) {
     return msg.content.startsWith(prefix);
 }
 
-function partitionArray<T>(arr: T[], predicate: (x: T) => boolean): [T[],T[]] {
+async function partitionArray<T>(arr: T[], predicate: (x: T) => Promise<boolean>): Promise<[T[],T[]]> {
     let yes: T[] = [];
     let no: T[] = [];
-    arr.forEach((v) => {
-        if(predicate(v)) yes.push(v);
+    for(let v of arr) {
+        if(await predicate(v)) yes.push(v);
         else no.push(v);
-    });
+    }
     return [yes,no];
 }
 

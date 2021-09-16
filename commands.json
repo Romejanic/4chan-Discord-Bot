@@ -61,6 +61,10 @@
                             }
                         }
                     },
+                    "get": {
+                        "description": "Gets the current default board",
+                        "subcommand": true
+                    },
                     "reset": {
                         "description": "Resets the board to the global default",
                         "subcommand": true
@@ -79,6 +83,10 @@
                                 "required": true
                             }
                         }
+                    },
+                    "get": {
+                        "description": "Gets the current removal time",
+                        "subcommand": true
                     },
                     "reset": {
                         "description": "Resets the removal time to the global default",
@@ -99,8 +107,12 @@
                             }
                         }
                     },
+                    "get": {
+                        "description": "Gets the current lsit of allowed channels",
+                        "subcommand": true
+                    },
                     "reset": {
-                        "description": "Resets the access back to default (all NSFW channels)",
+                        "description": "Resets the access back to all available channels",
                         "subcommand": true
                     }
                 }

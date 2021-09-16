@@ -1,7 +1,7 @@
 import {
-    ButtonInteraction, EmbedFieldData, Message,
-    MessageActionRow, MessageButton, MessageEmbed,
-    WebhookEditMessageOptions
+    ButtonInteraction, EmbedFieldData, GuildChannel,
+    GuildMember, Message, MessageActionRow, MessageButton,
+    MessageEmbed, WebhookEditMessageOptions
 } from "discord.js";
 import { CommandContext } from "discord.js-slasher";
 import * as config from './lib/config';
@@ -219,7 +219,7 @@ const COMMANDS: CommandHandlers = {
             let id   = ctx.options.getInteger("id", true);
             let post = await chan.getPost(id, board);
             await sendPost(post, ctx, lib);
-            
+
         } catch(err) {
             // send appropriate error message to user
             let embed = new MessageEmbed().setColor(EMBED_COLOR_ERROR);
@@ -277,17 +277,33 @@ async function sendPost(post: chan.ChanPost, ctx: CommandContext, lib: Libs): Pr
         let removal_time = lib.config.getRemovalTime();
 
         // create collector for button presses
-        const filter  = (i: ButtonInteraction) => i.customId === "post_remove" && i.user.id === ctx.user.id;
-        const collect = ctx.channel.createMessageComponentCollector({ filter, message, time: removal_time * 1000, max: 1 });
+        const filter  = (i: ButtonInteraction) => i.customId === "post_remove";
+        const collect = ctx.channel.createMessageComponentCollector({ filter, message, time: removal_time * 1000 });
 
         collect.on("collect", async (btn) => {
+            // check the user clicking the button is the sender
+            let channel = btn.channel as GuildChannel;
+            let isAdmin = (btn.member as GuildMember).permissionsIn(channel).has("ADMINISTRATOR");
+            if(btn.user.id !== ctx.user.id && !isAdmin) {
+                await btn.reply({ embeds: [
+                    new MessageEmbed()
+                        .setColor(EMBED_COLOR_ERROR)
+                        .setTitle(STRINGS["post_remove_notop"])
+                        .setDescription(STRINGS["post_remove_notop_desc"])
+                ], ephemeral: true });
+                return;
+            }
+
+            // edit the embed and remove the buttons
+            let remover = btn.user.id === ctx.user.id ? "op" : "admin";
             let embed = new MessageEmbed()
                 .setColor(EMBED_COLOR_ERROR)
                 .setTitle(STRINGS["post_removal_confirm"])
-                .setDescription(STRINGS["post_removal_desc"]);
+                .setDescription(format(STRINGS["post_removal_desc"], STRINGS["post_removal_" + remover]));
             data.embeds = [embed];
             data.components = [];
             await btn.update(data);
+            collect.stop();
         });
 
         collect.on("end", async () => {

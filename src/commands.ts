@@ -235,6 +235,75 @@ const COMMANDS: CommandHandlers = {
             }
             await ctx.edit(embed);
         }
+    },
+
+    "config": async(ctx, lib) => {
+        await ctx.defer();
+
+        // get property and action
+        let prop = ctx.options.getSubcommandGroup(true);
+        let action = ctx.options.getSubcommand(true);
+
+        switch(prop) {
+            case "default_board":
+                if(action === "set") {
+                    // get board name and validate it
+                    let board  = chan.getBoardName(ctx.options.getString("board", true));
+                    let exists = await chan.validateBoard(board);
+                    
+                    if(!exists) {
+                        let embed = new MessageEmbed()
+                            .setColor(EMBED_COLOR_ERROR)
+                            .setTitle(STRINGS["random_noboard"])
+                            .setDescription(format(STRINGS["random_noboard_desc"], board));
+                        await ctx.edit(embed);
+                        return;
+                    }
+
+                    // set the board and alert the user
+                    try {
+                        await lib.config.setDefaultBoard(board);
+                        let embed = new MessageEmbed()
+                            .setColor(EMBED_COLOR_SUCCESS)
+                            .setTitle(STRINGS["config_changed"])
+                            .setDescription(format(STRINGS["config_default_board_set"], lib.config.getDefaultBoard()));
+                        await ctx.edit(embed);
+                    } catch(e) {
+                        let embed = new MessageEmbed()
+                            .setColor(EMBED_COLOR_ERROR)
+                            .setTitle(STRINGS["config_unknown_error"])
+                            .setDescription(format(STRINGS["config_unknown_error_desc"], e));
+                        await ctx.edit(embed);
+                        return;
+                    }
+                } else if(action === "reset") {
+                    // reset the config and alert user
+                    try {
+                        await lib.config.setDefaultBoard(null);
+                        let embed = new MessageEmbed()
+                            .setColor(EMBED_COLOR_SUCCESS)
+                            .setTitle(STRINGS["config_cleared"])
+                            .setDescription(format(STRINGS["config_default_board_clear"], lib.config.getDefaultBoard()));
+                        await ctx.edit(embed);
+                    } catch(e) {
+                        let embed = new MessageEmbed()
+                            .setColor(EMBED_COLOR_ERROR)
+                            .setTitle(STRINGS["config_unknown_error"])
+                            .setDescription(format(STRINGS["config_unknown_error_desc"], e));
+                        await ctx.edit(embed);
+                        return;
+                    }
+                }
+                break;
+            case "removal_time":
+
+                break;
+            case "allowed_channels":
+
+                break;
+            default:
+                break;
+        }
     }
 
 };

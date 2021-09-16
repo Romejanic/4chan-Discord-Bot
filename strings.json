@@ -23,7 +23,7 @@
     "random_error": "Failed to get a random post!",
     "random_error_desc": "Please [contact the developer](https://github.com/Romejanic/4chan-Discord-Bot/issues/new/) and give them this message:\n```{0}```",
     "random_noboard": "Invalid board!",
-    "random_noboard_desc": "The board you entered (`{0}`) does not exist!\nPlease enter the name of an existing 4chan board.",
+    "random_noboard_desc": "The board you entered (`{0}`) does not exist!\nPlease enter the name of an existing 4chan board.\n\nType `/boards` for a list of boards.",
     "random_default": "Default Board",
     
     "post_title": "{0} by {1}",
@@ -82,7 +82,7 @@
     "config_unknown_key": "Unknown option!",
     "config_unknown_key_desc": "The config option `{0}` is unknown!\nType `{1} config` for a list of options.",
     "config_unknown_error": "Something went wrong!",
-    "config_unknown_error_desc": "Sorry, something went wrong while changing your server config!\n\n{0}",
+    "config_unknown_error_desc": "Sorry, something went wrong while changing your server config!\n\n```\n{0}\n```",
 
     "config_changed": "Changed!",
     "config_cleared": "Cleared!",

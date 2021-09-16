@@ -258,7 +258,8 @@ async function sendPost(post: chan.ChanPost, ctx: CommandContext, lib: Libs): Pr
     let data: WebhookEditMessageOptions = { embeds: [embed] };
 
     // add removal instructions and buttons on a server
-    if(ctx.isServer) {
+    let removalEnabled = ctx.isServer && lib.config.getRemovalTime() > 0;
+    if(removalEnabled) {
         data.components = [
             new MessageActionRow().addComponents(
                 new MessageButton()
@@ -272,7 +273,7 @@ async function sendPost(post: chan.ChanPost, ctx: CommandContext, lib: Libs): Pr
     let message = await ctx.edit(data);
     
     // if we're on a server, create a button collector for removal
-    if(ctx.isServer) {
+    if(removalEnabled) {
         // determine removal time from config
         let removal_time = lib.config.getRemovalTime();
 

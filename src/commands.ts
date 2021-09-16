@@ -1,7 +1,8 @@
 import {
-    ButtonInteraction, EmbedFieldData, GuildChannel,
+    ButtonInteraction, CategoryChannel, EmbedFieldData, GuildChannel,
     GuildMember, Message, MessageActionRow, MessageButton,
-    MessageEmbed, WebhookEditMessageOptions
+    MessageEmbed, TextBasedChannels, TextChannel, WebhookEditMessageOptions,
+    TextBasedChannelTypes
 } from "discord.js";
 import { CommandContext } from "discord.js-slasher";
 import { decode } from 'html-entities';
@@ -22,6 +23,18 @@ const AVATAR_URL = "https://cdn.discordapp.com/avatars/592655834568327179/f0ae1e
 const AVATAR_URL_DEV = "https://cdn.discordapp.com/avatars/763736231812399115/6bbef49611cc60cb295ccceba74095ea.png?size=256";
 const CMD_HELP_IMAGE = "https://cdn.discordapp.com/avatars/592655834568327179/f0ae1e42b1dbb8a2f4df48ddf60d80b9.png?size=64";
 const CMD_HELP_URL = "https://github.com/Romejanic/4chan-Discord-Bot/blob/master/COMMANDS.md";
+
+enum ChannelTypeNames {
+    GUILD_TEXT = "Text Channel",
+    GUILD_VOICE = "Voice Channel",
+    GUILD_CATEGORY = "Category",
+    GUILD_NEWS = "News Channel",
+    GUILD_STORE = "Store Channel",
+    GUILD_NEWS_THREAD = "News Thread",
+    GUILD_PUBLIC_THREAD = "Public Thread",
+    GUILD_PRIVATE_THREAD = "Private Thread",
+    GUILD_STAGE_VOICE = "Stage Channel",
+}
 
 // define command handlers
 const COMMANDS: CommandHandlers = {
@@ -238,9 +251,26 @@ const COMMANDS: CommandHandlers = {
     },
 
     "config": async(ctx, lib) => {
-        await ctx.defer();
+        // check if we're on a server
+        if(!ctx.isServer) {
+            let embed = new MessageEmbed()
+                .setColor(EMBED_COLOR_ERROR)
+                .setTitle(STRINGS["config_notserver"])
+                .setDescription(STRINGS["config_notserver_desc"]);
+            return await ctx.reply(embed, !ctx.isDM);
+        }
 
-        // get property and action
+        // check if the sender is an admin
+        if(!ctx.server.member.permissions.has("MANAGE_GUILD")) {
+            let embed = new MessageEmbed()
+                .setColor(EMBED_COLOR_ERROR)
+                .setTitle(STRINGS["config_notadmin"])
+                .setDescription(STRINGS["config_notadmin_desc"]);
+            return await ctx.reply(embed, true);
+        }
+
+        // get property and action to change
+        await ctx.defer();
         let prop = ctx.options.getSubcommandGroup(true);
         let action = ctx.options.getSubcommand(true);
 
@@ -353,7 +383,63 @@ const COMMANDS: CommandHandlers = {
                 }
                 break;
             case "allowed_channels":
+                if(action === "toggle") {
+                    // get the selected channel
+                    let selectedChannel = ctx.options.getChannel("channel", true) as GuildChannel;
+                    let channels: TextChannel[] = [];
 
+                    // validate the channel and get a list of selected channels
+                    if(selectedChannel.type === "GUILD_TEXT") {
+                        // add the channel as a text channel
+                        channels.push(selectedChannel as TextChannel);
+                    } else if(selectedChannel.type === "GUILD_CATEGORY") {
+                        // add all text channels in the category
+                        let category = selectedChannel as CategoryChannel;
+                        channels.push(
+                            ...category.children
+                                .filter(c => c.type === "GUILD_TEXT")
+                                .map(c => c as TextChannel)
+                        );
+                    } else {
+                        // invalid channel type, show error
+                        let embed = new MessageEmbed()
+                            .setColor(EMBED_COLOR_ERROR)
+                            .setTitle(STRINGS["config_restricted_channels_invalid"])
+                            .setDescription(format(STRINGS["config_restricted_channels_invalid_desc"], ChannelTypeNames[selectedChannel.type].toLowerCase()));
+                        return await ctx.edit(embed);
+                    }
+
+                    // if channel list is empty, then the category had no valid channels
+                    if(channels.length < 1) {
+                        let embed = new MessageEmbed()
+                            .setColor(EMBED_COLOR_ERROR)
+                            .setTitle(STRINGS["config_restricted_channels_invalid"])
+                            .setDescription(format(STRINGS["config_restricted_channels_invalid_category"], selectedChannel.name));
+                        return await ctx.edit(embed);
+                    }
+
+                    const [toDisallow, toAllow] = partitionArray(channels, c => !lib.config.isChannelValid(c.id));
+
+                    await ctx.edit("**allowed**\n" + toDisallow.map(c => c.name).join("\n") + "\n**disallowed:**\n" + toAllow.map(c => c.name).join("\n"));
+
+                } else if(action === "reset") {
+                    // reset the config and alert user
+                    try {
+                        await lib.config.clearAllowedChannels();
+                        let embed = new MessageEmbed()
+                            .setColor(EMBED_COLOR_SUCCESS)
+                            .setTitle(STRINGS["config_cleared"])
+                            .setDescription(STRINGS["config_restricted_channels_reset"]);
+                        await ctx.edit(embed);
+                    } catch(e) {
+                        let embed = new MessageEmbed()
+                            .setColor(EMBED_COLOR_ERROR)
+                            .setTitle(STRINGS["config_unknown_error"])
+                            .setDescription(format(STRINGS["config_unknown_error_desc"], e));
+                        await ctx.edit(embed);
+                        return;
+                    }
+                }
                 break;
             default:
                 break;
@@ -408,7 +494,7 @@ async function sendPost(post: chan.ChanPost, ctx: CommandContext, lib: Libs): Pr
         collect.on("collect", async (btn) => {
             // check the user clicking the button is the sender
             let channel = btn.channel as GuildChannel;
-            let isAdmin = (btn.member as GuildMember).permissionsIn(channel).has("ADMINISTRATOR");
+            let isAdmin = (btn.member as GuildMember).permissionsIn(channel).has("MANAGE_MESSAGES");
             if(btn.user.id !== ctx.user.id && !isAdmin) {
                 await btn.reply({ embeds: [
                     new MessageEmbed()
@@ -491,6 +577,16 @@ async function startsWithPrefix(msg: Message) {
     // check if prefix matches
     let prefix = (await config.forServer(msg.guild ? msg.guild.id : null)).getPrefix();
     return msg.content.startsWith(prefix);
+}
+
+function partitionArray<T>(arr: T[], predicate: (x: T) => boolean): [T[],T[]] {
+    let yes: T[] = [];
+    let no: T[] = [];
+    arr.forEach((v) => {
+        if(predicate(v)) yes.push(v);
+        else no.push(v);
+    });
+    return [yes,no];
 }
 
 // declare command handlers helper type

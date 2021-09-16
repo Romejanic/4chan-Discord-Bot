@@ -36,8 +36,8 @@
     "post_loading": "Loading post...",
     "post_loading_desc": "Fetching from 4chan, please wait...",
     "post_remove": "Remove",
-    "post_remove_notop": "Can't delete",
-    "post_remove_notop_desc": "You cannot delete this post unless you are the command sender or have the `ADMINISTRATOR` permission.",
+    "post_remove_notop": "Not allowed!",
+    "post_remove_notop_desc": "You cannot delete this post unless you are the command sender or have the `Manage Messages` permission.",
 
     "debug_title": "Debug Commands",
     "debug_nocmd": "Please enter one of the following sub-commands:\n```{0}```",
@@ -74,7 +74,7 @@
     "config_notserver": "Not a server!",
     "config_notserver_desc": "This command can only be used on a server!\n[Click here](https://discordapp.com/api/oauth2/authorize?client_id=592655834568327179&permissions=124992&scope=bot) to invite to your server.",
     "config_notadmin": "Not an admin!",
-    "config_notadmin_desc": "You must have the `ADMINISTRATOR` permission on this server to use this command!",
+    "config_notadmin_desc": "You must have the `Manage Server` permission on this server to use this command!",
 
     "config_help_title": "Server Config Options",
     "config_help_desc": "Here is a list of all config options you can alter on your server.\n\nFor information on a specific one, type `{0} config <name>`.",
@@ -123,10 +123,11 @@
     "config_restricted_channels_toggle": "To toggle channel",
     "config_restricted_channels_toggle_cmd": "{0} config allowed_channels #<channel name>",
     "config_restricted_channels_reset_cmd": "{0} config allowed_channels reset",
-    "config_restricted_channels_reset": "The allowed channels list has been erased.\nThe bot can now speak in any NSFW channel.",
+    "config_restricted_channels_reset": "The allowed channels list has been erased.\nThe bot can now speak in any channel.",
     "config_restricted_channels_notag": "Please choose a valid channel to toggle by tagging it! (e.g. `{0} config allowed_channels #general`).",
     "config_restricted_channels_invalid": "Invalid channel!",
-    "config_restricted_channels_invalid_desc": "Please select an existing text channel which is marked as NSFW.",
+    "config_restricted_channels_invalid_desc": "You cannot select a {0}!\nYou can only select text channels or channel categories.",
+    "config_restricted_channels_invalid_category": "The category `{0}` does not contain any text channels!",
     "config_restricted_channels_toggle_desc": "The bot now {0} speak in `#{1}`.",
 
     "enabled_true": "enabled",

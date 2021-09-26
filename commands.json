@@ -116,6 +116,38 @@
                         "subcommand": true
                     }
                 }
+            },
+            "subscribe": {
+                "description": "Changes the subscribed board settings",
+                "subcommands": {
+                    "set": {
+                        "description": "Sets the subscription settings",
+                        "options": {
+                            "channel": {
+                                "description": "The channel to post subscriptions to",
+                                "type": "channel",
+                                "required": true
+                            },
+                            "time": {
+                                "description": "Number of minutes between posts",
+                                "type": "integer",
+                                "required": true
+                            },
+                            "board": {
+                                "description": "Which board to pull posts from",
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "get": {
+                        "description": "Gets the subscription settings",
+                        "subcommand": true
+                    },
+                    "reset": {
+                        "description": "Resets the subscription settings",
+                        "subcommand": true
+                    }
+                }
             }
         }
     }

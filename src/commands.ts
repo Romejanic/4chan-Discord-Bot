@@ -499,6 +499,15 @@ const COMMANDS: CommandHandlers = {
                     await ctx.edit(embed);
                 }
                 break;
+            case "subscribe":
+                if(action === "set") {
+
+                } else if(action === "get") {
+
+                } else if(action === "reset") {
+                    
+                }
+                break;
             default:
                 break;
         }

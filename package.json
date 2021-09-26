@@ -24,6 +24,7 @@
 		"dev": "node build/main.js -dev",
 		"async": "pm2 start build/main.js",
 		"build": "tsc",
+		"watch": "tsc -w",
 		"migrate": "node tools/convert-config.js"
 	},
 	"devDependencies": {

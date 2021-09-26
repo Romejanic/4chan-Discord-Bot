@@ -7,6 +7,9 @@ CREATE TABLE `server_config` (
   `prefix` varchar(10) DEFAULT NULL,
   `restricted` tinyint(1) DEFAULT NULL,
   `removal_time` int DEFAULT 0,
+  `subscribed_board` varchar(10) DEFAULT NULL,
+  `subscribed_time` int DEFAULT NULL,
+  `subscribed_channel` varchar(24) DEFAULT NULL,
   PRIMARY KEY (`id`)
 );
 

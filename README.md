@@ -1,7 +1,7 @@
 # 4chan-Discord-Bot
 A bot which pulls random posts off 4chan.
 
-[Click to invite to your server](https://discordapp.com/api/oauth2/authorize?client_id=592655834568327179&permissions=124992&scope=bot)
+[Click to invite to your server](https://discordapp.com/api/oauth2/authorize?client_id=592655834568327179&permissions=124992&scope=bot%20applications.commands)
 
 [Visit the official support server!](https://discord.gg/fawJ2dTxFS)
 

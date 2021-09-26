@@ -40,6 +40,7 @@ export class ServerConfig {
     private prefix: string = undefined;
     private restricted_channels: string[] = undefined;
     private removal_time: number = undefined;
+    private subscription: Subscription = undefined;
 
     constructor(id: string) {
         this.id = id;
@@ -57,6 +58,12 @@ export class ServerConfig {
             this.restricted_channels = await db.getRestrictedChannels(this.id);
         } else {
             this.restricted_channels = undefined;
+        }
+        // get subscription data
+        if(config.subscribed_channel) {
+            this.subscription = new Subscription(config.subscribed_channel, config.subscribed_time, config.subscribed_board);
+        } else {
+            this.subscription = undefined;
         }
     }
 
@@ -102,6 +109,10 @@ export class ServerConfig {
     getRemovalTime(): number {
         if(this.removal_time === -1) return 0;
         return this.removal_time ? this.removal_time : configs.globalConfig.removal_default_timeout;
+    }
+
+    getSubscription() {
+        return this.subscription;
     }
 
     getDisplayValue(option: string, strings: any, guild?: Guild) {
@@ -176,6 +187,42 @@ export class ServerConfig {
 
             return false;
         }
+    }
+
+    async setSubscriptionData(channel: Channel, time: number, board?: string) {
+        // create a new subscription object and commit to database
+        this.subscription = new Subscription(channel.id, time, board);
+        await db.updateSubscription(this.id, this.subscription);
+    }
+
+    async clearSubscriptionData() {
+        await db.clearSubscription(this.id);
+    }
+
+}
+
+export class Subscription {
+
+    private channel: string;
+    private interval: number;
+    private board?: string;
+
+    constructor(channel: string, interval: number, board?: string) {
+        this.channel = channel;
+        this.interval = interval;
+        this.board = board;
+    }
+
+    public getChannel() {
+        return this.channel;
+    }
+
+    public getInterval() {
+        return this.interval;
+    }
+
+    public getBoard() {
+        return this.board;
     }
 
 }

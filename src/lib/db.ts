@@ -1,4 +1,5 @@
 import * as mysql from 'mysql';
+import { Subscription } from './config';
 
 const auth = require("../../config.json").db;
 
@@ -20,12 +21,16 @@ export type ServerConfigDb = {
     prefix: string,
     restricted: boolean,
     removal_time: number,
+    subscribed_board: string,
+    subscribed_time: number,
+    subscribed_channel: string,
     new_config?: boolean
 };
 
 export function getConfigForServer(id: string): Promise<ServerConfigDb> {
     return new Promise((resolve, reject) => {
-        pool.query("SELECT default_board,prefix,restricted,removal_time FROM server_config WHERE id = ?", [ id ], (err, result) => {
+        let sql = "SELECT default_board,prefix,restricted,removal_time,subscribed_board,subscribed_time,subscribed_channel FROM server_config WHERE id = ?";
+        pool.query(sql, [ id ], (err, result) => {
             if(err) reject(err);
             if(result.length <= 0) {
                 resolve({
@@ -34,6 +39,9 @@ export function getConfigForServer(id: string): Promise<ServerConfigDb> {
                     prefix: undefined,
                     restricted: false,
                     removal_time: undefined,
+                    subscribed_board: undefined,
+                    subscribed_channel: undefined,
+                    subscribed_time: undefined,
                     new_config: true
                 });
             } else {
@@ -90,3 +98,22 @@ export function setChannelAllowed(id: string, channel: string, allowed: boolean)
         });
     });
 };
+
+export function updateSubscription(id: string, sub: Subscription): Promise<void> {
+    return new Promise((resolve, reject) => {
+        let data = {
+            subscribed_channel: sub ? sub.getChannel() : null,
+            subscribed_time: sub ? sub.getInterval() : null,
+            subscribed_board: sub ? sub.getBoard() : null
+        };
+        let sql = "UPDATE server_config SET ? WHERE id = ?";
+        pool.query(sql, [ data, id ], (err) => {
+            if(err) reject(err);
+            else resolve();
+        });
+    });
+}
+
+export async function clearSubscription(id: string): Promise<void> {
+    return await updateSubscription(id, null);
+}

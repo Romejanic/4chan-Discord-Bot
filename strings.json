@@ -146,6 +146,10 @@
     "config_subscribe_board_value": "/{0}/",
     "config_subscribe_reset": "The subscription has been cleared, and will no longer post to <#{0}>.",
 
+    "config_subscribe_invalid_channel": "Invalid channel!",
+    "config_subscribe_invalid_channel_desc": "You cannot subscribe to a {0}! It must be a text channel or news channel!",
+    "config_subscribe_invalid_interval": "Invalid interval!",
+    "config_subscribe_invalid_interval_desc": "The interval you entered was invalid!\nThe interval must be between `1` and `10,080` minutes (aka 7 days).",
 
     "enabled_true": "enabled",
     "enabled_false": "disabled",

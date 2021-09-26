@@ -1,8 +1,7 @@
 import {
     ButtonInteraction, CategoryChannel, EmbedFieldData, GuildChannel,
     GuildMember, Message, MessageActionRow, MessageButton,
-    MessageEmbed, TextBasedChannels, TextChannel, WebhookEditMessageOptions,
-    TextBasedChannelTypes
+    MessageEmbed, TextChannel, WebhookEditMessageOptions
 } from "discord.js";
 import { CommandContext } from "discord.js-slasher";
 import { decode } from 'html-entities';
@@ -215,6 +214,9 @@ const COMMANDS: CommandHandlers = {
                 .setDescription(format(STRINGS["random_error_desc"], err));
             }
             await ctx.edit(embed);
+            if(process.argv.includes("-dev")) {
+                console.error(err);
+            }
         }
 
     },
@@ -501,7 +503,36 @@ const COMMANDS: CommandHandlers = {
                 break;
             case "subscribe":
                 if(action === "set") {
+                    // validate the channel
+                    let channel = ctx.options.getChannel("channel", true);
+                    if(channel.type !== "GUILD_TEXT" && channel.type !== "GUILD_NEWS") {
+                        let embed = new MessageEmbed()
+                            .setColor(EMBED_COLOR_ERROR)
+                            .setTitle(STRINGS["config_subscribe_invalid_channel"])
+                            .setDescription(format(STRINGS["config_subscrive_invalid_channel_desc"], ChannelTypeNames[channel.type]));
+                        return await ctx.edit(embed);
+                    }
 
+                    // validate the interval
+                    let interval = ctx.options.getInteger("time", true);
+                    if(interval < 1 || interval > 10080) {
+                        let embed = new MessageEmbed()
+                            .setColor(EMBED_COLOR_ERROR)
+                            .setTitle(STRINGS["config_subscribe_invalid_interval"])
+                            .setDescription(STRINGS["config_subscribe_invalid_interval_desc"]);
+                        return await ctx.edit(embed);
+                    }
+
+                    // validate the board
+                    let board = ctx.options.getString("string");
+                    if(board) {
+
+                    }
+
+                    // validate the board and ensure the nsfw status matches
+                    const [ exists, nsfw ] = await chan.validateBoard(board);
+
+                    ctx.edit("ok");
                 } else if(action === "get") {
                     // create embed from data
                     let embed = new MessageEmbed()
@@ -568,11 +599,14 @@ const COMMANDS: CommandHandlers = {
  */
 async function sendPost(post: chan.ChanPost, ctx: CommandContext, lib: Libs): Promise<void> {
     // preprocess the text a little bit
-    let postText = decode(post.text.length > 2000 ? post.text.substring(0, 2000) + "..." : post.text);
-    postText = postText.replace(/<br>/gi, "\n");
-    postText = postText.replace(/<\/span>/gi, "");
-    postText = postText.replace(/<span class=\"quote\">/gi, "");
-        
+    let postText = "";
+    if(postText) {
+        postText = decode(post.text.length > 2000 ? post.text.substring(0, 2000) + "..." : post.text);
+        postText = postText.replace(/<br>/gi, "\n");
+        postText = postText.replace(/<\/span>/gi, "");
+        postText = postText.replace(/<span class=\"quote\">/gi, "");
+    }    
+
     // create basic embed
     let embed = new MessageEmbed()
         .setColor(EMBED_COLOR_NORMAL)

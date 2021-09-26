@@ -1,7 +1,7 @@
 import {
     ButtonInteraction, CategoryChannel, EmbedFieldData, GuildChannel,
     GuildMember, Message, MessageActionRow, MessageButton,
-    MessageEmbed, TextChannel, WebhookEditMessageOptions
+    MessageEmbed, NewsChannel, TextChannel, WebhookEditMessageOptions
 } from "discord.js";
 import { CommandContext } from "discord.js-slasher";
 import { decode } from 'html-entities';
@@ -524,15 +524,45 @@ const COMMANDS: CommandHandlers = {
                     }
 
                     // validate the board
-                    let board = ctx.options.getString("string");
+                    let board = ctx.options.getString("board");
+                    let defaultBoard = true;
                     if(board) {
-
+                        board = chan.getBoardName(board);
+                        defaultBoard = false;
+                    } else {
+                        board = lib.config.getDefaultBoard();
                     }
 
                     // validate the board and ensure the nsfw status matches
                     const [ exists, nsfw ] = await chan.validateBoard(board);
+                    if(!exists) {
+                        // the board does not exist
+                        let embed = new MessageEmbed()
+                            .setColor(EMBED_COLOR_ERROR)
+                            .setTitle(STRINGS["config_subscribe_invalid_board"])
+                            .setDescription(format(STRINGS["random_noboard_desc"], board));
+                        return await ctx.edit(embed);
+                    } else if(nsfw && !(channel as TextChannel | NewsChannel).nsfw) {
+                        // the board is nsfw but the target channel is not nsfw
+                        let embed = new MessageEmbed()
+                            .setColor(EMBED_COLOR_ERROR)
+                            .setTitle(STRINGS["config_subscribe_invalid_channel"])
+                            .setDescription(format(STRINGS["config_subscribe_invalid_channel_nsfw"], board));
+                        return await ctx.edit(embed);
+                    }
 
-                    ctx.edit("ok");
+                    // update the subscription
+                    await lib.config.setSubscriptionData(channel, interval, defaultBoard ? null : board);
+
+                    // notify the user
+                    let embed = new MessageEmbed()
+                        .setColor(EMBED_COLOR_SUCCESS)
+                        .setTitle(STRINGS["config_subscribe_done"])
+                        .setDescription(format(STRINGS["config_subscribe_done_desc"], board));
+                    if(defaultBoard) {
+                        embed.addField(STRINGS["config_subscribe_note"], STRINGS["config_subscribe_note_desc"]);
+                    }
+                    await ctx.edit(embed);
                 } else if(action === "get") {
                     // create embed from data
                     let embed = new MessageEmbed()

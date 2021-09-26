@@ -23,7 +23,7 @@
     "random_error": "Failed to get a random post!",
     "random_error_desc": "Please [contact the developer](https://github.com/Romejanic/4chan-Discord-Bot/issues/new/choose) and give them this message:\n```{0}```",
     "random_noboard": "Invalid board!",
-    "random_noboard_desc": "The board you entered (`{0}`) does not exist!\nPlease enter the name of an existing 4chan board.\n\nType `/boards` for a list of boards.",
+    "random_noboard_desc": "The board you entered (`/{0}/`) does not exist!\nPlease enter the name of an existing 4chan board.\n\nType `/boards` for a list of boards.",
     "random_default": "Default Board",
     
     "post_title": "{0} by {1}",
@@ -148,8 +148,14 @@
 
     "config_subscribe_invalid_channel": "Invalid channel!",
     "config_subscribe_invalid_channel_desc": "You cannot subscribe to a {0}! It must be a text channel or news channel!",
+    "config_subscribe_invalid_channel_nsfw": "The /{0}/ board is marked as NSFW, so it cannot be subscribed to a non-NSFW channel.",
     "config_subscribe_invalid_interval": "Invalid interval!",
     "config_subscribe_invalid_interval_desc": "The interval you entered was invalid!\nThe interval must be between `1` and `10,080` minutes (aka 7 days).",
+    "config_subscribe_invalid_board": "Invalid board!",
+    "config_subscribe_done": "Subscribed!",
+    "config_subscribe_done_desc": "Your subscription to the /{0}/ board has been set up!\nType `/config subscribe get` to see the details.",
+    "config_subscribe_note": "Note",
+    "config_subscribe_note_desc": "The subscription will use your server's default board, and may change. You can use `/config subscribe set` again to permanently set a board.",
 
     "enabled_true": "enabled",
     "enabled_false": "disabled",

@@ -3,6 +3,7 @@ import { Intents } from 'discord.js';
 import Stats from './stats';
 import './lib/config';
 import './lib/db';
+import { SubscriptionService } from './subscribed';
 import Commands from './commands';
 
 const client = new SlasherClient({
@@ -15,10 +16,17 @@ const client = new SlasherClient({
     partials: [ "CHANNEL" ]
 });
 const stats = new Stats();
+const scheduled = new SubscriptionService(client);
 
 // create event listeners
 client.on("command", ctx => Commands.execute(ctx, stats));
 client.on("messageCreate", Commands.warning);
+
+client.on("guildDelete", (guild) => {
+    // remove subscription if the client is kicked or
+    // the server is deleted
+    scheduled.removeSubscription(guild.id);
+});
 
 // init the bot
 (async () => {

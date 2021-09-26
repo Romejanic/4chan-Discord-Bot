@@ -1,4 +1,5 @@
 import * as mysql from 'mysql';
+import { SubscriptionList } from '../subscribed';
 import { Subscription } from './config';
 
 const auth = require("../../config.json").db;
@@ -116,4 +117,29 @@ export function updateSubscription(id: string, sub: Subscription): Promise<void>
 
 export async function clearSubscription(id: string): Promise<void> {
     return await updateSubscription(id, null);
+}
+
+type SubscriptionDb = {
+    id: string,
+    subscribed_channel: string,
+    subscribed_time: number,
+    subscribed_board?: string,
+    default_board?: string
+};
+
+export async function getSubscriptions(): Promise<SubscriptionList> {
+    return new Promise((resolve, reject) => {
+        const sql = "SELECT id,subscribed_channel,subscribed_time,subscribed_board,default_board FROM server_config WHERE subscribed_channel IS NOT NULL";
+        pool.query(sql, (err, results: SubscriptionDb[]) => {
+            if(err) reject(err);
+            let out: SubscriptionList = {};
+
+            for(let sub of results) {
+                let board = sub.subscribed_board ? sub.subscribed_board : sub.default_board;
+                out[sub.id] = new Subscription(sub.subscribed_channel, sub.subscribed_time, board);
+            }
+
+            resolve(out);
+        });
+    });
 }

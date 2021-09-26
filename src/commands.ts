@@ -544,7 +544,16 @@ const COMMANDS: CommandHandlers = {
 
                     await ctx.edit(embed);
                 } else if(action === "reset") {
+                    // reset the subscription
+                    let channelId = lib.config.getSubscription().getChannel();
+                    await lib.config.clearSubscriptionData();
 
+                    // send embed
+                    let embed = new MessageEmbed()
+                        .setColor(EMBED_COLOR_SUCCESS)
+                        .setTitle(STRINGS["config_cleared"])
+                        .setDescription(format(STRINGS["config_subscribe_reset"], channelId));
+                    await ctx.edit(embed);
                 }
                 break;
             default:

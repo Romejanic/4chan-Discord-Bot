@@ -144,6 +144,7 @@
     "config_subscribe_interval_value_hr": "{0} hour{1}",
     "config_subscribe_board": "Board",
     "config_subscribe_board_value": "/{0}/",
+    "config_subscribe_reset": "The subscription has been cleared, and will no longer post to <#{0}>.",
 
 
     "enabled_true": "enabled",

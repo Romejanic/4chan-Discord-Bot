@@ -196,6 +196,7 @@ export class ServerConfig {
     }
 
     async clearSubscriptionData() {
+        this.subscription = null;
         await db.clearSubscription(this.id);
     }
 

@@ -63,6 +63,7 @@ export class SubscriptionService {
         if(!guild) {
             // the guild can't be resolved (maybe the bot was kicked?)
             // so remove it from the list
+            debugMessage("[Subscribe] Removing subscription (id = " + server + ", reason = server)");
             return await this.removeSubscription(server);
         }
 
@@ -72,6 +73,7 @@ export class SubscriptionService {
         if(!channel) {
             // the channel can't be resolved (maybe it was deleted?)
             // so remove it from the list
+            debugMessage("[Subscribe] Removing subscription (id = " + server + ", reason = channel)");
             return await this.removeSubscription(server);
         }
 
@@ -79,9 +81,7 @@ export class SubscriptionService {
             channel.send("message from " + sub.getBoard());
         } catch(e) {
             // message couldn't be sent, just ignore it (unless dev)
-            if(process.argv.includes("-dev")) {
-                console.error("Failed to send scheduled post!\n" + e);
-            }
+            debugMessage("Failed to send scheduled post!\n" + e);
         }
     }
 
@@ -119,3 +119,9 @@ export class SubscriptionService {
 
 export type SubscriptionList  = { [server: string]: Subscription };
 export type SubscriptionTimes = { [server: string]: number };
+
+function debugMessage(msg: any) {
+    if(process.argv.includes("-dev")) {
+        console.log(msg);
+    }
+}

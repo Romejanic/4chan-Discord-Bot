@@ -21,7 +21,7 @@
 
     "random_helpmsg": "{0} random [board] - Optionally add a board name to pull from",
     "random_error": "Failed to get a random post!",
-    "random_error_desc": "Please [contact the developer](https://github.com/Romejanic/4chan-Discord-Bot/issues/new/) and give them this message:\n```{0}```",
+    "random_error_desc": "Please [contact the developer](https://github.com/Romejanic/4chan-Discord-Bot/issues/new?assignees=Romejanic&labels=bug&template=bug_report.md&title=%5BBug%5D+Enter+the+name+of+the+bug) and give them this message:\n```{0}```",
     "random_noboard": "Invalid board!",
     "random_noboard_desc": "The board you entered (`{0}`) does not exist!\nPlease enter the name of an existing 4chan board.\n\nType `/boards` for a list of boards.",
     "random_default": "Default Board",
@@ -161,7 +161,7 @@
 
     "info_title": "Bot Information",
     "info_servers": "{0} servers",
-    "info_desc": "[GitHub Repo](https://github.com/Romejanic/4chan-Discord-Bot)\n[Invite Link](https://discordapp.com/api/oauth2/authorize?client_id=592655834568327179&permissions=124992&scope=bot%20applications.commands)\n[Support Server](https://discord.gg/fawJ2dTxFS)\n[Vote for me on top.gg!](https://top.gg/bot/592655834568327179/vote)",
+    "info_desc": "[GitHub Repo](https://github.com/Romejanic/4chan-Discord-Bot)\n[Invite Link](https://discordapp.com/api/oauth2/authorize?client_id=592655834568327179&permissions=124992&scope=bot%20applications.commands)\n[Support Server](https://discord.gg/fawJ2dTxFS)\n[Report a bug or request a feature](https://github.com/Romejanic/4chan-Discord-Bot/issues/new/choose)\n[Vote for me on top.gg!](https://top.gg/bot/592655834568327179/vote)",
     "info_version": "Version",
     "info_build_type": "Build Type",
     "info_used_in": "Used in",

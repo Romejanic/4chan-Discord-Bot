@@ -503,9 +503,48 @@ const COMMANDS: CommandHandlers = {
                 if(action === "set") {
 
                 } else if(action === "get") {
+                    // create embed from data
+                    let embed = new MessageEmbed()
+                        .setColor(EMBED_COLOR_NORMAL)
+                        .setTitle(STRINGS["config_subscribe_title"])
+                        .setDescription(STRINGS["config_subscribe_desc"]);
+                    let data = lib.config.getSubscription();
+                    if(data) {
+                        // add channel field to the embed
+                        embed.addField(STRINGS["config_subscribe_channel"], format(STRINGS["config_subscribe_channel_value"], data.getChannel()), true);
 
+                        // get correct display interval
+                        let mins = data.getInterval();
+                        let displayInterval = "";
+                        if(mins > 60) {
+                            // calculate hours and mins in hour
+                            let hrs = Math.floor(mins / 60);
+                            mins %= 60;
+
+                            // generate format string
+                            displayInterval = format(STRINGS["config_subscribe_interval_value_hr"], hrs, STRINGS["plural_" + (hrs > 1)]) + " ";
+                        }
+                        if(mins > 0) {
+                            displayInterval += format(STRINGS["config_subscribe_interval_value_min"], mins, STRINGS["plural_" + (mins > 1)]);
+                        }
+                        embed.addField(STRINGS["config_subscribe_interval"], displayInterval.toLowerCase(), true);
+
+                        // get correct display for board value
+                        let board: string;
+                        if(data.getBoard()) {
+                            board = format(STRINGS["config_subscribe_board_value"], data.getBoard());
+                        } else {
+                            board = format(STRINGS["config_help_default"], format(STRINGS["config_subscribe_board_value"], lib.config.getDefaultBoard()));
+                        }
+                        embed.addField(STRINGS["config_subscribe_board"], board, true);
+                    } else {
+                        // tell user it is not set
+                        embed.addField(STRINGS["config_subscribe_notset"], STRINGS["config_subscribe_toset"]);
+                    }
+
+                    await ctx.edit(embed);
                 } else if(action === "reset") {
-                    
+
                 }
                 break;
             default:
@@ -623,7 +662,7 @@ export default {
             // notify the user that something went wrong
             let embed = new MessageEmbed()
                 .setTitle("Error running command!")
-                .setDescription("An error occurred while running this command!\nPlease [contact the developer](https://github.com/Romejanic/4chan-Discord-Bot/issues/new/) and send this code:\n```\n" + e + "\n```")
+                .setDescription(format(STRINGS["random_error_desc"], e))
                 .setColor(EMBED_COLOR_ERROR);
             if(ctx.command.replied || ctx.command.deferred) await ctx.edit(embed);
             else await ctx.reply(embed);

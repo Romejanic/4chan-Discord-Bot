@@ -21,7 +21,7 @@
 
     "random_helpmsg": "{0} random [board] - Optionally add a board name to pull from",
     "random_error": "Failed to get a random post!",
-    "random_error_desc": "Please [contact the developer](https://github.com/Romejanic/4chan-Discord-Bot/issues/new?assignees=Romejanic&labels=bug&template=bug_report.md&title=%5BBug%5D+Enter+the+name+of+the+bug) and give them this message:\n```{0}```",
+    "random_error_desc": "Please [contact the developer](https://github.com/Romejanic/4chan-Discord-Bot/issues/new/choose) and give them this message:\n```{0}```",
     "random_noboard": "Invalid board!",
     "random_noboard_desc": "The board you entered (`{0}`) does not exist!\nPlease enter the name of an existing 4chan board.\n\nType `/boards` for a list of boards.",
     "random_default": "Default Board",
@@ -132,6 +132,19 @@
 
     "config_restricted_channels_toggle_true": "**The bot can now speak in the following channel{1}:**\n```\n{0}\n```",
     "config_restricted_channels_toggle_false": "**The bot can no longer speak in the following channel{1}:**\n```\n{0}\n```",
+
+    "config_subscribe_title": "Subscription",
+    "config_subscribe_desc": "Allows the bot to automatically pull a random post to a channel at a specified interval.",
+    "config_subscribe_notset": "Not set!",
+    "config_subscribe_toset": "Type `/config subscribe set` to set up subscription!",
+    "config_subscribe_channel": "Channel",
+    "config_subscribe_channel_value": "<#{0}>",
+    "config_subscribe_interval": "Interval",
+    "config_subscribe_interval_value_min": "{0} minute{1}",
+    "config_subscribe_interval_value_hr": "{0} hour{1}",
+    "config_subscribe_board": "Board",
+    "config_subscribe_board_value": "/{0}/",
+
 
     "enabled_true": "enabled",
     "enabled_false": "disabled",

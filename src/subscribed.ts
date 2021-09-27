@@ -1,6 +1,8 @@
 import { Client, TextChannel } from "discord.js";
 import { Subscription } from "./lib/config";
 import * as db from './lib/db';
+import { forServer as configOf } from "./lib/config";
+import * as chan from './lib/4chan-api';
 
 import {EventEmitter} from 'events';
 
@@ -36,6 +38,7 @@ export class SubscriptionService {
         this.lock = true;
 
         // loop through each server
+        let sent = 0;
         for(let server in this.subscriptions) {
             // increase ticker for this server
             if(!this.ticker[server]) {
@@ -49,8 +52,11 @@ export class SubscriptionService {
             if(this.ticker[server] === this.subscriptions[server].getInterval()) {
                 this.sendPost(this.subscriptions[server], server);
                 this.ticker[server] = 0;
+                sent++;
             }
         }
+
+        debugMessage("[Subscribe] Processed " + Object.keys(this.subscriptions).length + " subscriptions, sent " + sent);
 
         // frees the lock on any awaiting promises
         this.lock = false;
@@ -77,8 +83,22 @@ export class SubscriptionService {
             return await this.removeSubscription(server);
         }
 
+        // resolve the board
+        let board = sub.getBoard();
+        if(!board) {
+            // try and get the server default board
+            board = (await configOf(server)).getDefaultBoard();
+        }
+
+        // validate the board
+        const [ exists, nsfw ] = await chan.validateBoard(board);
+        if(!exists || (nsfw && !channel.nsfw)) {
+            debugMessage("Invalid board, doesn't exist or NSFW status doesn't match");
+            return;
+        }
+
         try {
-            channel.send("message from " + sub.getBoard());
+            channel.send("message from " + board);
         } catch(e) {
             // message couldn't be sent, just ignore it (unless dev)
             debugMessage("Failed to send scheduled post!\n" + e);
@@ -100,8 +120,13 @@ export class SubscriptionService {
     public async addSubscription(server: string, sub: Subscription) {
         // if there's a lock, wait for it
         await this.awaitLock();
+        // reset the ticker only if the new interval is shorter
+        // (so it doesn't disrupt the timing of posts)
+        if(this.subscriptions[server] && sub.getInterval() < this.subscriptions[server].getInterval()) {
+            this.ticker[server] = 0;
+        }
+        // update the subscription
         this.subscriptions[server] = sub;
-        this.ticker[server] = 0;
     }
 
     /**

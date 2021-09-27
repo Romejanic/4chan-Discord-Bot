@@ -9,6 +9,7 @@ import * as config from './lib/config';
 import format from './lib/str-format';
 import Stats from "./stats";
 import * as chan from './lib/4chan-api';
+import { SubscriptionService } from "./subscribed";
 
 // load strings
 const STRINGS: { [key: string]: string } = require("../strings.json");
@@ -553,6 +554,7 @@ const COMMANDS: CommandHandlers = {
 
                     // update the subscription
                     await lib.config.setSubscriptionData(channel, interval, defaultBoard ? null : board);
+                    lib.subscribed.addSubscription(ctx.server.id, lib.config.getSubscription());
 
                     // notify the user
                     let embed = new MessageEmbed()
@@ -608,6 +610,7 @@ const COMMANDS: CommandHandlers = {
                     // reset the subscription
                     let channelId = lib.config.getSubscription().getChannel();
                     await lib.config.clearSubscriptionData();
+                    lib.subscribed.removeSubscription(ctx.server.id);
 
                     // send embed
                     let embed = new MessageEmbed()
@@ -709,7 +712,7 @@ async function sendPost(post: chan.ChanPost, ctx: CommandContext, lib: Libs): Pr
 export default {
 
     // executes a command from the given context
-    execute: async (ctx: CommandContext, stats: Stats) => {
+    execute: async (ctx: CommandContext, stats: Stats, subscribed: SubscriptionService) => {
         let dev = process.argv.includes("-dev");
         let cfg = await config.forServer(ctx.isServer ? ctx.server.id : null);
         try {
@@ -725,7 +728,7 @@ export default {
             // find the command
             if(COMMANDS[ctx.name]) {
                 // run it
-                await COMMANDS[ctx.name](ctx, { stats, dev, config: cfg });
+                await COMMANDS[ctx.name](ctx, { stats, dev, config: cfg, subscribed });
                 // if it succeeded, increase the stats
                 stats.servedRequest(ctx);
             }
@@ -785,7 +788,8 @@ async function partitionArray<T>(arr: T[], predicate: (x: T) => Promise<boolean>
 type Libs = {
     dev: boolean,
     stats: Stats,
-    config: config.ServerConfig
+    config: config.ServerConfig,
+    subscribed: SubscriptionService
 };
 type CommandHandlers = {
     [name: string]: (ctx: CommandContext, lib?: Libs) => Promise<any>

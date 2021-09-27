@@ -19,7 +19,7 @@ const stats = new Stats();
 const scheduled = new SubscriptionService(client);
 
 // create event listeners
-client.on("command", ctx => Commands.execute(ctx, stats));
+client.on("command", ctx => Commands.execute(ctx, stats, scheduled));
 client.on("messageCreate", Commands.warning);
 
 client.on("guildDelete", (guild) => {

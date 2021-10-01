@@ -307,10 +307,11 @@ const COMMANDS: CommandHandlers = {
         }, []);
 
         // create buttons
-        let back = createButton("browse_back", STRINGS["boards_back"]);
-        let next = createButton("browse_next", STRINGS["boards_next"]);
-        let up   = createButton("browse_up", STRINGS["browse_up"]);
-        let down = createButton("browse_down", STRINGS["browse_down"]);
+        let back  = createButton("browse_back", STRINGS["boards_back"]);
+        let next  = createButton("browse_next", STRINGS["boards_next"]);
+        let up    = createButton("browse_up", STRINGS["browse_up"]);
+        let down  = createButton("browse_down", STRINGS["browse_down"]);
+        let close = createButton("browse_close", STRINGS["browse_close"], false, true); 
         
         let embed = new MessageEmbed()
             .setColor(EMBED_COLOR_NORMAL)
@@ -392,18 +393,16 @@ const COMMANDS: CommandHandlers = {
         await setThread(0,0);
         
         // send the embed
+        let row = new MessageActionRow().addComponents(
+            back,up,close,down,next
+        );
         let message = await ctx.edit({
             embeds: [embed],
-            components: [new MessageActionRow().addComponents(
-                back,up,down,next
-            )]
+            components: [row]
         });
 
         // add interaction collector
-        const filter = (i: ButtonInteraction) => [
-            back.customId, next.customId,
-            up.customId, down.customId
-        ].includes(i.customId);
+        const filter = (i: ButtonInteraction) => row.components.map(c => c.customId).includes(i.customId);
         const collect = ctx.channel.createMessageComponentCollector({ message, filter, time: 10 * 60 * 1000 });
 
         collect.on("collect", async (i) => {
@@ -438,6 +437,19 @@ const COMMANDS: CommandHandlers = {
                         await setThread(currThread, currReply+1);
                     }
                     break;
+                case "browse_close":
+                    // edit the embed
+                    embed = new MessageEmbed()
+                        .setColor(EMBED_COLOR_ERROR)
+                        .setTitle(STRINGS["browse_close_title"])
+                        .setDescription(format(STRINGS["browse_close_desc"], board));
+                    await ctx.edit({
+                        embeds: [embed],
+                        components: []
+                    });
+                    // stop collecting responses
+                    collect.stop("closed");
+                    return;
                 default:
                     break;
             }
@@ -446,19 +458,21 @@ const COMMANDS: CommandHandlers = {
             await i.update({
                 embeds: [embed],
                 components: [new MessageActionRow().addComponents(
-                    back,up,down,next
+                    back,up,close,down,next
                 )]
             });
         });
 
-        collect.on("end", async () => {
-            embed.setFooter(STRINGS["browse_time_limit"]);
-            try {
-                await ctx.edit({
-                    embeds: [embed],
-                    components: []
-                });
-            } catch(e) { /* oh well */ }
+        collect.on("end", async (_, reason) => {
+            if(reason !== "closed") {
+                embed.setFooter(STRINGS["browse_time_limit"]);
+                try {
+                    await ctx.edit({
+                        embeds: [embed],
+                        components: []
+                    });
+                } catch(e) { /* oh well */ }
+            }
         });
     },
 
@@ -894,11 +908,12 @@ async function sendPost(post: chan.ChanPost, ctx: CommandContext, lib: Libs): Pr
     }
 }
 
-function createButton(id: string, emoji: string, red = false): MessageButton {
+function createButton(id: string, emoji: string, red = false, text = false): MessageButton {
     return new MessageButton()
         .setCustomId(id)
-        .setEmoji(emoji)
-        .setStyle(red ? 4 : 1);
+        .setEmoji(!text ? emoji : null)
+        .setLabel(text ? emoji : "")
+        .setStyle(red ? 4 : text ? 2 : 1);
 }
 
 export default {

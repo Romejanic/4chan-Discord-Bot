@@ -83,6 +83,9 @@
     "browse_reply": "Reply",
     "browse_thread": "Thread",
     "browse_time_limit": "Browsing sessions are limited to 10 minutes, sorry!",
+    "browse_close": "Close",
+    "browse_close_title": "Browser closed",
+    "browse_close_desc": "The browser for /{0}/ was closed by the requesting user.\nType `/browse` to create a new one.",
 
     "config_notserver": "Not a server!",
     "config_notserver_desc": "This command can only be used on a server!\n[Click here](https://discordapp.com/api/oauth2/authorize?client_id=592655834568327179&permissions=124992&scope=bot) to invite to your server.",

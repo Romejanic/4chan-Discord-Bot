@@ -16,7 +16,7 @@ const client = new SlasherClient({
     partials: [ "CHANNEL" ]
 });
 const stats = new Stats();
-const scheduled = new SubscriptionService(client);
+const scheduled = new SubscriptionService(client, stats);
 
 // create event listeners
 client.on("command", ctx => Commands.execute(ctx, stats, scheduled));

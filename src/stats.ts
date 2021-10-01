@@ -17,7 +17,8 @@ type StatsJson = {
 };
 
 type Analytics = {
-    [command: string]: number
+    [command: string]: number,
+    subscribed_posts: number
 };
 
 export default class Stats {
@@ -26,7 +27,9 @@ export default class Stats {
     dailyServed: RollingAverage = new RollingAverage()
     todayServed: number = 0
 
-    analytics: Analytics = {}
+    analytics: Analytics = {
+        subscribed_posts: 0
+    }
 
     private dailyInterval: NodeJS.Timer = undefined
     private saveInterval: NodeJS.Timer = undefined
@@ -62,7 +65,10 @@ export default class Stats {
         this.totalServed = jsonObj.total;
         this.dailyServed = new RollingAverage(jsonObj.daily);
         this.todayServed = jsonObj.today;
-        this.analytics = jsonObj.analytics || {};
+        this.analytics = jsonObj.analytics || { subscribed_posts: 0 };
+        if(!this.analytics.subscribed_posts) {
+            this.analytics.subscribed_posts = 0;
+        }
         if(Date.now() - jsonObj.timestamp > DAILY_INTERVAL) {
             // reset if bot hasn't been running longer than a day
             this.dailyServed.addValue(this.todayServed);
@@ -100,6 +106,10 @@ export default class Stats {
                 this.analytics[name] = 1;
             }
         }
+    }
+
+    servedSubscription() {
+        this.analytics.subscribed_posts++;
     }
 
     getDailyAverage() {

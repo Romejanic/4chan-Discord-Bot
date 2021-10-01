@@ -6,6 +6,7 @@ import { forServer as configOf } from "./lib/config";
 import * as chan from './lib/4chan-api';
 import format from './lib/str-format';
 import { EMBED_COLOR_NORMAL, STRINGS } from "./commands";
+import Stats from "./stats";
 
 export type SubscriptionList  = { [server: string]: Subscription };
 export type SubscriptionTimes = { [server: string]: number };
@@ -19,11 +20,13 @@ export class SubscriptionService {
     private lockEvents = new EventEmitter();
 
     private readonly client: Client;
+    private readonly stats: Stats;
 
     // private interval: NodeJS.Timer = null;
 
-    constructor(client: Client) {
+    constructor(client: Client, stats: Stats) {
         this.client = client;
+        this.stats = stats;
         this.init();
     }
 
@@ -103,6 +106,7 @@ export class SubscriptionService {
 
         try {
             await sendRandomPost(channel, board);
+            this.stats.servedSubscription();
         } catch(e) {
             // message couldn't be sent, just ignore it (unless dev)
             debugMessage("Failed to send scheduled post!\n" + e);

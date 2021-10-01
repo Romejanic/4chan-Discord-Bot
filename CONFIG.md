@@ -37,6 +37,22 @@ By default, the bot has access to all text channels in the server. If a board is
 |/config allowed_channels get|none|Gets the list of channels which the bot has access to.|
 |/config allowed_channels reset|none|Resets the list of channels so that the bot can again access all text channels.|
 
+## Subscriptions
+The bot allows for subscribing to a board. When provided with a time interval and a target channel, the bot will periodically pull a random post from the board and post it to the channel!
+
+This will continue indefinitely unless it is disabled by an admin, the bot is kicked from the server or the channel is deleted.
+
+The required options are the channel and the interval. The channel can be any text or announcement channel on the server. The interval is a number in minutes (from 1 minute up to 10,080 minutes (i.e. 7 days)).
+
+A board can also be optionally passed. If no board is given, it will use the server's default board instead. **PLEASE NOTE** that if the default board changes, so will the board that the subscription pulls from!
+
+**Default:** `not enabled`
+|Command|Option|Description|
+|-------|------|-----------|
+|/config subscribe set &lt;channel&gt; &lt;interval&gt; [board]|`channel`: a text or announcement channel on your server. `interval`: the interval in minutes between posts. `board`: optionally the board to pull posts from|Sets a new subscription to the given channel and with the time interval. Optionally a board can be provided, if not the server's default board will be used.|
+|/config subscribe get|none|Gets information about the current subscription.|
+|/config subscribe reset|none|Disables the subscription and stops posts being sent to the channel.|
+
 ## Other issues
 If you have a suggestion for a new config options please [create an issue](https://github.com/Romejanic/4chan-Discord-Bot/issues/new) with the `Enhancement` tag and I will consider adding it!
 

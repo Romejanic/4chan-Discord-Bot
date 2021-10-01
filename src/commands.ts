@@ -269,6 +269,55 @@ const COMMANDS: CommandHandlers = {
         }
     },
 
+    "browse": async (ctx, lib) => {
+        // defer the response
+        await ctx.defer();
+
+        // decide which board to use
+        let board = lib.config.getDefaultBoard();
+        if(ctx.options.getString("board")) {
+            board = ctx.options.getString("board");
+        }
+        board = chan.getBoardName(board);
+
+        // check if board exists
+        const [ exists, nsfw ] = await chan.validateBoard(board);
+        if(!exists) {
+            let embed = new MessageEmbed()
+                .setColor(EMBED_COLOR_ERROR)
+                .setTitle(STRINGS["random_noboard"])
+                .setDescription(format(STRINGS["random_noboard_desc"], board));
+            await ctx.edit(embed);
+            return;
+        }
+
+        // if the board is NSFW, check if this is a NSFW channel first
+        if(!ctx.isDM && nsfw && !(ctx.channel as TextChannel).nsfw) {
+            let embed = new MessageEmbed()
+                .setColor(EMBED_COLOR_ERROR)
+                .setTitle(STRINGS["nsfw_required"])
+                .setDescription(format(STRINGS["nsfw_required_desc"], board));
+            return await ctx.edit(embed);
+        }
+
+        // gets a list of threads from the board
+        const threads = await chan.getPostsFromBoard(board);
+        let threadIndex = 0;
+
+        // create buttons
+        let back = createButton("browse_back", STRINGS["boards_back"]);
+        let next = createButton("browse_next", STRINGS["boards_next"]);
+
+        let actions = new MessageActionRow().addComponents(
+            back,next
+        );
+
+        await ctx.edit({
+            content: "browsing " + board,
+            components: [ actions ]
+        });
+    },
+
     "config": async(ctx, lib) => {
         // check if we're on a server
         if(!ctx.isServer) {
@@ -699,6 +748,13 @@ async function sendPost(post: chan.ChanPost, ctx: CommandContext, lib: Libs): Pr
             }
         });
     }
+}
+
+function createButton(id: string, emoji: string, red = false): MessageButton {
+    return new MessageButton()
+        .setCustomId(id)
+        .setEmoji(emoji)
+        .setStyle(red ? 4 : 1);
 }
 
 export default {

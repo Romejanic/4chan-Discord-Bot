@@ -72,6 +72,11 @@
     "boards_pages": "{0}/{1}",
     "boards_updated": "Last updated {0} minutes ago",
 
+    "browse_title": "Browsing /{0}/",
+    "browse_up": "⬆️",
+    "browse_down": "⬇️",
+    "browse_instructions": "⬅️➡️ - change thread ⬆️⬇️ - change reply",
+
     "config_notserver": "Not a server!",
     "config_notserver_desc": "This command can only be used on a server!\n[Click here](https://discordapp.com/api/oauth2/authorize?client_id=592655834568327179&permissions=124992&scope=bot) to invite to your server.",
     "config_notadmin": "Not an admin!",

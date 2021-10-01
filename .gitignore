@@ -5,6 +5,7 @@
 /config.json
 /guild-config.json
 /stats.json
+/subscribed-ticker.json
 
 # vim
 *.swp

@@ -1,8 +1,8 @@
 import { Client, TextChannel, MessageEmbed } from "discord.js";
 import { EventEmitter } from 'events';
-import { Subscription } from "./lib/config";
+import * as fs from 'fs';
 import * as db from './lib/db';
-import { forServer as configOf } from "./lib/config";
+import { forServer as configOf, Subscription } from "./lib/config";
 import * as chan from './lib/4chan-api';
 import format from './lib/str-format';
 import { EMBED_COLOR_NORMAL, STRINGS } from "./commands";
@@ -10,6 +10,9 @@ import Stats from "./stats";
 
 export type SubscriptionList  = { [server: string]: Subscription };
 export type SubscriptionTimes = { [server: string]: number };
+
+const TICKER_FILE    = "subscribed-ticker.json";
+const SAVE_INTERVAL  = 1000 * 60 * 5;        // 1000ms * 60secs * 5mins
 
 export class SubscriptionService {
 
@@ -22,8 +25,6 @@ export class SubscriptionService {
     private readonly client: Client;
     private readonly stats: Stats;
 
-    // private interval: NodeJS.Timer = null;
-
     constructor(client: Client, stats: Stats) {
         this.client = client;
         this.stats = stats;
@@ -34,9 +35,18 @@ export class SubscriptionService {
         // load subscriptions from database
         this.subscriptions = await db.getSubscriptions();
 
+        // if ticker file exists, load the ticker times
+        if(fs.existsSync(TICKER_FILE)) {
+            this.ticker = JSON.parse(fs.readFileSync(TICKER_FILE).toString());
+            console.log("[Subscribe] Loaded ticker times for " + Object.keys(this.ticker).length + " servers");
+        }
+
         // tick every minute (60s * 1000ms)
         setInterval(this.tickMinute.bind(this), 60 * 1000);
         console.log("[Subscribe] Started subscribed post loop");
+
+        // tick saving the file
+        setInterval(this.saveTicker.bind(this), SAVE_INTERVAL);
     }
 
     private tickMinute() {
@@ -110,6 +120,15 @@ export class SubscriptionService {
         } catch(e) {
             // message couldn't be sent, just ignore it (unless dev)
             debugMessage("Failed to send scheduled post!\n" + e);
+        }
+    }
+
+    private async saveTicker() {
+        try {
+            let json = JSON.stringify(this.ticker, null, 4);
+            await fs.promises.writeFile(TICKER_FILE, json);
+        } catch(e) {
+            console.error("[Subscribe] Failed to write ticker file!" + "\n" + e);
         }
     }
 

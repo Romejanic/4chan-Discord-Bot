@@ -38,6 +38,7 @@
     "post_remove": "Remove",
     "post_remove_notop": "Not allowed!",
     "post_remove_notop_desc": "You cannot delete this post unless you are the command sender or have the `Manage Messages` permission.",
+    "post_scheduled_footer": "This post was made automatically. To disable it, change your config options.",
 
     "debug_title": "Debug Commands",
     "debug_nocmd": "Please enter one of the following sub-commands:\n```{0}```",

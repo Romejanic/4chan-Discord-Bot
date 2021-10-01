@@ -1,4 +1,5 @@
 import * as https from 'https';
+import { decode } from 'html-entities';
 import format from './str-format';
 
 let apiUrl = "https://a.4cdn.org/{0}/{1}.json";
@@ -189,4 +190,16 @@ async function checkBoardCache() {
             console.log("[API] Refreshed board cache, found " + Object.keys(boardCache.boards).length + " boards");
         }
     }
+}
+
+export function processPostText(post: ChanPost) {
+    let postText = "";
+    if(post.text) {
+        postText = decode(post.text);
+        postText = postText.length > 2000 ? postText.substring(0, 2000) + "..." : postText;
+        postText = postText.replace(/<br>/gi, "\n");
+        postText = postText.replace(/<\/span>/gi, "");
+        postText = postText.replace(/<span class=\"quote\">/gi, "");
+    }
+    return postText;
 }

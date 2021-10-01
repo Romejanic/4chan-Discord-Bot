@@ -1,10 +1,14 @@
-import { Client, TextChannel } from "discord.js";
+import { Client, TextChannel, MessageEmbed } from "discord.js";
+import { EventEmitter } from 'events';
 import { Subscription } from "./lib/config";
 import * as db from './lib/db';
 import { forServer as configOf } from "./lib/config";
 import * as chan from './lib/4chan-api';
+import format from './lib/str-format';
+import { EMBED_COLOR_NORMAL, STRINGS } from "./commands";
 
-import {EventEmitter} from 'events';
+export type SubscriptionList  = { [server: string]: Subscription };
+export type SubscriptionTimes = { [server: string]: number };
 
 export class SubscriptionService {
 
@@ -98,7 +102,7 @@ export class SubscriptionService {
         }
 
         try {
-            channel.send("message from " + board);
+            await sendRandomPost(channel, board);
         } catch(e) {
             // message couldn't be sent, just ignore it (unless dev)
             debugMessage("Failed to send scheduled post!\n" + e);
@@ -142,8 +146,22 @@ export class SubscriptionService {
 
 }
 
-export type SubscriptionList  = { [server: string]: Subscription };
-export type SubscriptionTimes = { [server: string]: number };
+async function sendRandomPost(channel: TextChannel, board: string) {
+    let post = await chan.getRandomPost(board);
+    let postText = chan.processPostText(post);
+
+    // create basic embed
+    let embed = new MessageEmbed()
+        .setColor(EMBED_COLOR_NORMAL)
+        .setTitle(format(STRINGS["post_title"], post.id, post.author))
+        .setDescription(format(STRINGS["post_desc"], postText, post.permalink))
+        .setFooter(STRINGS["post_scheduled_footer"])
+        .setImage(post.image)
+        .addField(STRINGS["post_submitted"], post.timestamp);
+
+    // send message to channel
+    await channel.send({ embeds: [embed] });
+}
 
 function debugMessage(msg: any) {
     if(process.argv.includes("-dev")) {

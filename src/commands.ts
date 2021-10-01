@@ -4,7 +4,6 @@ import {
     MessageEmbed, NewsChannel, TextChannel, WebhookEditMessageOptions
 } from "discord.js";
 import { CommandContext } from "discord.js-slasher";
-import { decode } from 'html-entities';
 import * as config from './lib/config';
 import format from './lib/str-format';
 import Stats from "./stats";
@@ -12,12 +11,12 @@ import * as chan from './lib/4chan-api';
 import { SubscriptionService } from "./subscribed";
 
 // load strings
-const STRINGS: { [key: string]: string } = require("../strings.json");
+export const STRINGS: { [key: string]: string } = require("../strings.json");
 
 // define commonly used constants
-const EMBED_COLOR_NORMAL = "#FED7B0";
-const EMBED_COLOR_ERROR   = "#FF0000";
-const EMBED_COLOR_SUCCESS = "#00FF00";
+export const EMBED_COLOR_NORMAL = "#FED7B0";
+export const EMBED_COLOR_ERROR   = "#FF0000";
+export const EMBED_COLOR_SUCCESS = "#00FF00";
 const AVATAR_URL = "https://cdn.discordapp.com/avatars/592655834568327179/f0ae1e42b1dbb8a2f4df48ddf60d80b9.png?size=256";
 const AVATAR_URL_DEV = "https://cdn.discordapp.com/avatars/763736231812399115/6bbef49611cc60cb295ccceba74095ea.png?size=256";
 const CMD_HELP_IMAGE = "https://cdn.discordapp.com/avatars/592655834568327179/f0ae1e42b1dbb8a2f4df48ddf60d80b9.png?size=64";
@@ -631,14 +630,7 @@ const COMMANDS: CommandHandlers = {
  * Sends a 4chan post to the given context as a formatted embed
  */
 async function sendPost(post: chan.ChanPost, ctx: CommandContext, lib: Libs): Promise<void> {
-    // preprocess the text a little bit
-    let postText = "";
-    if(postText) {
-        postText = decode(post.text.length > 2000 ? post.text.substring(0, 2000) + "..." : post.text);
-        postText = postText.replace(/<br>/gi, "\n");
-        postText = postText.replace(/<\/span>/gi, "");
-        postText = postText.replace(/<span class=\"quote\">/gi, "");
-    }    
+    let postText = chan.processPostText(post);
 
     // create basic embed
     let embed = new MessageEmbed()

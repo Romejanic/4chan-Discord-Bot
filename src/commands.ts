@@ -390,7 +390,18 @@ const COMMANDS: CommandHandlers = {
             up.setDisabled(reply <= 0);
             down.setDisabled(reply >= post.replyCount);
         }
-        await setThread(0,0);
+
+        // navigate to the first thread, or the thread matching
+        // the given ID
+        let initalThread = 0;
+        if(ctx.options.getInteger("id")) {
+            let idIn = ctx.options.getInteger("id");
+            let thread = threads.findIndex((p) => p.no === idIn);
+            if(thread > -1) {
+                initalThread = thread;
+            }
+        }
+        await setThread(initalThread,0);
         
         // send the embed
         let row = new MessageActionRow().addComponents(

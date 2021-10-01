@@ -51,6 +51,10 @@
             "board": {
                 "description": "The board to browse",
                 "type": "string"
+            },
+            "id": {
+                "description": "If given, will highlight the thread with the matching ID",
+                "type": "integer"
             }
         }
     },

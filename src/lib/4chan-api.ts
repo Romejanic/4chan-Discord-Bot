@@ -4,6 +4,7 @@ import format from './str-format';
 
 let apiUrl = "https://a.4cdn.org/{0}/{1}.json";
 let imgUrl = "https://i.4cdn.org/{0}/{1}{2}";
+let repliesUrl  = "https://a.4cdn.org/{0}/thread/{1}.json";
 let postUrl = "https://boards.4chan.org/{0}/thread/{1}";
 let boardsUrl = "https://a.4cdn.org/boards.json";
 
@@ -13,8 +14,17 @@ export interface ChanPost {
     author: string,
     id: number,
     timestamp: string,
-    permalink: string
+    permalink: string,
+    replyCount: number
 };
+
+export interface ChanReply {
+    id: number,
+    text: string,
+    timestamp: string,
+    author: string,
+    image?: string
+}
 
 export interface ChanBoard {
     title: string,
@@ -30,13 +40,28 @@ export interface ChanCachedBoards {
     updated: number
 };
 
-interface ApiPost {
+interface ApiPage {
+    page: number,
+    threads: ApiPost[]
+}
+
+export interface ApiPost {
     tim: string,
     ext: string,
     com: string,
     name: string,
     no: number,
-    now: string
+    now: string,
+    replies: number
+}
+
+export interface ApiReply {
+    no: number,
+    com: string,
+    now: string,
+    name: string,
+    tim?: string,
+    ext?: string,
 }
 
 export function getPostFromThread(thread: ApiPost, board: string): ChanPost {
@@ -46,11 +71,53 @@ export function getPostFromThread(thread: ApiPost, board: string): ChanPost {
         author: thread.name,
         id: thread.no,
         timestamp: thread.now,
-        permalink: format(postUrl, board, thread.no)
+        permalink: format(postUrl, board, thread.no),
+        replyCount: thread.replies
     };
 }
 
-export function getPostsFromBoard(board: string): Promise<ApiPost[]> {
+export function getRepliesFromThread(thread: ChanPost, board: string): Promise<ChanReply[]> {
+    return new Promise((resolve, reject) => {
+        https.get(format(repliesUrl, board, thread.id), (res) => {
+            if(res.statusCode !== 200) {
+                reject({ error: res.statusMessage });
+                return;
+            }
+
+            let json = "";
+            res.on("data", (data) => {
+                json += data.toString();
+            });
+            res.on("end", () => {
+                let resp: { posts: ApiPost[] };
+                try {
+                    resp = JSON.parse(json);
+                } catch(e) {
+                    reject(e);
+                    return;
+                }
+
+                if(!resp) {
+                    reject({ board_not_found: board });
+                    return;
+                }
+
+                // removes OP post and maps entries to ChanReplies
+                resolve(resp.posts.splice(1).map(p => {
+                    return {
+                        id: p.no,
+                        text: p.com,
+                        timestamp: p.now,
+                        author: p.name,
+                        image: p.tim ? format(imgUrl, board, p.tim, p.ext) : undefined
+                    };
+                }));
+            });
+        });
+    });
+}
+
+export function getPagesFromBoard(board: string): Promise<ApiPage[]> {
     return new Promise((resolve, reject) => {
         https.get(format(apiUrl, board, "catalog"), (res) => {
             if(res.statusCode !== 200) {
@@ -63,7 +130,7 @@ export function getPostsFromBoard(board: string): Promise<ApiPost[]> {
                 json += data.toString();
             });
             res.on("end", () => {
-                let catalog;
+                let catalog: ApiPage[];
                 try {
                     catalog = JSON.parse(json);
                 } catch(e) {
@@ -76,7 +143,7 @@ export function getPostsFromBoard(board: string): Promise<ApiPost[]> {
                     return;
                 }
 
-                resolve(catalog[0].threads);
+                resolve(catalog);
             });
         }).on("error", (err) => {
             reject(err);
@@ -85,8 +152,9 @@ export function getPostsFromBoard(board: string): Promise<ApiPost[]> {
 }
 
 export async function getRandomPost(board: string): Promise<ChanPost> {
-    let threads = await getPostsFromBoard(board);
-    let thread  = threads[Math.floor(Math.random() * threads.length)];
+    let pages   = await getPagesFromBoard(board);                          // get all pages on board
+    let threads = pages[Math.floor(Math.random() * pages.length)].threads; // get random page
+    let thread  = threads[Math.floor(Math.random() * threads.length)];     // get random thread
     return getPostFromThread(thread, board);
 }
 

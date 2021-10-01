@@ -301,8 +301,10 @@ const COMMANDS: CommandHandlers = {
         }
 
         // gets a list of threads from the board
-        const threads = await chan.getPostsFromBoard(board);
-        let threadIndex = 0;
+        const pages = await chan.getPagesFromBoard(board);
+        const threads: chan.ApiPost[] = pages.reduce((arr, page) => {
+            arr.push(...page.threads); return arr;
+        }, []);
 
         // create buttons
         let back = createButton("browse_back", STRINGS["boards_back"]);
@@ -311,10 +313,50 @@ const COMMANDS: CommandHandlers = {
         let actions = new MessageActionRow().addComponents(
             back,next
         );
+        
+        let embed = new MessageEmbed()
+            .setColor(EMBED_COLOR_NORMAL)
+            .setTitle(format(STRINGS["browse_title"], board))
+            .setFooter(STRINGS["browse_instructions"]);
 
-        await ctx.edit({
-            content: "browsing " + board,
+        // create function to update the embed with the current thread
+        let currThread = 0;
+        let currReply  = 0;
+
+        function setThread(thread: number, reply: number) {
+            // update current index
+            currThread = thread;
+            currReply = reply;
+
+            // convert thread to chan post
+            
+        }
+        
+        // send the embed
+        let message = await ctx.edit({
+            embeds: [embed],
             components: [ actions ]
+        });
+
+        // add interaction collector
+        const filter = (i: ButtonInteraction) => [back.customId, next.customId].includes(i.customId);
+        const collect = ctx.channel.createMessageComponentCollector({ message, filter, time: 15 * 60 * 1000 });
+
+        collect.on("collect", async (i) => {
+            // check if the user is the same as op
+            if(i.user.id !== ctx.user.id) {
+                let embed = new MessageEmbed()
+                    .setColor(EMBED_COLOR_ERROR)
+                    .setTitle(STRINGS["browse_notop"])
+                    .setDescription(STRINGS["browse_notop_desc"]);
+                return await i.reply({ embeds: [embed], ephemeral: true });
+            }
+
+            
+        });
+
+        collect.on("end", () => {
+
         });
     },
 

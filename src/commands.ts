@@ -341,7 +341,7 @@ const COMMANDS: CommandHandlers = {
                 let text = chan.processPostText(post);
                 embed
                     .setTitle(format(STRINGS["post_title"], post.id, post.author))
-                    .setDescription(format(STRINGS["post_desc_reply"], text, post.permalink))
+                    .setDescription(format(STRINGS["post_desc"], text, post.permalink))
                     .setImage(post.image)
                     .setFields([
                         {
@@ -451,8 +451,12 @@ const COMMANDS: CommandHandlers = {
             });
         });
 
-        collect.on("end", () => {
-
+        collect.on("end", async () => {
+            embed.setFooter(STRINGS["browse_time_limit"]);
+            await ctx.edit({
+                embeds: [embed],
+                components: []
+            });
         });
     },
 

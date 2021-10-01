@@ -848,8 +848,8 @@ async function sendPost(post: chan.ChanPost, ctx: CommandContext, lib: Libs): Pr
         .addField(STRINGS["post_submitted"], post.timestamp);
     let data: WebhookEditMessageOptions = { embeds: [embed] };
 
-    // add removal instructions and buttons on a server
-    let removalEnabled = ctx.isServer && lib.config.getRemovalTime() > 0;
+    // add removal instructions and buttons
+    let removalEnabled = lib.config.getRemovalTime() > 0;
     if(removalEnabled) {
         data.components = [
             new MessageActionRow().addComponents(
@@ -875,7 +875,7 @@ async function sendPost(post: chan.ChanPost, ctx: CommandContext, lib: Libs): Pr
         collect.on("collect", async (btn) => {
             // check the user clicking the button is the sender
             let channel = btn.channel as GuildChannel;
-            let isAdmin = (btn.member as GuildMember).permissionsIn(channel).has("MANAGE_MESSAGES");
+            let isAdmin = ctx.isServer && (btn.member as GuildMember).permissionsIn(channel).has("MANAGE_MESSAGES");
             if(btn.user.id !== ctx.user.id && !isAdmin) {
                 await btn.reply({ embeds: [
                     new MessageEmbed()

@@ -1,5 +1,5 @@
 import {
-    ButtonInteraction, CategoryChannel, EmbedFieldData, GuildChannel,
+    ButtonInteraction, CategoryChannel, EmbedFieldData, Guild, GuildChannel,
     GuildMember, Message, MessageActionRow, MessageButton,
     MessageEmbed, NewsChannel, TextChannel, WebhookEditMessageOptions
 } from "discord.js";
@@ -66,7 +66,15 @@ const COMMANDS: CommandHandlers = {
                     .addField(STRINGS["info_cmd"], STRINGS["info_help"], false)
                     .addField(STRINGS["boards_cmd"], STRINGS["boards_help"], false)
                     .addField(STRINGS["random_cmd"], STRINGS["random_help"], false)
+                    .addField(STRINGS["browse_cmd"], STRINGS["browse_help"], false)
                     .addField(STRINGS["post_cmd"], STRINGS["post_help"], false);
+                if(ctx.isServer) {
+                    let channel = ctx.channel as GuildChannel;
+                    let canEdit = channel.permissionsFor(ctx.user).has("MANAGE_GUILD");
+                    if(canEdit) {
+                        embed.addField(STRINGS["config_cmd"], STRINGS["config_help"], false);
+                    }
+                }
                 break;
             default:
                 break;

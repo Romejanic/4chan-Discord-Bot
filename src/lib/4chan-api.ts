@@ -39,7 +39,7 @@ interface ApiPost {
     now: string
 }
 
-function getPostFromThread(thread: ApiPost, board: string): ChanPost {
+export function getPostFromThread(thread: ApiPost, board: string): ChanPost {
     return {
         image: format(imgUrl, board, thread.tim, thread.ext),
         text: thread.com,
@@ -50,7 +50,7 @@ function getPostFromThread(thread: ApiPost, board: string): ChanPost {
     };
 }
 
-export function getRandomPost(board: string): Promise<ChanPost> {
+export function getPostsFromBoard(board: string): Promise<ApiPost[]> {
     return new Promise((resolve, reject) => {
         https.get(format(apiUrl, board, "catalog"), (res) => {
             if(res.statusCode !== 200) {
@@ -75,15 +75,19 @@ export function getRandomPost(board: string): Promise<ChanPost> {
                     reject({ board_not_found: board });
                     return;
                 }
-                let threads = catalog[0].threads;
-                let thread = threads[Math.floor(Math.random() * threads.length)];
 
-                resolve(getPostFromThread(thread, board));
+                resolve(catalog[0].threads);
             });
         }).on("error", (err) => {
             reject(err);
         });;
     });
+}
+
+export async function getRandomPost(board: string): Promise<ChanPost> {
+    let threads = await getPostsFromBoard(board);
+    let thread  = threads[Math.floor(Math.random() * threads.length)];
+    return getPostFromThread(thread, board);
 }
 
 export function getPost(id: number, board: string): Promise<ChanPost> {
@@ -134,7 +138,7 @@ export function getBoards(): Promise<ChanBoardData> {
             });
             res.on("end", () => {
                 let data = JSON.parse(json);
-                let boardList = {};
+                let boardList: ChanBoardData = {};
 
                 for(let v of data.boards) {
                     boardList[v.board] = {

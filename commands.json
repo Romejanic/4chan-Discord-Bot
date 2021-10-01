@@ -45,6 +45,16 @@
         "description": "Shows a list of all available boards"
     },
 
+    "browse": {
+        "description": "Interactively browse the posts on a board",
+        "options": {
+            "board": {
+                "description": "The board to browse",
+                "type": "string"
+            }
+        }
+    },
+
     "config": {
         "description": "Configure the bot for your server",
         "options": {

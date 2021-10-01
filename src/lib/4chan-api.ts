@@ -23,7 +23,8 @@ export interface ChanReply {
     text: string,
     timestamp: string,
     author: string,
-    image?: string
+    image?: string,
+    permalink: string
 }
 
 export interface ChanBoard {
@@ -109,7 +110,8 @@ export function getRepliesFromThread(thread: ChanPost, board: string): Promise<C
                         text: p.com,
                         timestamp: p.now,
                         author: p.name,
-                        image: p.tim ? format(imgUrl, board, p.tim, p.ext) : undefined
+                        image: p.tim ? format(imgUrl, board, p.tim, p.ext) : undefined,
+                        permalink: format(postUrl, board, `${thread.id}#p${p.no}`)
                     };
                 }));
             });
@@ -264,7 +266,7 @@ async function checkBoardCache() {
     }
 }
 
-export function processPostText(post: ChanPost) {
+export function processPostText(post: ChanPost | ChanReply) {
     let postText = "";
     if(post.text) {
         postText = decode(post.text);

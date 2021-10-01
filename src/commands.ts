@@ -309,37 +309,101 @@ const COMMANDS: CommandHandlers = {
         // create buttons
         let back = createButton("browse_back", STRINGS["boards_back"]);
         let next = createButton("browse_next", STRINGS["boards_next"]);
-
-        let actions = new MessageActionRow().addComponents(
-            back,next
-        );
+        let up   = createButton("browse_up", STRINGS["browse_up"]);
+        let down = createButton("browse_down", STRINGS["browse_down"]);
         
         let embed = new MessageEmbed()
             .setColor(EMBED_COLOR_NORMAL)
-            .setTitle(format(STRINGS["browse_title"], board))
+            .setAuthor(format(STRINGS["browse_title"], board), AVATAR_URL)
             .setFooter(STRINGS["browse_instructions"]);
 
         // create function to update the embed with the current thread
-        let currThread = 0;
-        let currReply  = 0;
+        let currThread: number;
+        let currReply: number;
+        let post: chan.ChanPost;
+        let replies: chan.ChanReply[];
 
-        function setThread(thread: number, reply: number) {
+        async function setThread(thread: number, reply: number) {
+            // clear replies if changing thread and
+            // change post if changing thread
+            if(currThread !== thread) {
+                replies = undefined;
+                post = chan.getPostFromThread(threads[thread], board);
+            }
+
             // update current index
             currThread = thread;
             currReply = reply;
 
             // convert thread to chan post
-            
+            if(reply === 0) {
+                // set embed to post
+                let text = chan.processPostText(post);
+                embed
+                    .setTitle(format(STRINGS["post_title"], post.id, post.author))
+                    .setDescription(format(STRINGS["post_desc_reply"], text, post.permalink))
+                    .setImage(post.image)
+                    .setFields([
+                        {
+                            name: STRINGS["post_submitted"], value: post.timestamp, inline: true
+                        },
+                        {
+                            name: STRINGS["browse_thread"], inline: true,
+                            value: format(STRINGS["boards_pages"], thread+1, threads.length)
+                        },
+                        {
+                            name: STRINGS["browse_replies"], value: String(post.replyCount), inline: true
+                        }
+                    ]);
+            } else {
+                // fetch the replies from 4chan if needed
+                if(!replies) {
+                    replies = await chan.getRepliesFromThread(post, board);
+                }
+                let data = replies[reply-1];
+                let text = chan.processPostText(data);
+
+                // set embed to reply
+                embed
+                    .setTitle(format(STRINGS["post_title"], data.id, data.author))
+                    .setDescription(format(STRINGS["post_desc_reply"], text, data.permalink))
+                    .setImage(data.image ? data.image : null)
+                    .setFields([
+                        {
+                            name: STRINGS["post_submitted"], value: data.timestamp, inline: true
+                        },
+                        {
+                            name: STRINGS["browse_thread"], inline: true,
+                            value: format(STRINGS["boards_pages"], thread+1, threads.length)
+                        },
+                        {
+                            name: STRINGS["browse_reply"], inline: true,
+                            value: format(STRINGS["boards_pages"], reply, post.replyCount)
+                        }
+                    ]);
+            }
+
+            // disable unusable buttons
+            back.setDisabled(thread <= 0);
+            next.setDisabled(thread >= threads.length-1);
+            up.setDisabled(reply <= 0);
+            down.setDisabled(reply >= post.replyCount);
         }
+        await setThread(0,0);
         
         // send the embed
         let message = await ctx.edit({
             embeds: [embed],
-            components: [ actions ]
+            components: [new MessageActionRow().addComponents(
+                back,up,down,next
+            )]
         });
 
         // add interaction collector
-        const filter = (i: ButtonInteraction) => [back.customId, next.customId].includes(i.customId);
+        const filter = (i: ButtonInteraction) => [
+            back.customId, next.customId,
+            up.customId, down.customId
+        ].includes(i.customId);
         const collect = ctx.channel.createMessageComponentCollector({ message, filter, time: 15 * 60 * 1000 });
 
         collect.on("collect", async (i) => {
@@ -352,7 +416,39 @@ const COMMANDS: CommandHandlers = {
                 return await i.reply({ embeds: [embed], ephemeral: true });
             }
 
-            
+            // decide what to do based on button id
+            switch(i.customId) {
+                case "browse_back":
+                    if(currThread > 0) {
+                        await setThread(currThread-1, 0);
+                    }
+                    break;
+                case "browse_next":
+                    if(currThread < threads.length - 1) {
+                        await setThread(currThread+1, 0);
+                    }
+                    break;
+                case "browse_up":
+                    if(currReply > 0) {
+                        await setThread(currThread, currReply-1);
+                    }
+                    break;
+                case "browse_down":
+                    if(!replies || currReply < replies.length) {
+                        await setThread(currThread, currReply+1);
+                    }
+                    break;
+                default:
+                    break;
+            }
+
+            // update the post
+            await i.update({
+                embeds: [embed],
+                components: [new MessageActionRow().addComponents(
+                    back,up,down,next
+                )]
+            });
         });
 
         collect.on("end", () => {

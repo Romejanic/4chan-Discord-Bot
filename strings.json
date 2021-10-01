@@ -28,6 +28,7 @@
     
     "post_title": "{0} by {1}",
     "post_desc": "```{0}```\n[Link to thread]({1})",
+    "post_desc_reply": "```{0}```\n[Link to reply]({1})",
     "post_submitted": "Submitted",
     "post_removal_confirm": "Post removed.",
     "post_removal_desc": "This post was removed by {0}.",
@@ -78,6 +79,9 @@
     "browse_instructions": "⬅️➡️ - change thread ⬆️⬇️ - change reply",
     "browse_notop": "Not the OP!",
     "browse_notop_desc": "Only the original command sender can interact with these buttons.\n\nType `/browse` to create your own browser.",
+    "browse_replies": "Replies",
+    "browse_reply": "Reply",
+    "browse_thread": "Thread",
 
     "config_notserver": "Not a server!",
     "config_notserver_desc": "This command can only be used on a server!\n[Click here](https://discordapp.com/api/oauth2/authorize?client_id=592655834568327179&permissions=124992&scope=bot) to invite to your server.",

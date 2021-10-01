@@ -404,7 +404,7 @@ const COMMANDS: CommandHandlers = {
             back.customId, next.customId,
             up.customId, down.customId
         ].includes(i.customId);
-        const collect = ctx.channel.createMessageComponentCollector({ message, filter, time: 15 * 60 * 1000 });
+        const collect = ctx.channel.createMessageComponentCollector({ message, filter, time: 10 * 60 * 1000 });
 
         collect.on("collect", async (i) => {
             // check if the user is the same as op
@@ -453,10 +453,12 @@ const COMMANDS: CommandHandlers = {
 
         collect.on("end", async () => {
             embed.setFooter(STRINGS["browse_time_limit"]);
-            await ctx.edit({
-                embeds: [embed],
-                components: []
-            });
+            try {
+                await ctx.edit({
+                    embeds: [embed],
+                    components: []
+                });
+            } catch(e) { /* oh well */ }
         });
     },
 

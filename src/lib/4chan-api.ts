@@ -274,6 +274,8 @@ export function processPostText(post: ChanPost | ChanReply) {
         postText = postText.replace(/<br>/gi, "\n");
         postText = postText.replace(/<\/span>/gi, "");
         postText = postText.replace(/<span class=\"quote\">/gi, "");
+        postText = postText.replace(/<\/a>/gi, "");
+        postText = postText.replace(/<a href="[a-z0-9\/#]+" class="quotelink">/gi, "");
     }
     return postText;
 }

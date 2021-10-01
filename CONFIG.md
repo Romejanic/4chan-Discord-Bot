@@ -54,7 +54,7 @@ A board can also be optionally passed. If no board is given, it will use the ser
 |/config subscribe reset|none|Disables the subscription and stops posts being sent to the channel.|
 
 ## Other issues
-If you have a suggestion for a new config options please [create an issue](https://github.com/Romejanic/4chan-Discord-Bot/issues/new) with the `Enhancement` tag and I will consider adding it!
+If you have a suggestion for a new config options please [create an issue](https://github.com/Romejanic/4chan-Discord-Bot/issues/new/choose) with the `Enhancement` tag and I will consider adding it!
 
 If you run into an unexpected issue with your config (e.g. locking the bot in a deleted channel) and you can't fix it with these commands, please send me a message on the [support server](https://discord.gg/fawJ2dTxFS) so I can manually reset your config.
 

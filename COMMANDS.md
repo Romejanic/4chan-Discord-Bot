@@ -11,3 +11,8 @@ All commands are available in Discord by typing `/` and clicking on the 4chan ic
 - `/browse [board] [id]` - Opens a browser for either the given board or the server's default board, allowing you to navigate through threads within Discord. You can optionally pass an ID to open the browser on that specific thread.
 - `/boards` - Gets a list of valid boards on 4chan which can be used by the bot. It will show 8 boards at at time, with arrow buttons under the message to scroll through the list. This list is cached but will update every 20 minutes so it is consistently up to date with 4chan.
 - `/config ...` - Allows you to configure the behaviour of the bot on a per-server basis. This allows for you to somewhat customize the bot and change how it behaves in a way that suits your server. For a guide on using this command [please click here](./CONFIG.md).
+
+## Suggestions
+If you have a suggestion for a new config options please [create an issue](https://github.com/Romejanic/4chan-Discord-Bot/issues/new/choose) with the `Enhancement` tag and I will consider adding it!
+
+Thanks for reading!

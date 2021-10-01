@@ -37,4 +37,9 @@ client.on("guildDelete", (guild) => {
     await client.login();
     console.log("[Bot] Logged into Discord (" + client.user.tag + ")");
 
+    // set status
+    client.user.setActivity("Try /browse now!", {
+        type: "PLAYING"
+    });
+
 })();

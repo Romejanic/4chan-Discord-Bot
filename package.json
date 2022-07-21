@@ -22,7 +22,7 @@
 	"scripts": {
 		"start": "node build/main.js",
 		"dev": "node build/main.js -dev",
-		"async": "pm2 start build/main.js",
+		"async": "pm2 start build/main.js --name 4chan-bot",
 		"build": "tsc",
 		"watch": "tsc -w",
 		"migrate": "node tools/convert-config.js"

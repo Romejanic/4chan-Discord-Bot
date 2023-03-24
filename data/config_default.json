@@ -7,6 +7,8 @@
 		"database": "4chanbot"
 	},
 
+	"monitor_webhook": null,
+
 	"default_board": "g",
 	"prefix": "+4chan",
 	"default_command": "random",

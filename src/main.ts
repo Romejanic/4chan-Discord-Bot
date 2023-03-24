@@ -5,6 +5,7 @@ import './lib/config';
 import './lib/db';
 import { SubscriptionService } from './subscribed';
 import Commands from './commands';
+import sendEvent from './lib/monitoring';
 
 const client = new SlasherClient({
     useAuth: true,
@@ -30,6 +31,8 @@ client.on("guildDelete", (guild) => {
 
 // init the bot
 (async () => {
+    const start = Date.now();
+
     // load stats from file
     await stats.load();
 
@@ -40,6 +43,19 @@ client.on("guildDelete", (guild) => {
     // set status
     client.user.setActivity("Try /browse now!", {
         type: "PLAYING"
+    });
+
+    // send monitor message
+    sendEvent("started", [
+        { name: "User", value: `<@${client.user.id}>` },
+        { name: "Startup time", value: `${Date.now()-start}ms` }
+    ]);
+
+    // add exit listener for monitoring
+    process.on("beforeExit", code => {
+        sendEvent(code === 0 ? "stopped" : "crashed", [
+            { name: "Exit code", value: String(code) }
+        ]);
     });
 
 })();

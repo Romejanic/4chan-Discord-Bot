@@ -12,8 +12,8 @@
 		"email": "jack.davenport5011@gmail.com"
 	},
 	"dependencies": {
-		"discord.js": "^13.1.0",
-		"discord.js-slasher": "^0.4.1",
+		"discord.js": "^14.8.0",
+		"discord.js-slasher": "file:../slasher/discord.js-slasher-0.4.1.tgz",
 		"html-entities": "^2.3.3",
 		"mysql": "^2.18.1",
 		"unescape": "^1.0.1"

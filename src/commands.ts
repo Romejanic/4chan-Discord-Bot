@@ -1,7 +1,11 @@
 import {
-    ButtonInteraction, CategoryChannel, EmbedFieldData, Guild, GuildChannel,
-    GuildMember, Message, MessageActionRow, MessageButton,
-    MessageEmbed, NewsChannel, TextChannel, WebhookEditMessageOptions
+    APIEmbedField,
+    ActionRowBuilder,
+    ButtonBuilder,
+    ButtonInteraction, ButtonStyle, CategoryChannel, ChannelType, Embed, EmbedBuilder, GuildChannel,
+    GuildMember, InteractionEditReplyOptions, Message,
+    MessageEditOptions,
+    NewsChannel, PermissionFlagsBits, TextChannel
 } from "discord.js";
 import { CommandContext } from "discord.js-slasher";
 import * as config from './lib/config';
@@ -9,6 +13,7 @@ import format from './lib/str-format';
 import Stats from "./stats";
 import * as chan from './lib/4chan-api';
 import { SubscriptionService } from "./subscribed";
+import { ComponentType } from "discord.js";
 
 // load strings
 export const STRINGS: { [key: string]: string } = require("../strings.json");
@@ -38,7 +43,7 @@ enum ChannelTypeNames {
 const COMMANDS: CommandHandlers = {
 
     "4chan": async (ctx, lib) => {
-        let embed = new MessageEmbed().setColor(EMBED_COLOR_NORMAL);
+        let embed = new EmbedBuilder().setColor(EMBED_COLOR_NORMAL);
 
         switch(ctx.options.getSubcommand(true)) {
             case "info":
@@ -46,33 +51,37 @@ const COMMANDS: CommandHandlers = {
                 let { heapUsed, heapTotal } = process.memoryUsage();
                 embed.setTitle(STRINGS["info_title"])
                     .setDescription(STRINGS["info_desc"])
-                    .setFooter(STRINGS["info_footer"])
+                    .setFooter({ text: STRINGS["info_footer"] })
                     .setThumbnail(!lib.dev ? AVATAR_URL : AVATAR_URL_DEV)
-                    .addField(STRINGS["info_version"], version, true)
-                    .addField(STRINGS["info_build_type"], STRINGS["info_dev_build_" + lib.dev], true)
-                    .addField(STRINGS["info_used_in"], format(STRINGS["info_servers"], ctx.client.guilds.cache.size), true)
-                    .addField(STRINGS["info_node"], process.version, true)
-                    .addField(STRINGS["info_os"], process.platform, true)
-                    .addField(STRINGS["info_memory"], (100 * heapUsed / heapTotal).toFixed(1) + "%", true)
-                    .addField(STRINGS["info_stats_total"], (lib.stats.totalServed+1).toLocaleString(), true)
-                    .addField(STRINGS["info_stats_daily"], lib.stats.getDailyAverage().toLocaleString(), true)
-                    .addField(STRINGS["info_stats_today"], (lib.stats.todayServed+1).toLocaleString(), true);
+                    .addFields([
+                        { name: STRINGS["info_version"], value: version, inline: true },
+                        { name: STRINGS["info_build_type"], value: STRINGS["info_dev_build_" + lib.dev], inline: true },
+                        { name: STRINGS["info_used_in"], value: format(STRINGS["info_servers"], ctx.client.guilds.cache.size), inline: true },
+                        { name: STRINGS["info_node"], value: process.version, inline: true },
+                        { name: STRINGS["info_os"], value: process.platform, inline: true },
+                        { name: STRINGS["info_memory"], value: (100 * heapUsed / heapTotal).toFixed(1) + "%", inline: true },
+                        { name: STRINGS["info_stats_total"], value: (lib.stats.totalServed+1).toLocaleString(), inline: true },
+                        { name: STRINGS["info_stats_daily"], value: lib.stats.getDailyAverage().toLocaleString(), inline: true },
+                        { name: STRINGS["info_stats_today"], value: (lib.stats.todayServed+1).toLocaleString(), inline: true }
+                    ]);
                 break;
             case "help":
                 embed
-                    .setFooter(STRINGS["help_footer"])
-                    .setAuthor(STRINGS["help_title"], CMD_HELP_IMAGE, CMD_HELP_URL)
-                    .addField(STRINGS["help_cmd"], STRINGS["help_help"], false)
-                    .addField(STRINGS["info_cmd"], STRINGS["info_help"], false)
-                    .addField(STRINGS["boards_cmd"], STRINGS["boards_help"], false)
-                    .addField(STRINGS["random_cmd"], STRINGS["random_help"], false)
-                    .addField(STRINGS["browse_cmd"], STRINGS["browse_help"], false)
-                    .addField(STRINGS["post_cmd"], STRINGS["post_help"], false);
+                    .setFooter({ text: STRINGS["help_footer"] })
+                    .setAuthor({ name: STRINGS["help_title"], iconURL: CMD_HELP_IMAGE, url: CMD_HELP_URL })
+                    .addFields([
+                        { name: STRINGS["help_cmd"], value: STRINGS["help_help"], inline: false },
+                        { name: STRINGS["info_cmd"], value: STRINGS["info_help"], inline: false },
+                        { name: STRINGS["boards_cmd"], value: STRINGS["boards_help"], inline: false },
+                        { name: STRINGS["random_cmd"], value: STRINGS["random_help"], inline: false },
+                        { name: STRINGS["browse_cmd"], value: STRINGS["browse_help"], inline: false },
+                        { name: STRINGS["post_cmd"], value: STRINGS["post_help"], inline: false }
+                    ]);
                 if(ctx.isServer) {
                     let channel = ctx.channel as GuildChannel;
-                    let canEdit = channel.permissionsFor(ctx.user).has("MANAGE_GUILD");
+                    let canEdit = channel.permissionsFor(ctx.user).has(PermissionFlagsBits.ManageGuild);
                     if(canEdit) {
-                        embed.addField(STRINGS["config_cmd"], STRINGS["config_help"], false);
+                        embed.addFields({ name: STRINGS["config_cmd"], value: STRINGS["config_help"], inline: false });
                     }
                 }
                 break;
@@ -94,20 +103,22 @@ const COMMANDS: CommandHandlers = {
         let updateMins = Math.floor((Date.now() - cache.updated) / 60000);
 
         // create embed and buttons
-        let embed = new MessageEmbed()
+        const backButtonId = "boards_back";
+        const nextButtonId = "boards_next";
+        let embed = new EmbedBuilder()
             .setColor(EMBED_COLOR_NORMAL)
             .setTitle(STRINGS["boards_title"])
-            .setFooter(format(STRINGS["boards_updated"], updateMins));
-        let backButton = new MessageButton()
-            .setStyle(1)
-            .setCustomId("boards_back")
+            .setFooter({ text: format(STRINGS["boards_updated"], updateMins) });
+        let backButton = new ButtonBuilder()
+            .setStyle(ButtonStyle.Primary)
+            .setCustomId(backButtonId)
             .setEmoji(STRINGS["boards_back"]);
-        let nextButton = new MessageButton()
-            .setStyle(1)
-            .setCustomId("boards_next")
+        let nextButton = new ButtonBuilder()
+            .setStyle(ButtonStyle.Primary)
+            .setCustomId(nextButtonId)
             .setEmoji(STRINGS["boards_next"]);
-        let countButton = new MessageButton()
-            .setStyle(2)
+        let countButton = new ButtonBuilder()
+            .setStyle(ButtonStyle.Secondary)
             .setCustomId("boards_count")
             .setDisabled(true);
 
@@ -123,7 +134,7 @@ const COMMANDS: CommandHandlers = {
             let arr = names.slice(pageNo * boardsPerPage, end);
         
             // set fields
-            let fields: EmbedFieldData[] = arr.map(n => {
+            let fields: APIEmbedField[] = arr.map(n => {
                 return {
                     name: `/${n}/`,
                     value: "`" + boards[n].title + "`" + (boards[n].nsfw ? " (NSFW)" : ""),
@@ -140,28 +151,32 @@ const COMMANDS: CommandHandlers = {
         populateList(0);
 
         // send the initial message
-        let data: WebhookEditMessageOptions = {
+        let data: InteractionEditReplyOptions = {
             embeds: [ embed ],
             components: [
-                new MessageActionRow().addComponents(backButton, countButton, nextButton)
+                new ActionRowBuilder<ButtonBuilder>()
+                    .addComponents(backButton, countButton, nextButton)
             ]
         };
         let message = await ctx.edit(data);
 
         // create message component collector to detect when the buttons
         // are pressed
-        const filter  = (i: ButtonInteraction) => [backButton.customId, nextButton.customId].includes(i.customId);
-        const collect = ctx.channel.createMessageComponentCollector({ message, filter, time: 5 * 60 * 1000 });
+        const filter  = (i: ButtonInteraction) => [backButtonId, nextButtonId].includes(i.customId);
+        const collect = ctx.channel.createMessageComponentCollector({
+            componentType: ComponentType.Button,
+            message, filter, time: 5 * 60 * 1000
+        });
 
         collect.on("collect", async (btn: ButtonInteraction) => {
-            if(btn.customId === "boards_back" && currPage > 0) {
+            if(btn.customId === backButtonId && currPage > 0) {
                 populateList(currPage - 1);
             }
-            if(btn.customId === "boards_next" && currPage < pages - 1) {
+            if(btn.customId === nextButtonId && currPage < pages - 1) {
                 populateList(currPage + 1);
             }
             data.components = [
-                new MessageActionRow().addComponents(backButton, countButton, nextButton)
+                new ActionRowBuilder<ButtonBuilder>().addComponents(backButton, countButton, nextButton)
             ];
             await btn.update(data);
         });
@@ -169,7 +184,7 @@ const COMMANDS: CommandHandlers = {
         collect.on("end", async () => {
             // remove buttons once time expires
             data.components = [];
-            embed.setFooter("Page " + countButton.label);
+            embed.setFooter({ text: "Page " + countButton.data.label });
             await ctx.edit(data);
         });
     },
@@ -188,7 +203,7 @@ const COMMANDS: CommandHandlers = {
         // check if board exists
         const [ exists, nsfw ] = await chan.validateBoard(board);
         if(!exists) {
-            let embed = new MessageEmbed()
+            let embed = new EmbedBuilder()
                 .setColor(EMBED_COLOR_ERROR)
                 .setTitle(STRINGS["random_noboard"])
                 .setDescription(format(STRINGS["random_noboard_desc"], board));
@@ -198,7 +213,7 @@ const COMMANDS: CommandHandlers = {
 
         // if the board is NSFW, check if this is a NSFW channel first
         if(!ctx.isDM && nsfw && !(ctx.channel as TextChannel).nsfw) {
-            let embed = new MessageEmbed()
+            let embed = new EmbedBuilder()
                 .setColor(EMBED_COLOR_ERROR)
                 .setTitle(STRINGS["nsfw_required"])
                 .setDescription(format(STRINGS["nsfw_required_desc"], board));
@@ -211,7 +226,7 @@ const COMMANDS: CommandHandlers = {
             await sendPost(post, ctx, lib);
         } catch(err) {
             // notify the user of the error
-            let embed = new MessageEmbed().setColor(EMBED_COLOR_ERROR);
+            let embed = new EmbedBuilder().setColor(EMBED_COLOR_ERROR);
             if(err.board_not_found) {
                 embed
                 .setTitle(STRINGS["random_noboard"])
@@ -238,7 +253,7 @@ const COMMANDS: CommandHandlers = {
 
         // validate the board
         if(!exists) {
-            let embed = new MessageEmbed()
+            let embed = new EmbedBuilder()
                 .setColor(EMBED_COLOR_ERROR)
                 .setTitle(STRINGS["random_noboard"])
                 .setDescription(format(STRINGS["random_noboard_desc"], board));
@@ -248,7 +263,7 @@ const COMMANDS: CommandHandlers = {
         
         // if the board is NSFW, check if this is a NSFW channel first
         if(!ctx.isDM && nsfw && !(ctx.channel as TextChannel).nsfw) {
-            let embed = new MessageEmbed()
+            let embed = new EmbedBuilder()
                 .setColor(EMBED_COLOR_ERROR)
                 .setTitle(STRINGS["nsfw_required"])
                 .setDescription(format(STRINGS["nsfw_required_desc"], board));
@@ -263,7 +278,7 @@ const COMMANDS: CommandHandlers = {
 
         } catch(err) {
             // send appropriate error message to user
-            let embed = new MessageEmbed().setColor(EMBED_COLOR_ERROR);
+            let embed = new EmbedBuilder().setColor(EMBED_COLOR_ERROR);
             if(err.post_not_found) {
                 embed
                 .setTitle(STRINGS["post_nopost"])
@@ -291,7 +306,7 @@ const COMMANDS: CommandHandlers = {
         // check if board exists
         const [ exists, nsfw ] = await chan.validateBoard(board);
         if(!exists) {
-            let embed = new MessageEmbed()
+            let embed = new EmbedBuilder()
                 .setColor(EMBED_COLOR_ERROR)
                 .setTitle(STRINGS["random_noboard"])
                 .setDescription(format(STRINGS["random_noboard_desc"], board));
@@ -301,7 +316,7 @@ const COMMANDS: CommandHandlers = {
 
         // if the board is NSFW, check if this is a NSFW channel first
         if(!ctx.isDM && nsfw && !(ctx.channel as TextChannel).nsfw) {
-            let embed = new MessageEmbed()
+            let embed = new EmbedBuilder()
                 .setColor(EMBED_COLOR_ERROR)
                 .setTitle(STRINGS["nsfw_required"])
                 .setDescription(format(STRINGS["nsfw_required_desc"], board));
@@ -315,16 +330,21 @@ const COMMANDS: CommandHandlers = {
         }, []);
 
         // create buttons
-        let back  = createButton("browse_back", STRINGS["boards_back"]);
-        let next  = createButton("browse_next", STRINGS["boards_next"]);
-        let up    = createButton("browse_up", STRINGS["browse_up"]);
-        let down  = createButton("browse_down", STRINGS["browse_down"]);
-        let close = createButton("browse_close", STRINGS["browse_close"], false, true); 
+        const backId  = "browse_back";
+        const nextId  = "browse_next";
+        const upId    = "browse_up";
+        const downId  = "browse_down";
+        const closeId = "browse_close";
+        let back  = createButton(backId, STRINGS["boards_back"]);
+        let next  = createButton(nextId, STRINGS["boards_next"]);
+        let up    = createButton(upId, STRINGS["browse_up"]);
+        let down  = createButton(downId, STRINGS["browse_down"]);
+        let close = createButton(closeId, STRINGS["browse_close"], false, true); 
         
-        let embed = new MessageEmbed()
+        let embed = new EmbedBuilder()
             .setColor(EMBED_COLOR_NORMAL)
-            .setAuthor(format(STRINGS["browse_title"], board), AVATAR_URL)
-            .setFooter(STRINGS["browse_instructions"]);
+            .setAuthor({ name: format(STRINGS["browse_title"], board), iconURL: AVATAR_URL })
+            .setFooter({ text: STRINGS["browse_instructions"] });
 
         // create function to update the embed with the current thread
         let currThread: number;
@@ -412,7 +432,7 @@ const COMMANDS: CommandHandlers = {
         await setThread(initalThread,0);
         
         // send the embed
-        let row = new MessageActionRow().addComponents(
+        let row = new ActionRowBuilder<ButtonBuilder>().addComponents(
             back,up,close,down,next
         );
         let message = await ctx.edit({
@@ -421,44 +441,48 @@ const COMMANDS: CommandHandlers = {
         });
 
         // add interaction collector
-        const filter = (i: ButtonInteraction) => row.components.map(c => c.customId).includes(i.customId);
-        const collect = ctx.channel.createMessageComponentCollector({ message, filter, time: 10 * 60 * 1000 });
+        const filter = (i: ButtonInteraction) => [backId,nextId,upId,downId,closeId].includes(i.customId);
+        const collect = ctx.channel.createMessageComponentCollector({
+            componentType: ComponentType.Button,
+            message, filter, time: 10 * 60 * 1000
+        });
 
         collect.on("collect", async (i) => {
             // check if the user is the same as op
             if(i.user.id !== ctx.user.id) {
-                let embed = new MessageEmbed()
+                let embed = new EmbedBuilder()
                     .setColor(EMBED_COLOR_ERROR)
                     .setTitle(STRINGS["browse_notop"])
                     .setDescription(STRINGS["browse_notop_desc"]);
-                return await i.reply({ embeds: [embed], ephemeral: true });
+                await i.reply({ embeds: [embed], ephemeral: true });
+                return;
             }
 
             // decide what to do based on button id
             switch(i.customId) {
-                case "browse_back":
+                case backId:
                     if(currThread > 0) {
                         await setThread(currThread-1, 0);
                     }
                     break;
-                case "browse_next":
+                case nextId:
                     if(currThread < threads.length - 1) {
                         await setThread(currThread+1, 0);
                     }
                     break;
-                case "browse_up":
+                case upId:
                     if(currReply > 0) {
                         await setThread(currThread, currReply-1);
                     }
                     break;
-                case "browse_down":
+                case downId:
                     if(!replies || currReply < replies.length) {
                         await setThread(currThread, currReply+1);
                     }
                     break;
-                case "browse_close":
+                case closeId:
                     // edit the embed
-                    embed = new MessageEmbed()
+                    embed = new EmbedBuilder()
                         .setColor(EMBED_COLOR_ERROR)
                         .setTitle(STRINGS["browse_close_title"])
                         .setDescription(format(STRINGS["browse_close_desc"], board));
@@ -476,7 +500,7 @@ const COMMANDS: CommandHandlers = {
             // update the post
             await i.update({
                 embeds: [embed],
-                components: [new MessageActionRow().addComponents(
+                components: [new ActionRowBuilder<ButtonBuilder>().addComponents(
                     back,up,close,down,next
                 )]
             });
@@ -484,7 +508,7 @@ const COMMANDS: CommandHandlers = {
 
         collect.on("end", async (_, reason) => {
             if(reason !== "closed") {
-                embed.setFooter(STRINGS["browse_time_limit"]);
+                embed.setFooter({ text: STRINGS["browse_time_limit"] });
                 try {
                     await ctx.edit({
                         embeds: [embed],
@@ -498,7 +522,7 @@ const COMMANDS: CommandHandlers = {
     "config": async(ctx, lib) => {
         // check if we're on a server
         if(!ctx.isServer) {
-            let embed = new MessageEmbed()
+            let embed = new EmbedBuilder()
                 .setColor(EMBED_COLOR_ERROR)
                 .setTitle(STRINGS["config_notserver"])
                 .setDescription(STRINGS["config_notserver_desc"]);
@@ -506,8 +530,8 @@ const COMMANDS: CommandHandlers = {
         }
 
         // check if the sender is an admin
-        if(!ctx.server.member.permissions.has("MANAGE_GUILD")) {
-            let embed = new MessageEmbed()
+        if(!ctx.server.member.permissions.has(PermissionFlagsBits.ManageGuild)) {
+            let embed = new EmbedBuilder()
                 .setColor(EMBED_COLOR_ERROR)
                 .setTitle(STRINGS["config_notadmin"])
                 .setDescription(STRINGS["config_notadmin_desc"]);
@@ -527,7 +551,7 @@ const COMMANDS: CommandHandlers = {
                     let exists = await chan.validateBoard(board);
                     
                     if(!exists) {
-                        let embed = new MessageEmbed()
+                        let embed = new EmbedBuilder()
                             .setColor(EMBED_COLOR_ERROR)
                             .setTitle(STRINGS["random_noboard"])
                             .setDescription(format(STRINGS["random_noboard_desc"], board));
@@ -538,13 +562,13 @@ const COMMANDS: CommandHandlers = {
                     // set the board and alert the user
                     try {
                         await lib.config.setDefaultBoard(board);
-                        let embed = new MessageEmbed()
+                        let embed = new EmbedBuilder()
                             .setColor(EMBED_COLOR_SUCCESS)
                             .setTitle(STRINGS["config_changed"])
                             .setDescription(format(STRINGS["config_default_board_set"], lib.config.getDefaultBoard()));
                         await ctx.edit(embed);
                     } catch(e) {
-                        let embed = new MessageEmbed()
+                        let embed = new EmbedBuilder()
                             .setColor(EMBED_COLOR_ERROR)
                             .setTitle(STRINGS["config_unknown_error"])
                             .setDescription(format(STRINGS["config_unknown_error_desc"], e));
@@ -555,13 +579,13 @@ const COMMANDS: CommandHandlers = {
                     // reset the config and alert user
                     try {
                         await lib.config.setDefaultBoard(null);
-                        let embed = new MessageEmbed()
+                        let embed = new EmbedBuilder()
                             .setColor(EMBED_COLOR_SUCCESS)
                             .setTitle(STRINGS["config_cleared"])
                             .setDescription(format(STRINGS["config_default_board_clear"], lib.config.getDefaultBoard()));
                         await ctx.edit(embed);
                     } catch(e) {
-                        let embed = new MessageEmbed()
+                        let embed = new EmbedBuilder()
                             .setColor(EMBED_COLOR_ERROR)
                             .setTitle(STRINGS["config_unknown_error"])
                             .setDescription(format(STRINGS["config_unknown_error_desc"], e));
@@ -570,7 +594,7 @@ const COMMANDS: CommandHandlers = {
                     }
                 } else if(action === "get") {
                     // send embed
-                    let embed = new MessageEmbed()
+                    let embed = new EmbedBuilder()
                         .setColor(EMBED_COLOR_NORMAL)
                         .setTitle(STRINGS["config_default_board_title"])
                         .setDescription(format(STRINGS["config_default_board_description"], lib.config.getDisplayValue("default_board", STRINGS)));
@@ -584,7 +608,7 @@ const COMMANDS: CommandHandlers = {
 
                     // validate user input
                     if(seconds !== 0 && (seconds < 10 || seconds > 300)) {
-                        let embed = new MessageEmbed()
+                        let embed = new EmbedBuilder()
                             .setColor(EMBED_COLOR_ERROR)
                             .setTitle(STRINGS["config_invalid"])
                             .setDescription(format(STRINGS["config_removal_time_invalid"], seconds));
@@ -602,13 +626,13 @@ const COMMANDS: CommandHandlers = {
                         let desc = seconds == -1
                             ? STRINGS["config_removal_time_disabled"]
                             : format(STRINGS["config_removal_time_set"], lib.config.getRemovalTime());
-                        let embed = new MessageEmbed()
+                        let embed = new EmbedBuilder()
                             .setColor(EMBED_COLOR_SUCCESS)
                             .setTitle(STRINGS["config_changed"])
                             .setDescription(desc);
                         await ctx.edit(embed);
                     } catch(e) {
-                        let embed = new MessageEmbed()
+                        let embed = new EmbedBuilder()
                             .setColor(EMBED_COLOR_ERROR)
                             .setTitle(STRINGS["config_unknown_error"])
                             .setDescription(format(STRINGS["config_unknown_error_desc"], e));
@@ -619,13 +643,13 @@ const COMMANDS: CommandHandlers = {
                     // reset the config and alert user
                     try {
                         await lib.config.setRemovalTime(null);
-                        let embed = new MessageEmbed()
+                        let embed = new EmbedBuilder()
                             .setColor(EMBED_COLOR_SUCCESS)
                             .setTitle(STRINGS["config_cleared"])
                             .setDescription(format(STRINGS["config_removal_time_clear"], lib.config.getRemovalTime()));
                         await ctx.edit(embed);
                     } catch(e) {
-                        let embed = new MessageEmbed()
+                        let embed = new EmbedBuilder()
                             .setColor(EMBED_COLOR_ERROR)
                             .setTitle(STRINGS["config_unknown_error"])
                             .setDescription(format(STRINGS["config_unknown_error_desc"], e));
@@ -634,7 +658,7 @@ const COMMANDS: CommandHandlers = {
                     }
                 } else if(action === "get") {
                     // send embed
-                    let embed = new MessageEmbed()
+                    let embed = new EmbedBuilder()
                         .setColor(EMBED_COLOR_NORMAL)
                         .setTitle(STRINGS["config_removal_time_title"])
                         .setDescription(format(STRINGS["config_removal_time_description"], lib.config.getDisplayValue("removal_time", STRINGS)));
@@ -648,20 +672,20 @@ const COMMANDS: CommandHandlers = {
                     let channels: TextChannel[] = [];
 
                     // validate the channel and get a list of selected channels
-                    if(selectedChannel.type === "GUILD_TEXT") {
+                    if(selectedChannel.type === ChannelType.GuildText) {
                         // add the channel as a text channel
                         channels.push(selectedChannel as TextChannel);
-                    } else if(selectedChannel.type === "GUILD_CATEGORY") {
+                    } else if(selectedChannel.type === ChannelType.GuildCategory) {
                         // add all text channels in the category
                         let category = selectedChannel as CategoryChannel;
                         channels.push(
-                            ...category.children
-                                .filter(c => c.type === "GUILD_TEXT")
+                            ...category.children.cache
+                                .filter(c => c.type === ChannelType.GuildText)
                                 .map(c => c as TextChannel)
                         );
                     } else {
                         // invalid channel type, show error
-                        let embed = new MessageEmbed()
+                        let embed = new EmbedBuilder()
                             .setColor(EMBED_COLOR_ERROR)
                             .setTitle(STRINGS["config_restricted_channels_invalid"])
                             .setDescription(format(STRINGS["config_restricted_channels_invalid_desc"], ChannelTypeNames[selectedChannel.type].toLowerCase()));
@@ -670,7 +694,7 @@ const COMMANDS: CommandHandlers = {
 
                     // if channel list is empty, then the category had no valid channels
                     if(channels.length < 1) {
-                        let embed = new MessageEmbed()
+                        let embed = new EmbedBuilder()
                             .setColor(EMBED_COLOR_ERROR)
                             .setTitle(STRINGS["config_restricted_channels_invalid"])
                             .setDescription(format(STRINGS["config_restricted_channels_invalid_category"], selectedChannel.name));
@@ -695,7 +719,7 @@ const COMMANDS: CommandHandlers = {
                     }
 
                     // create embed and reply
-                    let embed = new MessageEmbed()
+                    let embed = new EmbedBuilder()
                         .setColor(EMBED_COLOR_SUCCESS)
                         .setTitle(STRINGS["config_changed"])
                         .setDescription(channelListString);
@@ -705,13 +729,13 @@ const COMMANDS: CommandHandlers = {
                     // reset the config and alert user
                     try {
                         await lib.config.clearAllowedChannels();
-                        let embed = new MessageEmbed()
+                        let embed = new EmbedBuilder()
                             .setColor(EMBED_COLOR_SUCCESS)
                             .setTitle(STRINGS["config_cleared"])
                             .setDescription(STRINGS["config_restricted_channels_reset"]);
                         await ctx.edit(embed);
                     } catch(e) {
-                        let embed = new MessageEmbed()
+                        let embed = new EmbedBuilder()
                             .setColor(EMBED_COLOR_ERROR)
                             .setTitle(STRINGS["config_unknown_error"])
                             .setDescription(format(STRINGS["config_unknown_error_desc"], e));
@@ -720,7 +744,7 @@ const COMMANDS: CommandHandlers = {
                     }
                 } else if(action === "get") {
                     // send embed
-                    let embed = new MessageEmbed()
+                    let embed = new EmbedBuilder()
                         .setColor(EMBED_COLOR_NORMAL)
                         .setTitle(STRINGS["config_restricted_channels_title"])
                         .setDescription(lib.config.getDisplayValue("allowed_channels", STRINGS, ctx.server.guild));
@@ -731,8 +755,8 @@ const COMMANDS: CommandHandlers = {
                 if(action === "set") {
                     // validate the channel
                     let channel = ctx.options.getChannel("channel", true);
-                    if(channel.type !== "GUILD_TEXT" && channel.type !== "GUILD_NEWS") {
-                        let embed = new MessageEmbed()
+                    if(channel.type !== ChannelType.GuildText) {
+                        let embed = new EmbedBuilder()
                             .setColor(EMBED_COLOR_ERROR)
                             .setTitle(STRINGS["config_subscribe_invalid_channel"])
                             .setDescription(format(STRINGS["config_subscrive_invalid_channel_desc"], ChannelTypeNames[channel.type]));
@@ -742,7 +766,7 @@ const COMMANDS: CommandHandlers = {
                     // validate the interval
                     let interval = ctx.options.getInteger("time", true);
                     if(interval < 1 || interval > 10080) {
-                        let embed = new MessageEmbed()
+                        let embed = new EmbedBuilder()
                             .setColor(EMBED_COLOR_ERROR)
                             .setTitle(STRINGS["config_subscribe_invalid_interval"])
                             .setDescription(STRINGS["config_subscribe_invalid_interval_desc"]);
@@ -763,14 +787,14 @@ const COMMANDS: CommandHandlers = {
                     const [ exists, nsfw ] = await chan.validateBoard(board);
                     if(!exists) {
                         // the board does not exist
-                        let embed = new MessageEmbed()
+                        let embed = new EmbedBuilder()
                             .setColor(EMBED_COLOR_ERROR)
                             .setTitle(STRINGS["config_subscribe_invalid_board"])
                             .setDescription(format(STRINGS["random_noboard_desc"], board));
                         return await ctx.edit(embed);
                     } else if(nsfw && !(channel as TextChannel | NewsChannel).nsfw) {
                         // the board is nsfw but the target channel is not nsfw
-                        let embed = new MessageEmbed()
+                        let embed = new EmbedBuilder()
                             .setColor(EMBED_COLOR_ERROR)
                             .setTitle(STRINGS["config_subscribe_invalid_channel"])
                             .setDescription(format(STRINGS["config_subscribe_invalid_channel_nsfw"], board));
@@ -782,24 +806,24 @@ const COMMANDS: CommandHandlers = {
                     lib.subscribed.addSubscription(ctx.server.id, lib.config.getSubscription());
 
                     // notify the user
-                    let embed = new MessageEmbed()
+                    let embed = new EmbedBuilder()
                         .setColor(EMBED_COLOR_SUCCESS)
                         .setTitle(STRINGS["config_subscribe_done"])
                         .setDescription(format(STRINGS["config_subscribe_done_desc"], board));
                     if(defaultBoard) {
-                        embed.addField(STRINGS["config_subscribe_note"], STRINGS["config_subscribe_note_desc"]);
+                        embed.addFields({ name: STRINGS["config_subscribe_note"], value: STRINGS["config_subscribe_note_desc"] });
                     }
                     await ctx.edit(embed);
                 } else if(action === "get") {
                     // create embed from data
-                    let embed = new MessageEmbed()
+                    let embed = new EmbedBuilder()
                         .setColor(EMBED_COLOR_NORMAL)
                         .setTitle(STRINGS["config_subscribe_title"])
                         .setDescription(STRINGS["config_subscribe_desc"]);
                     let data = lib.config.getSubscription();
                     if(data) {
                         // add channel field to the embed
-                        embed.addField(STRINGS["config_subscribe_channel"], format(STRINGS["config_subscribe_channel_value"], data.getChannel()), true);
+                        embed.addFields({ name: STRINGS["config_subscribe_channel"], value: format(STRINGS["config_subscribe_channel_value"], data.getChannel()), inline: true });
 
                         // get correct display interval
                         let mins = data.getInterval();
@@ -815,7 +839,7 @@ const COMMANDS: CommandHandlers = {
                         if(mins > 0) {
                             displayInterval += format(STRINGS["config_subscribe_interval_value_min"], mins, STRINGS["plural_" + (mins > 1)]);
                         }
-                        embed.addField(STRINGS["config_subscribe_interval"], displayInterval.toLowerCase(), true);
+                        embed.addFields({ name: STRINGS["config_subscribe_interval"], value: displayInterval.toLowerCase(), inline: true });
 
                         // get correct display for board value
                         let board: string;
@@ -824,10 +848,10 @@ const COMMANDS: CommandHandlers = {
                         } else {
                             board = format(STRINGS["config_help_default"], format(STRINGS["config_subscribe_board_value"], lib.config.getDefaultBoard()));
                         }
-                        embed.addField(STRINGS["config_subscribe_board"], board, true);
+                        embed.addFields({ name: STRINGS["config_subscribe_board"], value: board, inline: true });
                     } else {
                         // tell user it is not set
-                        embed.addField(STRINGS["config_subscribe_notset"], STRINGS["config_subscribe_toset"]);
+                        embed.addFields({ name: STRINGS["config_subscribe_notset"], value: STRINGS["config_subscribe_toset"] });
                     }
 
                     await ctx.edit(embed);
@@ -838,7 +862,7 @@ const COMMANDS: CommandHandlers = {
                     lib.subscribed.removeSubscription(ctx.server.id);
 
                     // send embed
-                    let embed = new MessageEmbed()
+                    let embed = new EmbedBuilder()
                         .setColor(EMBED_COLOR_SUCCESS)
                         .setTitle(STRINGS["config_cleared"])
                         .setDescription(format(STRINGS["config_subscribe_reset"], channelId));
@@ -859,21 +883,22 @@ async function sendPost(post: chan.ChanPost, ctx: CommandContext, lib: Libs): Pr
     let postText = chan.processPostText(post);
 
     // create basic embed
-    let embed = new MessageEmbed()
+    let embed = new EmbedBuilder()
         .setColor(EMBED_COLOR_NORMAL)
         .setTitle(format(STRINGS["post_title"], post.id, post.author))
         .setDescription(format(STRINGS["post_desc"], postText, post.permalink))
         .setImage(post.image)
-        .addField(STRINGS["post_submitted"], post.timestamp);
-    let data: WebhookEditMessageOptions = { embeds: [embed] };
+        .addFields({ name: STRINGS["post_submitted"], value: post.timestamp });
+    let data: MessageEditOptions = { embeds: [embed] };
 
     // add removal instructions and buttons
-    let removalEnabled = lib.config.getRemovalTime() > 0;
+    const removalEnabled = lib.config.getRemovalTime() > 0;
+    const removeBtnId = "post_remove";
     if(removalEnabled) {
         data.components = [
-            new MessageActionRow().addComponents(
-                new MessageButton()
-                    .setCustomId("post_remove")
+            new ActionRowBuilder<ButtonBuilder>().addComponents(
+                new ButtonBuilder()
+                    .setCustomId(removeBtnId)
                     .setStyle(4)
                     .setLabel(STRINGS["post_remove"])
             )
@@ -888,16 +913,18 @@ async function sendPost(post: chan.ChanPost, ctx: CommandContext, lib: Libs): Pr
         let removal_time = lib.config.getRemovalTime();
 
         // create collector for button presses
-        const filter  = (i: ButtonInteraction) => i.customId === "post_remove";
-        const collect = ctx.channel.createMessageComponentCollector({ filter, message, time: removal_time * 1000 });
+        const filter  = (i: ButtonInteraction) => i.customId === removeBtnId;
+        const collect = ctx.channel.createMessageComponentCollector({
+            componentType: ComponentType.Button,
+            filter, message, time: removal_time * 1000
+        });
 
         collect.on("collect", async (btn) => {
             // check the user clicking the button is the sender
-            let channel = btn.channel as GuildChannel;
-            let isAdmin = ctx.isServer && (btn.member as GuildMember).permissionsIn(channel).has("MANAGE_MESSAGES");
+            let isAdmin = ctx.isServer && (btn.member as GuildMember).permissionsIn(btn.channel).has(PermissionFlagsBits.ManageMessages);
             if(btn.user.id !== ctx.user.id && !isAdmin) {
                 await btn.reply({ embeds: [
-                    new MessageEmbed()
+                    new EmbedBuilder()
                         .setColor(EMBED_COLOR_ERROR)
                         .setTitle(STRINGS["post_remove_notop"])
                         .setDescription(STRINGS["post_remove_notop_desc"])
@@ -907,7 +934,7 @@ async function sendPost(post: chan.ChanPost, ctx: CommandContext, lib: Libs): Pr
 
             // edit the embed and remove the buttons
             let remover = btn.user.id === ctx.user.id ? "op" : "admin";
-            let embed = new MessageEmbed()
+            let embed = new EmbedBuilder()
                 .setColor(EMBED_COLOR_ERROR)
                 .setTitle(STRINGS["post_removal_confirm"])
                 .setDescription(format(STRINGS["post_removal_desc"], STRINGS["post_removal_" + remover]));
@@ -927,12 +954,13 @@ async function sendPost(post: chan.ChanPost, ctx: CommandContext, lib: Libs): Pr
     }
 }
 
-function createButton(id: string, emoji: string, red = false, text = false): MessageButton {
-    return new MessageButton()
+function createButton(id: string, emoji: string, red = false, text = false): ButtonBuilder {
+    const btn = new ButtonBuilder()
         .setCustomId(id)
-        .setEmoji(!text ? emoji : null)
-        .setLabel(text ? emoji : "")
-        .setStyle(red ? 4 : text ? 2 : 1);
+        .setStyle(red ? ButtonStyle.Danger : text ? ButtonStyle.Secondary : ButtonStyle.Primary);
+    if(!text) btn.setEmoji(emoji);
+    else btn.setLabel(emoji);
+    return btn;
 }
 
 export default {
@@ -944,7 +972,7 @@ export default {
         try {
             // if channel isn't allowed, respond with error
             if(!cfg.isChannelValid(ctx.channel.id)) {
-                let embed = new MessageEmbed()
+                let embed = new EmbedBuilder()
                     .setColor(EMBED_COLOR_ERROR)
                     .setTitle(STRINGS["restricted_channel"])
                     .setDescription(cfg.getDisplayValue("allowed_channels", STRINGS, ctx.server.guild));
@@ -962,7 +990,7 @@ export default {
             // if in dev environment, print the error
             if(dev) console.error(e);
             // notify the user that something went wrong
-            let embed = new MessageEmbed()
+            let embed = new EmbedBuilder()
                 .setTitle("Error running command!")
                 .setDescription(format(STRINGS["random_error_desc"], e))
                 .setColor(EMBED_COLOR_ERROR);
@@ -977,15 +1005,15 @@ export default {
         if(msg.author.bot) return;
         // create embed if prefix is used
         if(await startsWithPrefix(msg)) {
-            let embed = new MessageEmbed()
+            let embed = new EmbedBuilder()
                 .setTitle("Slash commands required!")
                 .setDescription("This bot has migrated to slash commands!\nType `/4chan help` for a list of commands.")
                 .setColor(EMBED_COLOR_ERROR);
-            let button = new MessageButton()
-                .setStyle("LINK")
+            let button = new ButtonBuilder()
+                .setStyle(ButtonStyle.Link)
                 .setLabel("Learn More")
                 .setURL("https://github.com/Romejanic/4chan-Discord-Bot/blob/master/SLASH-COMMANDS.md");
-                await msg.channel.send({ embeds: [embed], components: [new MessageActionRow().addComponents(button)] });
+                await msg.channel.send({ embeds: [embed], components: [new ActionRowBuilder<ButtonBuilder>().addComponents(button)] });
         }
     }
 
@@ -993,7 +1021,7 @@ export default {
 
 async function startsWithPrefix(msg: Message) {
     // if it's a dm channel, always return true
-    if(msg.channel.type === "DM") return true;
+    if(msg.channel.isDMBased()) return true;
 
     // check if prefix matches
     let prefix = (await config.forServer(msg.guild ? msg.guild.id : null)).getPrefix();

@@ -1,4 +1,4 @@
-import { Client, TextChannel, MessageEmbed } from "discord.js";
+import { Client, EmbedBuilder, TextChannel } from "discord.js";
 import { EventEmitter } from 'events';
 import * as fs from 'fs';
 import * as db from './lib/db';
@@ -174,13 +174,13 @@ async function sendRandomPost(channel: TextChannel, board: string) {
     let postText = chan.processPostText(post);
 
     // create basic embed
-    let embed = new MessageEmbed()
+    let embed = new EmbedBuilder()
         .setColor(EMBED_COLOR_NORMAL)
         .setTitle(format(STRINGS["post_title"], post.id, post.author))
         .setDescription(format(STRINGS["post_desc"], postText, post.permalink))
-        .setFooter(STRINGS["post_scheduled_footer"])
+        .setFooter({ text: STRINGS["post_scheduled_footer"] })
         .setImage(post.image)
-        .addField(STRINGS["post_submitted"], post.timestamp);
+        .addFields({ name: STRINGS["post_submitted"], value: post.timestamp });
 
     // send message to channel
     await channel.send({ embeds: [embed] });

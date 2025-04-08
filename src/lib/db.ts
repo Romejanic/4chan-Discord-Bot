@@ -2,7 +2,7 @@ import * as mysql from 'mysql';
 import { SubscriptionList } from '../subscribed';
 import { Subscription } from './config';
 
-const auth = require("../../config.json").db;
+const auth = require("./config.json").db;
 
 const pool = mysql.createPool({
     user: auth.user,

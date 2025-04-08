@@ -5,6 +5,8 @@
         "resolveJsonModule": true,
         "module": "commonjs",
         "target": "ES2015",
+        "skipLibCheck": true,
+        "types": []
     },
     "exclude": [
         "build/**/*"

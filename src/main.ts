@@ -27,6 +27,10 @@ client.on("guildDelete", (guild) => {
     scheduled.removeSubscription(guild.id);
 });
 
+client.on("error", (err) => {
+    console.error("[Client] Error:", err);
+});
+
 // init the bot
 (async () => {
     // load stats from file

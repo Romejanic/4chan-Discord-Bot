@@ -1,4 +1,4 @@
-import { ActionRowBuilder, APIEmbedField, ButtonBuilder, ButtonInteraction, ButtonStyle, CategoryChannel, ChannelType, ComponentType, EmbedBuilder, EmbedData, GuildChannel, GuildMember, InteractionEditReplyOptions, Message, NewsChannel, TextChannel } from "discord.js";
+import { ActionRowBuilder, APIEmbedField, ButtonBuilder, ButtonInteraction, ButtonStyle, CategoryChannel, ChannelType, ComponentType, EmbedBuilder, GuildChannel, GuildMember, InteractionEditReplyOptions, Message, MessageFlags, NewsChannel, TextChannel } from "discord.js";
 import { CommandContext } from "discord.js-slasher";
 import * as config from './lib/config';
 import format from './lib/str-format';
@@ -441,7 +441,7 @@ const COMMANDS: CommandHandlers = {
                     .setColor(EMBED_COLOR_ERROR)
                     .setTitle(STRINGS["browse_notop"])
                     .setDescription(STRINGS["browse_notop_desc"]);
-                return await i.reply({ embeds: [embed], ephemeral: true });
+                return await i.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });
             }
 
             // decide what to do based on button id
@@ -912,7 +912,7 @@ async function sendPost(post: chan.ChanPost, ctx: CommandContext, lib: Libs): Pr
                         .setColor(EMBED_COLOR_ERROR)
                         .setTitle(STRINGS["post_remove_notop"])
                         .setDescription(STRINGS["post_remove_notop_desc"])
-                ], ephemeral: true });
+                ], flags: MessageFlags.Ephemeral });
                 return;
             }
 

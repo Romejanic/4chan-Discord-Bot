@@ -27,7 +27,8 @@ export type ServerConfigDb = {
 export async function getConfigForServer(id: string): Promise<ServerConfigDb> {
     let sql = "SELECT default_board,prefix,restricted,removal_time,subscribed_board,subscribed_time,subscribed_channel FROM server_config WHERE id = ?";
     const [rows] = await pool.query(sql, [ id ]);
-    if(rows[0].length <= 0) {
+    const results = rows as ServerConfigDb[];
+    if(results.length <= 0) {
         return {
             // send default config if not in database
             default_board: undefined,
@@ -46,7 +47,7 @@ export async function getConfigForServer(id: string): Promise<ServerConfigDb> {
 
 export async function getRestrictedChannels(id: string): Promise<string[]> {
     const [rows] = await pool.query("SELECT channel FROM server_allowed_channels WHERE server = ?", [ id ]);
-    return rows[0].map(r => r.channel);
+    return (rows as { channel: string }[]).map(r => r.channel);
 };
 
 export async function createConfigForServer(id: string) {
@@ -92,7 +93,7 @@ type SubscriptionDb = {
 export async function getSubscriptions(): Promise<SubscriptionList> {
     const sql = "SELECT id,subscribed_channel,subscribed_time,subscribed_board,default_board FROM server_config WHERE subscribed_channel IS NOT NULL";
     const [rows] = await pool.query(sql);
-    const results = rows[0] as SubscriptionDb[];
+    const results = rows as SubscriptionDb[];
     let out: SubscriptionList = {};
 
     for(let sub of results) {

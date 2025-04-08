@@ -29,8 +29,9 @@ if(!configs.globalConfig) {
     }
 }
 
-function loadGlobalConfig() {
-    return fs.readFileSync("config.json").toJSON();
+export function loadGlobalConfig() {
+    const data = fs.readFileSync("config.json").toString();
+    return JSON.parse(data);
 }
 
 // per-server config class

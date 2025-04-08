@@ -971,7 +971,7 @@ export default {
             }
         } catch(e) {
             // if in dev environment, print the error
-            if(dev) console.error(e);
+            if(dev) console.error(`Error running /${ctx.name} command:`, e);
             // notify the user that something went wrong
             let embed = new EmbedBuilder()
                 .setTitle("Error running command!")

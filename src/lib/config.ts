@@ -25,8 +25,13 @@ if(!configs.globalConfig) {
         process.exit(0);
     } else {
         console.log("[Config] Reading global config from file");
-        configs.globalConfig = require("../../config.json");
+        configs.globalConfig = loadGlobalConfig();
     }
+}
+
+export function loadGlobalConfig() {
+    const data = fs.readFileSync("config.json").toString();
+    return JSON.parse(data);
 }
 
 // per-server config class

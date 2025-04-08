@@ -1,19 +1,18 @@
 import { SlasherClient } from 'discord.js-slasher';
-import { Intents } from 'discord.js';
 import Stats from './stats';
 import './lib/config';
 import './lib/db';
 import { SubscriptionService } from './subscribed';
 import Commands from './commands';
+import { ActivityType, Partials } from 'discord.js';
 
 const client = new SlasherClient({
-    useAuth: true,
     intents: [
-        Intents.FLAGS.GUILDS,
-        Intents.FLAGS.GUILD_MESSAGES,
-        Intents.FLAGS.DIRECT_MESSAGES
+        "Guilds",
+        "GuildMessages",
+        "DirectMessages"
     ],
-    partials: [ "CHANNEL" ]
+    partials: [ Partials.Channel ]
 });
 const stats = new Stats();
 const scheduled = new SubscriptionService(client, stats);
@@ -28,6 +27,10 @@ client.on("guildDelete", (guild) => {
     scheduled.removeSubscription(guild.id);
 });
 
+client.on("error", (err) => {
+    console.error("[Client] Error:", err);
+});
+
 // init the bot
 (async () => {
     // load stats from file
@@ -39,7 +42,7 @@ client.on("guildDelete", (guild) => {
 
     // set status
     client.user.setActivity("Try /browse now!", {
-        type: "PLAYING"
+        type: ActivityType.Playing
     });
 
 })();

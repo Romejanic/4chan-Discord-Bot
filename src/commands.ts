@@ -5,9 +5,11 @@ import format from './lib/str-format';
 import Stats from "./stats";
 import * as chan from './lib/4chan-api';
 import { SubscriptionService } from "./subscribed";
+import { version } from "../package.json";
 
 // load strings
-export const STRINGS: { [key: string]: string } = require("../strings.json");
+import stringsValue from "../strings.json";
+export const STRINGS: { [key: string]: string } = stringsValue;
 
 // define commonly used constants
 export const EMBED_COLOR_NORMAL = "#FED7B0";
@@ -38,7 +40,6 @@ const COMMANDS: CommandHandlers = {
 
         switch(ctx.options.getSubcommand(true)) {
             case "info":
-                let version = require("../package.json").version;
                 let { heapUsed, heapTotal } = process.memoryUsage();
                 embed.setTitle(STRINGS["info_title"])
                     .setDescription(STRINGS["info_desc"])

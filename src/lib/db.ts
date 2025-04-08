@@ -1,8 +1,8 @@
 import * as mysql from 'mysql';
 import { SubscriptionList } from '../subscribed';
-import { Subscription } from './config';
+import { Subscription, global } from './config';
 
-const auth = require("./config.json").db;
+const auth = global?.db || {};
 
 const pool = mysql.createPool({
     user: auth.user,

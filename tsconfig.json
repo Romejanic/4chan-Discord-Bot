@@ -6,7 +6,8 @@
         "module": "commonjs",
         "target": "ES2015",
         "skipLibCheck": true,
-        "types": []
+        "types": [],
+        "esModuleInterop": true
     },
     "exclude": [
         "build/**/*"

@@ -54,7 +54,7 @@ export default class Stats {
         // load stats from file
         try {
             // check that the file exists
-            await fs.access(STATS_FILE, require("fs").constants.F_OK);
+            await fs.access(STATS_FILE, fs.constants.F_OK);
         } catch(e) {
             console.error("[Stats] No stats file exists! Creating new stats...");
             return;

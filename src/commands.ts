@@ -939,11 +939,12 @@ async function sendPost(post: chan.ChanPost, ctx: CommandContext, lib: Libs): Pr
 }
 
 function createButton(id: string, emoji: string, red = false, text = false) {
-    return new ButtonBuilder()
+    const btn = new ButtonBuilder()
         .setCustomId(id)
-        .setEmoji(!text ? emoji : null)
-        .setLabel(text ? emoji : "")
-        .setStyle(red ? 4 : text ? 2 : 1);
+        .setStyle(red ? ButtonStyle.Danger : text ? ButtonStyle.Secondary : ButtonStyle.Primary);
+    if(!text) btn.setEmoji(emoji);
+    else btn.setLabel(emoji);
+    return btn;
 }
 
 export default {

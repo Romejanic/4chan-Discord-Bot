@@ -1,4 +1,3 @@
-import * as https from 'https';
 import { decode } from 'html-entities';
 import format from './str-format';
 
@@ -77,80 +76,43 @@ export function getPostFromThread(thread: ApiPost, board: string): ChanPost {
     };
 }
 
-export function getRepliesFromThread(thread: ChanPost, board: string): Promise<ChanReply[]> {
-    return new Promise((resolve, reject) => {
-        https.get(format(repliesUrl, board, thread.id), (res) => {
-            if(res.statusCode !== 200) {
-                reject({ error: res.statusMessage });
-                return;
-            }
+export async function getRepliesFromThread(thread: ChanPost, board: string): Promise<ChanReply[]> {
+    const url = format(repliesUrl, board, thread.id);
+    const res = await fetch(url);
+    if(res.status !== 200) {
+        throw new Error(res.statusText);
+    }
 
-            let json = "";
-            res.on("data", (data) => {
-                json += data.toString();
-            });
-            res.on("end", () => {
-                let resp: { posts: ApiPost[] };
-                try {
-                    resp = JSON.parse(json);
-                } catch(e) {
-                    reject(e);
-                    return;
-                }
+    let resp: { posts: ApiPost[] } = await res.json();
+    if(!resp) {
+        throw { board_not_found: board };
+    }
 
-                if(!resp) {
-                    reject({ board_not_found: board });
-                    return;
-                }
-
-                // removes OP post and maps entries to ChanReplies
-                resolve(resp.posts.splice(1).map(p => {
-                    return {
-                        id: p.no,
-                        text: p.com,
-                        timestamp: p.now,
-                        author: p.name,
-                        image: p.tim ? format(imgUrl, board, p.tim, p.ext) : undefined,
-                        permalink: format(postUrl, board, `${thread.id}#p${p.no}`)
-                    };
-                }));
-            });
-        });
+    // removes OP post and maps entries to ChanReplies
+    return resp.posts.splice(1).map(p => {
+        return {
+            id: p.no,
+            text: p.com,
+            timestamp: p.now,
+            author: p.name,
+            image: p.tim ? format(imgUrl, board, p.tim, p.ext) : undefined,
+            permalink: format(postUrl, board, `${thread.id}#p${p.no}`)
+        };
     });
 }
 
-export function getPagesFromBoard(board: string): Promise<ApiPage[]> {
-    return new Promise((resolve, reject) => {
-        https.get(format(apiUrl, board, "catalog"), (res) => {
-            if(res.statusCode !== 200) {
-                reject({ error: res.statusMessage });
-                return;
-            }
+export async function getPagesFromBoard(board: string): Promise<ApiPage[]> {
+    const url = format(apiUrl, board, "catalog");
+    const res = await fetch(url);
+    if(res.status !== 200) {
+        throw new Error(res.statusText);
+    }
 
-            let json = "";
-            res.on("data", (data) => {
-                json += data.toString();
-            });
-            res.on("end", () => {
-                let catalog: ApiPage[];
-                try {
-                    catalog = JSON.parse(json);
-                } catch(e) {
-                    reject(e);
-                    return;
-                }
-                
-                if(!catalog) {
-                    reject({ board_not_found: board });
-                    return;
-                }
-
-                resolve(catalog);
-            });
-        }).on("error", (err) => {
-            reject(err);
-        });;
-    });
+    let catalog: ApiPage[] = await res.json();
+    if(!catalog) {
+        throw { board_not_found: board };
+    }
+    return catalog;
 }
 
 export async function getRandomPost(board: string): Promise<ChanPost> {
@@ -160,67 +122,36 @@ export async function getRandomPost(board: string): Promise<ChanPost> {
     return getPostFromThread(thread, board);
 }
 
-export function getPost(id: number, board: string): Promise<ChanPost> {
-    return new Promise((resolve, reject) => {
-        https.get(format(apiUrl, board, `thread/${id}`), (res) => {
-            if(res.statusCode == 404) {
-                reject({ post_not_found: id });
-                return;
-            }
+export async function getPost(id: number, board: string): Promise<ChanPost> {
+    const url = format(apiUrl, board, `thread/${id}`);
+    const res = await fetch(url);
+    if(res.status == 404) {
+        throw { post_not_found: id };
+    }
 
-            let json = "";
-            res.on("data", (data) => {
-                json += data.toString();
-            });
-            res.on("end", () => {
-                let thread;
-                try {
-                    thread = JSON.parse(json);
-                } catch(e) {
-                    reject(e);
-                    return;
-                }
-
-                if(!thread) {
-                    reject({ post_not_found: id });
-                    return;
-                }
-
-                resolve(getPostFromThread(thread.posts[0], board));
-            });
-        }).on("error", (err) => {
-            reject(err);
-        });
-    })
+    let thread = await res.json();
+    if(!thread) {
+        throw { post_not_found: id };
+    }
+    return getPostFromThread(thread.posts[0], board);
 }
 
-export function getBoards(): Promise<ChanBoardData> {
-    return new Promise((resolve, reject) => {
-        https.get(boardsUrl, (res) => {
-            if(res.statusCode != 200) {
-                reject({ error: res.statusMessage });
-                return;
-            }
+export async function getBoards(): Promise<ChanBoardData> {
+    const res = await fetch(boardsUrl);
+    if(res.status != 200) {
+        throw new Error(res.statusText);
+    }
+    let data = await res.json();
+    let boardList: ChanBoardData = {};
 
-            let json = "";
-            res.on("data", (data) => {
-                json += data.toString();
-            });
-            res.on("end", () => {
-                let data = JSON.parse(json);
-                let boardList: ChanBoardData = {};
+    for(let v of data.boards) {
+        boardList[v.board] = {
+            title: v.title,
+            nsfw: v.ws_board === 0
+        };
+    };
 
-                for(let v of data.boards) {
-                    boardList[v.board] = {
-                        title: v.title,
-                        nsfw: v.ws_board === 0
-                    };
-                };
-
-                resolve(boardList);
-            });
-        }).on("error", reject);
-    });
+    return boardList;
 }
 
 export function getBoardName(board: string) {
